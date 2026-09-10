@@ -28,20 +28,53 @@
                 <span class="material-symbols-outlined">notifications</span>
             </button>
         </th:block>
-        <th:block th:if="${showSettings}">
-            <button type="button" class="oc-header-icon-btn p-2 hover:bg-surface-container-low rounded-full transition-all text-on-surface-variant" title="Settings">
-                <span class="material-symbols-outlined">settings</span>
-            </button>
-        </th:block>
-        <th:block th:if="${showUser}">
-            <div class="oc-header-divider h-8 w-[1px] bg-outline-variant mx-unit-sm"></div>
-            <div class="flex items-center gap-unit-sm">
-                <div class="text-right hidden sm:block">
-                    <p class="font-title-md text-body-sm text-on-surface leading-none">Alex Rivera</p>
-                    <p class="text-[10px] text-on-surface-variant font-medium">Sr. Site Reliability Engineer</p>
+        <th:block th:if="${showSettings and currentUser != null}">
+            <div class="oc-account-menu relative" data-oc-account-menu>
+                <button type="button"
+                        class="oc-account-menu__trigger flex items-center gap-1.5 pl-1 pr-2 py-1 rounded-full hover:bg-surface-container-low transition-all text-on-surface-variant border border-transparent hover:border-outline-variant/60"
+                        data-oc-account-trigger
+                        aria-haspopup="menu"
+                        aria-expanded="false"
+                        title="Account menu">
+                    <span class="oc-account-menu__avatar w-8 h-8 rounded-full bg-secondary/15 text-secondary font-semibold text-sm flex items-center justify-center shrink-0 border border-outline-variant/40"
+                          th:text="${#strings.toUpperCase(#strings.substring(currentUser.displayName, 0, 1))}">U</span>
+                    <span class="material-symbols-outlined text-[18px] hidden sm:inline">expand_more</span>
+                </button>
+                <div class="oc-account-menu__panel hidden absolute right-0 top-[calc(100%+0.5rem)] w-64 rounded-xl border border-outline-variant bg-surface shadow-lg z-50 overflow-hidden"
+                     data-oc-account-panel
+                     role="menu"
+                     aria-label="Account menu">
+                    <div class="px-4 py-3 border-b border-outline-variant bg-surface-container-low/50">
+                        <p class="font-medium text-body-sm text-on-surface truncate" th:text="${currentUser.displayName}">User Name</p>
+                        <p class="text-[11px] text-on-surface-variant truncate mt-0.5" th:text="${currentUser.email}">user@example.com</p>
+                        <p class="text-[10px] text-on-surface-variant/80 mt-1 truncate"
+                           th:if="${currentUser.jobTitle != null and !#strings.isEmpty(currentUser.jobTitle)}"
+                           th:text="${currentUser.jobTitle}">Job title</p>
+                        <span class="inline-block mt-2 px-2 py-0.5 rounded-full bg-secondary/10 text-secondary text-[10px] font-semibold uppercase tracking-wide"
+                              th:if="${currentUser.role != null}"
+                              th:text="${currentUser.role.name}">Role</span>
+                    </div>
+                    <div class="py-1">
+                        <a th:if="${navAccess == null or navAccess['users'] == true}"
+                           th:href="@{/users}"
+                           class="oc-account-menu__item flex items-center gap-2 px-4 py-2.5 text-body-sm text-on-surface hover:bg-surface-container-low transition-colors"
+                           role="menuitem">
+                            <span class="material-symbols-outlined text-[18px] text-on-surface-variant">group</span>
+                            User Administration
+                        </a>
+                    </div>
+                    <div class="border-t border-outline-variant py-1">
+                        <form th:action="@{/logout}" method="post" role="none">
+                            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <button type="submit"
+                                    class="oc-account-menu__item w-full flex items-center gap-2 px-4 py-2.5 text-body-sm text-error hover:bg-error/5 transition-colors text-left"
+                                    role="menuitem">
+                                <span class="material-symbols-outlined text-[18px]">logout</span>
+                                Sign out
+                            </button>
+                        </form>
+                    </div>
                 </div>
-                <img alt="User avatar" class="w-9 h-9 rounded-full object-cover border border-outline-variant"
-                     src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2eB0_ynFJToPIPNeQY88YcXjeeLTwvGAagtmUiQgQhr202Y5fBSHcoNz7b0qjcKEI9H5lsnetzqn5bsrjVlXWp1GREf6Iqsmlu11EvFzQn0hEMBUsITQPM57sNhBwUvNl8IsHAHPnChlH1kosjpU9wi2vVBNDu-lM1ENR6B0AC8YlwSYF7j4tf1jscvn37SVf6HEhpCflzscKsw4VoHsUESiiGqz1eo3lXIU_MXJJISfWYptM4jKXkd7p_B1rHDPCSCFaURgdRRM"/>
             </div>
         </th:block>
     </div>

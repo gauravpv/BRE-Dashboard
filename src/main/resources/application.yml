@@ -31,6 +31,18 @@ management:
 opsconsole:
   features:
     api-tester-enabled: false
+  transaction-dashboard:
+    # mock-mode keeps the dashboard usable locally. Set false and provide
+    # TXN_DB_* values to read the production reporting views.
+    mock-mode: ${TXN_DASHBOARD_MOCK_MODE:true}
+    jdbc-url: ${TXN_DB_URL:}
+    username: ${TXN_DB_USERNAME:}
+    password: ${TXN_DB_PASSWORD:}
+    schema: ${TXN_DB_SCHEMA:bre_underwriting}
+    minute-view: festival_summary_detailed_mins_new
+    hourly-view: festival_summary_detailed_new
+    otp-table: transaction_details_srcreq_otp
+    refresh-seconds: 60
   auth:
     # dev = email/password; azure = Microsoft Entra ID (Azure AD)
     mode: dev

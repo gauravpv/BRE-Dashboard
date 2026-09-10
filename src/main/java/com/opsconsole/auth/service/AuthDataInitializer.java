@@ -65,7 +65,7 @@ public class AuthDataInitializer implements ApplicationRunner {
 
             seedTabs(admin, EnumSet.allOf(AppTab.class));
             seedTabs(tester, EnumSet.of(AppTab.DASHBOARD, AppTab.HEALTH, AppTab.TESTER, AppTab.DEV_UTILS, AppTab.LOGS));
-            seedTabs(monitoring, EnumSet.of(AppTab.DASHBOARD, AppTab.HEALTH));
+            seedTabs(monitoring, EnumSet.of(AppTab.DASHBOARD, AppTab.HEALTH, AppTab.TRANSACTIONS));
 
             userRepository.save(seedUser("dev-admin", "admin@opsconsole.local", "Administrator", admin));
             userRepository.save(seedUser("dev-tester", "tester@opsconsole.local", "Tester", tester));
@@ -167,7 +167,7 @@ public class AuthDataInitializer implements ApplicationRunner {
         return switch (roleCode) {
             case CODE_ADMINISTRATOR, "ADMINISTRATOR" -> EnumSet.allOf(AppTab.class);
             case CODE_TESTER, "OPERATOR" -> EnumSet.of(AppTab.DASHBOARD, AppTab.HEALTH, AppTab.TESTER, AppTab.DEV_UTILS, AppTab.LOGS);
-            case CODE_MONITORING, "VIEWER" -> EnumSet.of(AppTab.DASHBOARD, AppTab.HEALTH);
+            case CODE_MONITORING, "VIEWER" -> EnumSet.of(AppTab.DASHBOARD, AppTab.HEALTH, AppTab.TRANSACTIONS);
             default -> EnumSet.of(AppTab.DASHBOARD);
         };
     }

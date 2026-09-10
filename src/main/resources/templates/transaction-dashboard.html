@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
+<head>
+<th:block th:replace="~{fragments/head :: head(pageTitle='Transaction Analytics')}"/>
+<link rel="stylesheet" th:href="@{/css/transaction-dashboard.css}"/>
+</head>
+<body class="opsconsole-app txn-body bg-background text-on-background font-body-md">
+<aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
+<th:block th:replace="~{fragments/page-shell :: page-header(title='Transaction Analytics', searchPlaceholder='', searchId='', showSearch=false, fixed=true, showNotifications=true, showSettings=true, showUser=false)}"/>
+
+<div class="txn-shell" th:with="m=${dashboard.last15Minutes()}, d=${dashboard.delta()}">
+
+    <!-- ══ Top strip ══ -->
+    <header class="txn-strip">
+        <div class="txn-strip-window">
+            <div class="txn-strip-window-top">
+                <span>Last 15 minutes</span>
+                <span class="txn-live" th:classappend="${dashboard.available()} ? '' : ' txn-live--error'">
+                    <i></i><span th:text="${dashboard.available()} ? 'Live' : 'Offline'">Live</span>
+                </span>
+            </div>
+            <p>
+                <time th:datetime="${dashboard.generatedAt()}"
+                      th:text="${#temporals.format(dashboard.generatedAt(), 'dd MMM, HH:mm:ss')}">Now</time>
+                <span th:text="'· ' + ${dashboard.sourceLabel()}">source</span>
+            </p>
+            <button type="button" class="txn-refresh" data-txn-refresh>
+                <span class="material-symbols-outlined">refresh</span>
+                <span>Refresh</span>
+                <em th:text="'· auto ' + ${refreshSeconds} + 's'">auto</em>
+            </button>
+        </div>
+
+        <th:block th:if="${dashboard.available()}">
+            <div class="txn-strip-hero">
+                <span class="txn-eyebrow">Authorization hits</span>
+                <strong th:text="${#numbers.formatInteger(m.totalHits(), 1, 'COMMA')}">0</strong>
+                <div class="txn-strip-hero-foot">
+                    <span th:if="${d.available()}" class="txn-trend"
+                          th:classappend="${d.totalHitsPercent() >= 0} ? ' txn-trend--up' : ' txn-trend--down'">
+                        <span class="material-symbols-outlined"
+                              th:text="${d.totalHitsPercent() >= 0} ? 'trending_up' : 'trending_down'">trending_up</span>
+                        <span th:text="${#numbers.formatDecimal(d.totalHitsPercent(), 1, 1)} + '%'">0%</span>
+                    </span>
+                    <span>vs previous 15 min</span>
+                </div>
+            </div>
+
+            <div class="txn-strip-approval">
+                <svg class="txn-ring" viewBox="0 0 56 56" role="img"
+                     th:attr="aria-label=|Approval rate ${#numbers.formatDecimal(m.approvalRate(), 1, 2)} percent|">
+                    <circle class="txn-ring-track" cx="28" cy="28" r="23"></circle>
+                    <circle class="txn-ring-value" cx="28" cy="28" r="23" pathLength="100"
+                            th:attr="stroke-dasharray=|${m.approvalRate()} 100|"></circle>
+                    <text x="28" y="27" class="txn-ring-text"
+                          th:text="|${#numbers.formatDecimal(m.approvalRate(), 1, 1)}%|">0%</text>
+                    <text x="28" y="35" class="txn-ring-sub">approved</text>
+                </svg>
+                <div>
+                    <span class="txn-eyebrow">E-commerce approval</span>
+                    <p th:text="|${#numbers.formatInteger(m.ecomApproved(), 1, 'COMMA')} of ${#numbers.formatInteger(m.ecomHits(), 1, 'COMMA')}|">
+                        0 of 0</p>
+                    <span th:if="${d.available()}" class="txn-trend"
+                          th:classappend="${d.approvalRatePoints() >= 0} ? ' txn-trend--up' : ' txn-trend--down'">
+                        <span class="material-symbols-outlined"
+                              th:text="${d.approvalRatePoints() >= 0} ? 'arrow_upward' : 'arrow_downward'">arrow_upward</span>
+                        <span th:text="${#numbers.formatDecimal(d.approvalRatePoints(), 1, 2)} + ' pts'">0 pts</span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="txn-strip-stats">
+                <div>
+                    <span>E-commerce</span>
+                    <strong th:text="${#numbers.formatInteger(m.ecomHits(), 1, 'COMMA')}">0</strong>
+                </div>
+                <div>
+                    <span>Approved</span>
+                    <strong th:text="${#numbers.formatInteger(m.ecomApproved(), 1, 'COMMA')}">0</strong>
+                </div>
+                <div>
+                    <span>Declined</span>
+                    <strong th:text="${#numbers.formatInteger(m.declinedCount(), 1, 'COMMA')}">0</strong>
+                </div>
+                <div>
+                    <span>Void</span>
+                    <strong th:text="${#numbers.formatInteger(m.voidCount(), 1, 'COMMA')}">0</strong>
+                </div>
+                <div>
+                    <span>Exceptions</span>
+                    <strong th:text="${#numbers.formatInteger(m.exceptions(), 1, 'COMMA')}">0</strong>
+                </div>
+            </div>
+        </th:block>
+    </header>
+
+    <div th:unless="${dashboard.available()}" class="txn-alert">
+        <span class="material-symbols-outlined">database_off</span>
+        <div>
+            <strong>Transaction data unavailable</strong>
+            <p th:text="${dashboard.errorMessage()}">Unable to load data.</p>
+        </div>
+    </div>
+
+    <th:block th:if="${dashboard.available()}">
+
+        <!-- ══ Left column · journey + eligibility speed ══ -->
+        <div class="txn-col txn-col--side">
+            <section class="txn-panel txn-panel--grow">
+                <header class="txn-panel-header">
+                    <div>
+                        <h2>Customer journey</h2>
+                        <p>Eligibility check to approval</p>
+                    </div>
+                </header>
+                <div class="txn-panel-body">
+                    <ol class="txn-funnel">
+                        <li th:each="stage, it : ${dashboard.journey()}" class="txn-funnel-step"
+                            th:classappend="${it.last} ? ' txn-funnel-step--final'">
+                            <div class="txn-funnel-top">
+                                <span class="material-symbols-outlined" th:text="${stage.icon()}">bolt</span>
+                                <span class="txn-funnel-label" th:text="${stage.label()}">Stage</span>
+                                <b th:text="${#numbers.formatInteger(stage.value(), 1, 'COMMA')}">0</b>
+                            </div>
+                            <div class="txn-funnel-bar">
+                                <span th:style="|width: ${stage.relativeWidth()}%|"></span>
+                            </div>
+                            <span th:if="${stage.showConversion()}" class="txn-funnel-conv">
+                                <b><span th:text="${#numbers.formatDecimal(stage.conversionPercent(), 1, 1)}">0</span>%</b>
+                                <span th:text="${stage.conversionCaption()}">of previous step</span>
+                            </span>
+                        </li>
+                    </ol>
+                </div>
+            </section>
+
+            <section class="txn-panel" th:with="s=${dashboard.latencySummary()}">
+                <header class="txn-panel-header">
+                    <div>
+                        <h2>Eligibility check speed</h2>
+                        <p>OTP API, last hour</p>
+                    </div>
+                </header>
+                <div class="txn-panel-body">
+                    <div class="txn-latency-head">
+                        <div>
+                            <strong><span th:text="${#numbers.formatDecimal(s.under300Percent(), 1, 1)}">0</span>%</strong>
+                            <span>under 300 ms</span>
+                        </div>
+                        <span class="txn-health" th:classappend="' txn-health--' + ${s.healthTone()}"
+                              th:text="${s.healthLabel()}">Healthy</span>
+                    </div>
+                    <dl class="txn-defs">
+                        <div>
+                            <dt>Median</dt>
+                            <dd th:text="${s.medianRange()}">—</dd>
+                        </div>
+                        <div>
+                            <dt>95th percentile</dt>
+                            <dd th:text="${s.p95Range()}">—</dd>
+                        </div>
+                        <div>
+                            <dt>Checks measured</dt>
+                            <dd th:text="${#numbers.formatInteger(s.totalCalls(), 1, 'COMMA')}">0</dd>
+                        </div>
+                    </dl>
+                </div>
+            </section>
+        </div>
+
+        <!-- ══ Centre top · minute volume chart ══ -->
+        <section class="txn-panel txn-area-chart">
+            <header class="txn-panel-header">
+                <div>
+                    <h2>Authorization volume, minute by minute</h2>
+                    <p>Blue is every attempt · green is approved e-commerce</p>
+                </div>
+                <div class="txn-legend">
+                    <span><i class="txn-swatch txn-swatch--total"></i>Total</span>
+                    <span><i class="txn-swatch txn-swatch--approved"></i>Approved</span>
+                    <span th:if="${dashboard.minuteChart().peak() != null}" class="txn-legend-peak">
+                        Peak
+                        <b th:text="|${#numbers.formatInteger(dashboard.minuteChart().peak().totalHits(), 1, 'COMMA')} at ${dashboard.minuteChart().peak().label()}|">0</b>
+                    </span>
+                </div>
+            </header>
+
+            <div class="txn-chart-wrap" th:if="${!#lists.isEmpty(dashboard.minuteChart().points())}">
+                <div class="txn-axis-y">
+                    <span th:each="label : ${dashboard.minuteChart().yAxisLabels()}" th:text="${label}">0</span>
+                </div>
+                <div class="txn-plot">
+                    <div class="txn-gridlines" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+                    <svg class="txn-svg" preserveAspectRatio="none" viewBox="0 0 100 100"
+                         role="img" aria-label="Authorization hits per minute">
+                        <defs>
+                            <linearGradient id="txnVolumeFill" x1="0" x2="0" y1="0" y2="1">
+                                <stop offset="0%" stop-color="#0059bb" stop-opacity="0.3"></stop>
+                                <stop offset="100%" stop-color="#0059bb" stop-opacity="0"></stop>
+                            </linearGradient>
+                        </defs>
+                        <path th:attr="d=${dashboard.minuteChart().areaPath()}" fill="url(#txnVolumeFill)"></path>
+                        <path th:attr="d=${dashboard.minuteChart().linePath()}" fill="none" stroke="#0059bb"
+                              stroke-width="2.25" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+                        <path th:attr="d=${dashboard.minuteChart().approvedPath()}" fill="none" stroke="#16a34a"
+                              stroke-width="1.75" stroke-dasharray="5 3" stroke-linejoin="round"
+                              vector-effect="non-scaling-stroke"></path>
+                    </svg>
+                    <div class="txn-markers">
+                        <span th:each="pt : ${dashboard.minuteChart().points()}" class="txn-marker"
+                              th:style="|left: ${pt.x()}%; top: ${pt.y()}%|"
+                              th:title="|${pt.label()} — ${#numbers.formatInteger(pt.totalHits(), 1, 'COMMA')} hits · ${#numbers.formatInteger(pt.ecomApproved(), 1, 'COMMA')} approved (${#numbers.formatDecimal(pt.approvalRate(), 1, 2)}%)|"></span>
+                    </div>
+                </div>
+                <div class="txn-axis-x">
+                    <span th:each="pt : ${dashboard.minuteChart().points()}" th:text="${pt.label()}">00:00</span>
+                </div>
+            </div>
+            <div th:if="${#lists.isEmpty(dashboard.minuteChart().points())}" class="txn-empty">
+                No minute data returned.
+            </div>
+        </section>
+
+        <!-- ══ Centre bottom · tabbed detail tables ══ -->
+        <section class="txn-panel txn-area-tables">
+            <input class="txn-tab-input" type="radio" name="txnTable" id="txnTabMinute" checked>
+            <input class="txn-tab-input" type="radio" name="txnTable" id="txnTabHour">
+
+            <header class="txn-panel-header">
+                <div>
+                    <h2>Breakdown</h2>
+                    <p>Newest first · approval below 85% is highlighted</p>
+                </div>
+                <div class="txn-tabs">
+                    <label for="txnTabMinute">Minute detail</label>
+                    <label for="txnTabHour">Last 5 hours</label>
+                </div>
+            </header>
+
+            <div class="txn-tabpanes">
+                <div class="txn-tabpane txn-tabpane--minute">
+                    <table class="txn-table">
+                        <thead>
+                        <tr>
+                            <th>Minute</th>
+                            <th>Total hits</th>
+                            <th>E-commerce</th>
+                            <th>Approved</th>
+                            <th>Approval</th>
+                            <th>Flipkart</th>
+                            <th>Amazon</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="point : ${dashboard.minuteRows()}">
+                            <td class="txn-cell-key" th:text="${point.label()}">00:00</td>
+                            <td th:text="${#numbers.formatInteger(point.totalHits(), 1, 'COMMA')}">0</td>
+                            <td th:text="${#numbers.formatInteger(point.ecomHits(), 1, 'COMMA')}">0</td>
+                            <td th:text="${#numbers.formatInteger(point.ecomApproved(), 1, 'COMMA')}">0</td>
+                            <td>
+                                <span class="txn-rate-pill"
+                                      th:classappend="${point.approvalRate() < 85} ? ' txn-rate-pill--warn'">
+                                    <span th:text="${#numbers.formatDecimal(point.approvalRate(), 1, 2)}">0</span>%
+                                </span>
+                            </td>
+                            <td th:text="${#numbers.formatInteger(point.flipkartHits(), 1, 'COMMA')}">0</td>
+                            <td th:text="${#numbers.formatInteger(point.amazonHits(), 1, 'COMMA')}">0</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(dashboard.minuteRows())}">
+                            <td colspan="7" class="txn-empty">No minute data returned.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="txn-tabpane txn-tabpane--hour">
+                    <table class="txn-table">
+                        <thead>
+                        <tr>
+                            <th>Hour</th>
+                            <th class="txn-col-volume">Total hits</th>
+                            <th>Change</th>
+                            <th>E-commerce</th>
+                            <th>Approved</th>
+                            <th>Approval</th>
+                            <th>Flipkart</th>
+                            <th>Flipkart rate</th>
+                            <th>Amazon</th>
+                            <th>Amazon rate</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="point : ${dashboard.hourlyRows()}">
+                            <td class="txn-cell-key" th:text="${point.label()}">Hour</td>
+                            <td class="txn-col-volume">
+                                <div class="txn-volume-cell">
+                                    <div class="txn-inline-bar">
+                                        <span th:style="|width: ${point.volumePercent()}%|"></span>
+                                    </div>
+                                    <b th:text="${#numbers.formatInteger(point.totalHits(), 1, 'COMMA')}">0</b>
+                                </div>
+                            </td>
+                            <td>
+                                <span th:if="${point.hasChange()}" class="txn-trend txn-trend--inline"
+                                      th:classappend="${point.changePercent() >= 0} ? ' txn-trend--up' : ' txn-trend--down'">
+                                    <span class="material-symbols-outlined"
+                                          th:text="${point.changePercent() >= 0} ? 'arrow_upward' : 'arrow_downward'">arrow_upward</span>
+                                    <span th:text="${#numbers.formatDecimal(point.changePercent(), 1, 1)} + '%'">0%</span>
+                                </span>
+                                <span th:unless="${point.hasChange()}" class="txn-muted">—</span>
+                            </td>
+                            <td th:text="${#numbers.formatInteger(point.ecomHits(), 1, 'COMMA')}">0</td>
+                            <td th:text="${#numbers.formatInteger(point.ecomApproved(), 1, 'COMMA')}">0</td>
+                            <td>
+                                <span class="txn-rate-pill"
+                                      th:classappend="${point.approvalRate() < 85} ? ' txn-rate-pill--warn'">
+                                    <span th:text="${#numbers.formatDecimal(point.approvalRate(), 1, 2)}">0</span>%
+                                </span>
+                            </td>
+                            <td th:text="${#numbers.formatInteger(point.flipkartHits(), 1, 'COMMA')}">0</td>
+                            <td><span th:text="${#numbers.formatDecimal(point.flipkartApprovalRate(), 1, 2)}">0</span>%</td>
+                            <td th:text="${#numbers.formatInteger(point.amazonHits(), 1, 'COMMA')}">0</td>
+                            <td><span th:text="${#numbers.formatDecimal(point.amazonApprovalRate(), 1, 2)}">0</span>%</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(dashboard.hourlyRows())}">
+                            <td colspan="10" class="txn-empty">No hourly data returned.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══ Right column · marketplaces + latency spread ══ -->
+        <div class="txn-col txn-col--aside">
+            <section class="txn-panel txn-panel--grow">
+                <header class="txn-panel-header">
+                    <div>
+                        <h2>Marketplaces</h2>
+                        <p>Share of e-commerce hits</p>
+                    </div>
+                </header>
+                <div class="txn-panel-body txn-markets">
+                    <article th:each="market : ${dashboard.marketplaces()}" class="txn-market"
+                             th:classappend="' txn-market--' + ${market.accent()}">
+                        <div class="txn-market-head">
+                            <span class="txn-market-bar" aria-hidden="true"></span>
+                            <strong th:text="${market.name()}">Marketplace</strong>
+                            <b th:text="${#numbers.formatDecimal(market.approvalRate(), 1, 2)} + '%'">0%</b>
+                        </div>
+                        <div class="txn-market-figures">
+                            <span th:text="|${#numbers.formatInteger(market.hits(), 1, 'COMMA')} hits|">0 hits</span>
+                            <span th:text="|${#numbers.formatInteger(market.approved(), 1, 'COMMA')} approved|">0 approved</span>
+                            <span th:text="|${#numbers.formatDecimal(market.shareOfEcom(), 1, 1)}% share|">0% share</span>
+                        </div>
+                        <div class="txn-meter">
+                            <span class="txn-meter-fill" th:style="|width: ${market.shareOfEcom()}%|"></span>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="txn-panel txn-area-histogram">
+                <header class="txn-panel-header">
+                    <div>
+                        <h2>Response time spread</h2>
+                        <p>100 ms bands · amber past 300 ms</p>
+                    </div>
+                </header>
+                <div class="txn-histogram" th:if="${!#lists.isEmpty(dashboard.responseTimeBuckets())}">
+                    <div th:each="bucket : ${dashboard.responseTimeBuckets()}" class="txn-histogram-col"
+                         th:title="|${bucket.rangeLabel()} — ${#numbers.formatInteger(bucket.transactionCount(), 1, 'COMMA')} checks (${#numbers.formatDecimal(bucket.percentage(), 1, 1)}%)|">
+                        <span class="txn-histogram-pct"
+                              th:text="${#numbers.formatDecimal(bucket.percentage(), 1, 0)} + '%'">0%</span>
+                        <div class="txn-histogram-track">
+                            <span th:style="|height: ${bucket.relativeHeight()}%|"
+                                  th:classappend="${bucket.upperBoundMs() > 300} ? ' is-slow'"></span>
+                        </div>
+                        <span class="txn-histogram-label" th:text="${bucket.shortLabel()}">100</span>
+                    </div>
+                </div>
+                <div th:if="${#lists.isEmpty(dashboard.responseTimeBuckets())}" class="txn-empty">
+                    No eligibility checks recorded in the last hour.
+                </div>
+            </section>
+        </div>
+    </th:block>
+</div>
+
+<script th:inline="javascript">
+    window.opsconsoleTransactionRefreshSeconds = /*[[${refreshSeconds}]]*/ 60;
+</script>
+<script th:src="@{/js/transaction-dashboard.js}"></script>
+</body>
+</html>

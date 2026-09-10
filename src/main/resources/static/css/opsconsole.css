@@ -446,3 +446,38 @@ html.light .oc-status-dot-active {
     gap: 0.25rem;
     font-size: 0.6875rem;
 }
+
+/* ── Header account menu ── */
+.oc-account-menu__trigger:focus-visible {
+    outline: 2px solid rgba(0, 89, 187, 0.45);
+    outline-offset: 2px;
+}
+
+.oc-account-menu--open .oc-account-menu__trigger {
+    background-color: var(--oc-panel-muted);
+    border-color: var(--oc-border);
+}
+
+.oc-account-menu--open .oc-account-menu__trigger .material-symbols-outlined:last-child {
+    transform: rotate(180deg);
+}
+
+.oc-account-menu__panel {
+    animation: oc-account-menu-in 0.14s ease-out;
+}
+
+@keyframes oc-account-menu-in {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+html.dark .opsconsole-app .oc-account-menu__panel {
+    background-color: var(--oc-panel) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}

@@ -3,6 +3,7 @@ package com.opsconsole.auth.domain;
 public enum AppTab {
     DASHBOARD("dashboard", "Dashboard", "/"),
     HEALTH("health", "System Health", "/health"),
+    TRANSACTIONS("transactions", "Transaction Analytics", "/transactions"),
     API_TESTER("api-tester", "API Tester", "/api-tester"),
     TESTER("tester", "Tester", "/tester"),
     ADMIN("admin", "System Admin", "/admin"),
