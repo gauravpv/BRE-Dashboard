@@ -1,0 +1,8 @@
+curl --location 'https://login.microsoftonline.com/710de1d3-2901-4647-89e7-3b01f1c2806d/oauth2/v2.0/token' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--header 'Cookie: fpc=ArnZRjIa45dCpV6_X8z3F4mTTk0OAQAAAMq1C-EOAAAAzhDAbwEAAABctQvhDgAAAEJ0PCcBAAAAjrUL4Q4AAAA; stsservicecookie=estsfd; x-ms-gateway-slice=estsfd' \
+--data-urlencode 'client_id=91becc5d-213e-4d9b-b0dc-e481c31fde4c' \
+--data-urlencode 'grant_type=password' \
+--data-urlencode 'username=' \
+--data-urlencode 'password=' \
+--data-urlencode 'scope=email openid profile offline_access api://91becc5d-213e-4d9b-b0dc-e481c31fde4c/default'
