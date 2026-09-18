@@ -13,21 +13,22 @@ import com.opsconsole.transactions.dto.TransactionDashboardView.TransactionMetri
 import com.opsconsole.transactions.dto.TransactionDashboardView.VolumePoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -36,8 +37,6 @@ public class TransactionDashboardService {
 
     private static final Logger log = LoggerFactory.getLogger(TransactionDashboardService.class);
     private static final Pattern SQL_IDENTIFIER = Pattern.compile("[A-Za-z0-9_]+");
-    private static final DateTimeFormatter MINUTE_LABEL = DateTimeFormatter.ofPattern("HH:mm");
-    private static final DateTimeFormatter HOUR_LABEL = DateTimeFormatter.ofPattern("dd MMM HH:00", Locale.ENGLISH);
 
     private static final int MINUTE_WINDOW = 15;
     private static final int HOUR_WINDOW = 5;
@@ -45,25 +44,29 @@ public class TransactionDashboardService {
     private static final long LATENCY_OVERFLOW_BUCKET = 6;
 
     private final TransactionDashboardProperties properties;
+    private final DataSource reportingDataSource;
 
-    public TransactionDashboardService(TransactionDashboardProperties properties) {
+    public TransactionDashboardService(
+            TransactionDashboardProperties properties,
+            @Autowired(required = false) @Qualifier("transactionReportingDataSource") DataSource reportingDataSource
+    ) {
         this.properties = properties;
+        this.reportingDataSource = reportingDataSource;
     }
 
     public TransactionDashboardView loadDashboard() {
-        if (properties.isMockMode()) {
-            return mockDashboard();
-        }
-        if (properties.getJdbcUrl() == null || properties.getJdbcUrl().isBlank()) {
-            return TransactionDashboardView.unavailable("Live MySQL", "Transaction database URL is not configured.");
+        if (!StringUtils.hasText(properties.getJdbcUrl()) && reportingDataSource == null) {
+            return TransactionDashboardView.unavailable(
+                    "MySQL",
+                    "Transaction analytics are unavailable. Set TXN_DB_URL, TXN_DB_USERNAME, and TXN_DB_PASSWORD."
+            );
         }
 
         try {
             String minuteView = qualified(properties.getMinuteView());
             String hourlyView = qualified(properties.getHourlyView());
             String otpTable = qualified(properties.getOtpTable());
-            try (Connection connection = DriverManager.getConnection(
-                    properties.getJdbcUrl(), properties.getUsername(), properties.getPassword())) {
+            try (Connection connection = openConnection()) {
                 // Both series are over-fetched by one window/row so the view can show movement.
                 List<VolumePoint> minutes = readVolumePoints(connection, minuteQuery(minuteView), true);
                 List<VolumePoint> hours = readVolumePoints(connection, hourlyQuery(hourlyView), false);
@@ -82,6 +85,13 @@ public class TransactionDashboardService {
 
     public int refreshSeconds() {
         return properties.getRefreshSeconds();
+    }
+
+    private Connection openConnection() throws SQLException {
+        if (reportingDataSource != null) {
+            return reportingDataSource.getConnection();
+        }
+        return DriverManager.getConnection(properties.getJdbcUrl(), properties.getUsername(), properties.getPassword());
     }
 
     private String minuteQuery(String view) {
@@ -407,55 +417,6 @@ public class TransactionDashboardService {
                 List.of(formatCompact(maxY), formatCompact(maxY / 2), "0"),
                 peak
         );
-    }
-
-    private TransactionDashboardView mockDashboard() {
-        LocalDateTime now = LocalDateTime.now().withSecond(0).withNano(0);
-        List<VolumePoint> minutes = new ArrayList<>();
-        for (int i = (MINUTE_WINDOW * 2) - 1; i >= 0; i--) {
-            LocalDateTime at = now.minusMinutes(i);
-            int step = (MINUTE_WINDOW * 2) - 1 - i;
-            long total = Math.round(830 + 190 * Math.sin(step / 2.6) + 55 * Math.cos(step / 1.4));
-            long ecom = Math.round(total * 0.72);
-            long fk = Math.round(ecom * 0.52);
-            long az = Math.round(ecom * 0.29);
-            minutes.add(point(
-                    at.format(MINUTE_LABEL), total, ecom,
-                    Math.round(ecom * (0.906 + 0.018 * Math.sin(step / 1.7))),
-                    fk, Math.round(fk * (0.917 + 0.013 * Math.cos(step / 2.1))),
-                    az, Math.round(az * (0.897 + 0.017 * Math.sin(step / 1.1))),
-                    Math.round(total * 0.013), Math.round(total * 0.061)
-            ));
-        }
-
-        List<VolumePoint> hours = new ArrayList<>();
-        for (int i = HOUR_WINDOW; i >= 0; i--) {
-            LocalDateTime at = now.minusHours(i);
-            int step = HOUR_WINDOW - i;
-            long total = Math.round(49_500 + 6_400 * Math.sin(step / 1.8));
-            long ecom = Math.round(total * 0.71);
-            long fk = Math.round(ecom * 0.52);
-            long az = Math.round(ecom * 0.30);
-            hours.add(point(
-                    at.format(HOUR_LABEL), total, ecom,
-                    Math.round(ecom * (0.902 + 0.012 * Math.cos(step / 1.4))),
-                    fk, Math.round(fk * 0.914), az, Math.round(az * 0.898),
-                    Math.round(total * 0.012), Math.round(total * 0.058)
-            ));
-        }
-
-        Map<Long, Long> latency = new LinkedHashMap<>();
-        latency.put(0L, 1_240L);
-        latency.put(1L, 4_385L);
-        latency.put(2L, 5_120L);
-        latency.put(3L, 2_500L);
-        latency.put(4L, 970L);
-        latency.put(5L, 390L);
-        latency.put(6L, 165L);
-
-        long eligibility = Math.round(tail(minutes, MINUTE_WINDOW).stream()
-                .mapToLong(VolumePoint::totalHits).sum() * 1.32);
-        return build("Mock transaction data", minutes, hours, buildLatencyBuckets(latency), eligibility);
     }
 
     private TransactionMetrics summarize(List<VolumePoint> points) {

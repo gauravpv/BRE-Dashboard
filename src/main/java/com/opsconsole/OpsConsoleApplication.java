@@ -15,8 +15,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         AuthProperties.class,
         AdminProperties.class,
         TransactionDashboardProperties.class,
-        com.opsconsole.tester.config.BajajTesterProperties.class,
-        com.opsconsole.config.OpsConsoleFeaturesProperties.class
+        com.opsconsole.tester.config.BajajTesterProperties.class
 })
 public class OpsConsoleApplication {
 

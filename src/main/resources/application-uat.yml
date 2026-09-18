@@ -1,14 +1,5 @@
-# Production overlay. Activate with SPRING_PROFILES_ACTIVE=prod
-
-spring:
-  h2:
-    console:
-      enabled: false
-  jpa:
-    hibernate:
-      ddl-auto: validate
-  thymeleaf:
-    cache: true
+# UAT overlay. Activate with SPRING_PROFILES_ACTIVE=uat
+# Override only environment-specific hosts/URLs here.
 
 server:
   port: ${SERVER_PORT:8443}
@@ -21,13 +12,9 @@ server:
   servlet:
     session:
       cookie:
-        secure: true
-        same-site: lax
-        http-only: true
+        secure: ${OPSCONSOLE_SESSION_SECURE:true}
 
 opsconsole:
-  auth:
-    seed-dev-users: false
   health:
     model-hub:
       enabled: true
@@ -49,3 +36,4 @@ opsconsole:
       base-url: https://superapp.bajajfinserv.in/apis
   admin:
     mode: live
+    servers: []

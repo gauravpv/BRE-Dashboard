@@ -14,6 +14,7 @@ import com.opsconsole.health.domain.HealthDeploymentTier;
 import com.opsconsole.health.domain.HealthStatus;
 import com.opsconsole.health.domain.SystemHealthView;
 import com.opsconsole.health.service.ModelHubHealthService;
+import com.opsconsole.health.service.ModelHubOAuthTokenClient;
 class ModelHubHealthServiceTest {
 
     private ModelHubHealthService service;
@@ -23,7 +24,8 @@ class ModelHubHealthServiceTest {
         HealthProperties properties = new HealthProperties();
         properties.getHealth().getModelHub().setEnabled(true);
         properties.getHealth().getModelHub().getUat().setBaseUrl("https://example.test");
-        service = new ModelHubHealthService(new com.fasterxml.jackson.databind.ObjectMapper(), properties);
+        var objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        service = new ModelHubHealthService(objectMapper, properties, new ModelHubOAuthTokenClient(objectMapper, properties));
     }
 
     @Test
@@ -63,18 +65,14 @@ class ModelHubHealthServiceTest {
     }
 
     @Test
-    void fetchAll_mockMode_loadsSampleFixtures() {
+    void fetchAll_whenDisabled_returnsEmpty() {
         HealthProperties properties = new HealthProperties();
-        properties.getHealth().getModelHub().setEnabled(true);
-        properties.getHealth().getModelHub().setMockMode(true);
-        ModelHubHealthService mockService = new ModelHubHealthService(
-                new com.fasterxml.jackson.databind.ObjectMapper(), properties);
+        properties.getHealth().getModelHub().setEnabled(false);
+        var objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        ModelHubHealthService disabled = new ModelHubHealthService(
+                objectMapper, properties, new ModelHubOAuthTokenClient(objectMapper, properties));
 
-        var views = mockService.fetchAll(HealthDeploymentTier.UAT);
-
-        assertThat(views).isNotEmpty();
-        assertThat(views.stream().map(SystemHealthView::environmentId).distinct()).isNotEmpty();
-        assertThat(views.stream().filter(v -> "bre_auth_uat".equals(v.environmentId())).count()).isGreaterThanOrEqualTo(2);
+        assertThat(disabled.fetchAll(HealthDeploymentTier.UAT)).isEmpty();
     }
 
     private static String readFixture(String path) throws IOException {

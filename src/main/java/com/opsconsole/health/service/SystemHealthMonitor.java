@@ -238,10 +238,6 @@ public class SystemHealthMonitor {
         return modelHubHealthService.isEnabled();
     }
 
-    public boolean isModelHubMockMode() {
-        return modelHubHealthService.isMockMode();
-    }
-
     private static boolean isEnvironment(String actual, String expected) {
         return actual != null && actual.equalsIgnoreCase(expected);
     }

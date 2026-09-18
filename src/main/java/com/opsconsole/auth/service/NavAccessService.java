@@ -1,7 +1,12 @@
 package com.opsconsole.auth.service;
 
-import com.opsconsole.config.OpsConsoleFeaturesProperties;
+import com.opsconsole.auth.domain.AppTab;
+import com.opsconsole.auth.domain.AppUser;
+import com.opsconsole.auth.domain.RoleTabAccess;
+import com.opsconsole.auth.repository.RoleTabAccessRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
@@ -9,29 +14,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import com.opsconsole.auth.domain.AppTab;
-import com.opsconsole.auth.domain.AppUser;
-import com.opsconsole.auth.domain.RoleTabAccess;
-import com.opsconsole.auth.repository.RoleTabAccessRepository;
+
 @Service
 public class NavAccessService {
 
     private final RoleTabAccessRepository tabAccessRepository;
-    private final OpsConsoleFeaturesProperties features;
 
-    public NavAccessService(
-            RoleTabAccessRepository tabAccessRepository,
-            OpsConsoleFeaturesProperties features
-    ) {
+    public NavAccessService(RoleTabAccessRepository tabAccessRepository) {
         this.tabAccessRepository = tabAccessRepository;
-        this.features = features;
     }
 
     public boolean canAccess(AppUser user, AppTab tab) {
-        if (user == null || !user.isEnabled() || tab == null || isTabDisabled(tab)) {
+        if (user == null || !user.isEnabled() || tab == null) {
             return false;
         }
         return allowedTabs(user).contains(tab);
+    }
+
+    public void require(AppUser user, AppTab tab) {
+        if (!canAccess(user, tab)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, tab.label() + " access required");
+        }
     }
 
     public Map<String, Boolean> navAccessMap(AppUser user) {
@@ -41,7 +44,7 @@ public class NavAccessService {
         Set<AppTab> allowed = allowedTabs(user);
         Map<String, Boolean> map = new LinkedHashMap<>();
         for (AppTab tab : AppTab.values()) {
-            map.put(tab.id(), !isTabDisabled(tab) && allowed.contains(tab));
+            map.put(tab.id(), allowed.contains(tab));
         }
         return map;
     }
@@ -56,10 +59,6 @@ public class NavAccessService {
             }
         }
         return null;
-    }
-
-    private boolean isTabDisabled(AppTab tab) {
-        return tab == AppTab.API_TESTER && !features.isApiTesterEnabled();
     }
 
     private Set<AppTab> allowedTabs(AppUser user) {

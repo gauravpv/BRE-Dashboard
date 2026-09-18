@@ -30,7 +30,6 @@
 
   let operations = [];
   let selectedIndex = -1;
-  let mockMode = true;
   let lastResponseText = '';
   let toastTimer = null;
   let apiDropdownOpen = false;
@@ -287,22 +286,19 @@
       }
 
       operations = payload.operations || [];
-      mockMode = Boolean(payload.mockMode);
       selectedIndex = -1;
       renderApiSelect();
       clearSelection();
 
-      modeBadge.textContent = mockMode ? 'Mock' : 'Live';
-      modeBadge.classList.toggle('live', !mockMode);
+      modeBadge.textContent = 'Live';
+      modeBadge.classList.add('live');
       apiCountEl.textContent = `${operations.length} API${operations.length === 1 ? '' : 's'}`;
 
       setStatus(
-        `${payload.description || 'Loaded'} — ${operations.length} endpoints · ${payload.baseUrl}` +
-          (mockMode ? ' · mock mode' : '')
+        `${payload.description || 'Loaded'} — ${operations.length} endpoints · ${payload.baseUrl}`
       );
     } catch (err) {
       operations = [];
-      mockMode = true;
       selectedIndex = -1;
       renderApiSelect();
       clearSelection();
@@ -371,8 +367,7 @@
         setResponseStats(payload.statusCode, payload.durationMs, payload.responseSizeBytes);
       }
 
-      const modeLabel = payload.mockMode ? 'mock' : 'live';
-      setStatus(`${payload.statusCode} · ${payload.durationMs} ms · ${modeLabel}`);
+      setStatus(`${payload.statusCode} · ${payload.durationMs} ms`);
       showToast(`Response received (${payload.durationMs} ms)`, 'success');
     } catch (err) {
       setResponseBody(err.message || 'Request failed', { error: true, highlight: false });

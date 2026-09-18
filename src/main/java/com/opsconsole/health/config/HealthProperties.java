@@ -1,9 +1,12 @@
 package com.opsconsole.health.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @ConfigurationProperties(prefix = "opsconsole")
 public class HealthProperties {
@@ -78,9 +81,9 @@ public class HealthProperties {
 
     public static class ModelHub {
         private boolean enabled = false;
-        private boolean mockMode = false;
         private final HubTarget uat = new HubTarget();
         private final HubTarget prod = new HubTarget();
+        private final OAuth oauth = new OAuth();
 
         public boolean isEnabled() {
             return enabled;
@@ -90,20 +93,16 @@ public class HealthProperties {
             this.enabled = enabled;
         }
 
-        public boolean isMockMode() {
-            return mockMode;
-        }
-
-        public void setMockMode(boolean mockMode) {
-            this.mockMode = mockMode;
-        }
-
         public HubTarget getUat() {
             return uat;
         }
 
         public HubTarget getProd() {
             return prod;
+        }
+
+        public OAuth getOauth() {
+            return oauth;
         }
 
         /** Backward-compatible default: UAT base URL. */
@@ -116,8 +115,66 @@ public class HealthProperties {
         }
     }
 
+    public static class OAuth {
+        private String tokenUrl = "https://login.microsoftonline.com/710de1d3-2901-4647-89e7-3b01f1c2806d/oauth2/v2.0/token";
+        private String clientId = "91becc5d-213e-4d9b-b0dc-e481c31fde4c";
+        private String grantType = "password";
+        private String username = "";
+        private String password = "";
+        private String scope = "email openid profile offline_access api://91becc5d-213e-4d9b-b0dc-e481c31fde4c/default";
+
+        public String getTokenUrl() {
+            return tokenUrl;
+        }
+
+        public void setTokenUrl(String tokenUrl) {
+            this.tokenUrl = tokenUrl;
+        }
+
+        public String getClientId() {
+            return clientId;
+        }
+
+        public void setClientId(String clientId) {
+            this.clientId = clientId;
+        }
+
+        public String getGrantType() {
+            return grantType;
+        }
+
+        public void setGrantType(String grantType) {
+            this.grantType = grantType;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+        public String getScope() {
+            return scope;
+        }
+
+        public void setScope(String scope) {
+            this.scope = scope;
+        }
+    }
+
     public static class HubTarget {
         private String baseUrl = "https://emicardbre.bajajfinserv.in";
+        private List<String> baseUrls = new ArrayList<>();
 
         public String getBaseUrl() {
             return baseUrl;
@@ -125,6 +182,35 @@ public class HealthProperties {
 
         public void setBaseUrl(String baseUrl) {
             this.baseUrl = baseUrl;
+        }
+
+        public List<String> getBaseUrls() {
+            return baseUrls;
+        }
+
+        public void setBaseUrls(List<String> baseUrls) {
+            this.baseUrls = baseUrls != null ? baseUrls : new ArrayList<>();
+        }
+
+        /** `base-url` plus extra `base-urls`, order preserved, blanks removed. */
+        public List<String> resolvedBaseUrls() {
+            Set<String> urls = new LinkedHashSet<>();
+            addNormalized(urls, baseUrl);
+            for (String extra : baseUrls) {
+                addNormalized(urls, extra);
+            }
+            return List.copyOf(urls);
+        }
+
+        private static void addNormalized(Set<String> urls, String value) {
+            if (!StringUtils.hasText(value)) {
+                return;
+            }
+            String normalized = value.trim();
+            if (normalized.endsWith("/")) {
+                normalized = normalized.substring(0, normalized.length() - 1);
+            }
+            urls.add(normalized);
         }
     }
 

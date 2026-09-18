@@ -55,6 +55,12 @@
                               th:text="${currentUser.role.name}">Role</span>
                     </div>
                     <div class="py-1">
+                        <a th:href="@{/account/password}"
+                           class="oc-account-menu__item flex items-center gap-2 px-4 py-2.5 text-body-sm text-on-surface hover:bg-surface-container-low transition-colors"
+                           role="menuitem">
+                            <span class="material-symbols-outlined text-[18px] text-on-surface-variant">lock_reset</span>
+                            Change password
+                        </a>
                         <a th:if="${navAccess == null or navAccess['users'] == true}"
                            th:href="@{/users}"
                            class="oc-account-menu__item flex items-center gap-2 px-4 py-2.5 text-body-sm text-on-surface hover:bg-surface-container-low transition-colors"

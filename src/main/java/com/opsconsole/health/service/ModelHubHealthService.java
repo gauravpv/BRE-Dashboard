@@ -4,18 +4,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StreamUtils;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.net.URI;
-import java.time.temporal.ChronoUnit;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -37,22 +31,24 @@ public class ModelHubHealthService {
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
     private final HealthProperties healthProperties;
+    private final ModelHubOAuthTokenClient oauthTokenClient;
 
-    public ModelHubHealthService(ObjectMapper objectMapper, HealthProperties healthProperties) {
+    public ModelHubHealthService(
+            ObjectMapper objectMapper,
+            HealthProperties healthProperties,
+            ModelHubOAuthTokenClient oauthTokenClient
+    ) {
         this.objectMapper = objectMapper;
         this.healthProperties = healthProperties;
-        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(healthProperties.getHealth().getConnectTimeoutMs());
-        factory.setReadTimeout(healthProperties.getHealth().getReadTimeoutMs());
-        this.restClient = RestClient.builder().requestFactory(factory).build();
+        this.oauthTokenClient = oauthTokenClient;
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(healthProperties.getHealth().getConnectTimeoutMs());
+        requestFactory.setReadTimeout(healthProperties.getHealth().getReadTimeoutMs());
+        this.restClient = RestClient.builder().requestFactory(requestFactory).build();
     }
 
     public boolean isEnabled() {
         return healthProperties.getModelHub().isEnabled();
-    }
-
-    public boolean isMockMode() {
-        return isEnabled() && healthProperties.getModelHub().isMockMode();
     }
 
     public List<SystemHealthView> fetchAll(HealthDeploymentTier tier) {
@@ -61,20 +57,17 @@ public class ModelHubHealthService {
         }
 
         Instant fetchedAt = Instant.now();
-        List<EnvironmentEntry> environments = fetchEnvironments(tier);
+        List<HubBoundEnvironment> environments = fetchEnvironmentsFromAllHubs(tier);
         List<SystemHealthView> views = new ArrayList<>();
         String tierId = tier.id();
 
-        for (EnvironmentEntry environment : environments) {
+        for (HubBoundEnvironment bound : environments) {
             try {
-                views.addAll(fetchInstances(environment, fetchedAt, tier));
+                views.addAll(fetchInstances(bound.baseUrl(), bound.environment(), fetchedAt, tier));
             } catch (Exception ex) {
-                log.warn("Failed to fetch {} instances for environment {}: {}", tierId, environment.environmentId(), ex.getMessage());
+                log.warn("Failed to fetch {} instances for environment {} from {}: {}",
+                        tierId, bound.environment().environmentId(), bound.baseUrl(), ex.getMessage());
             }
-        }
-
-        if (views.isEmpty() && isMockMode()) {
-            log.warn("Mock Model Hub ({}) returned no instances", tierId);
         }
 
         views.sort(Comparator
@@ -84,18 +77,34 @@ public class ModelHubHealthService {
     }
 
     List<EnvironmentEntry> fetchEnvironments(HealthDeploymentTier tier) {
-        if (isMockMode()) {
-            String fixture = mockPrefix(tier) + "environments.json";
-            if (mockFixtureExists(fixture)) {
-                return parseEnvironments(loadMockFixture(fixture));
-            }
-            if (mockFixtureExists("modelhub/environments.json")) {
-                return parseEnvironments(loadMockFixture("modelhub/environments.json"));
-            }
-            return List.of();
+        return fetchEnvironmentsFromAllHubs(tier).stream()
+                .map(HubBoundEnvironment::environment)
+                .toList();
+    }
+
+    private List<HubBoundEnvironment> fetchEnvironmentsFromAllHubs(HealthDeploymentTier tier) {
+        List<String> hubs = listBaseUrls(tier);
+        if (hubs.isEmpty()) {
+            throw new ModelHubFetchException("No Model Hub base URLs configured for " + tier.id());
         }
-        String url = normalizeBaseUrl(tier) + "/deployment/v1/environments?page=0&size=100&sort=position,environmentId,asc";
-        return parseEnvironments(get(url));
+
+        List<HubBoundEnvironment> environments = new ArrayList<>();
+        int failures = 0;
+        for (String baseUrl : hubs) {
+            try {
+                String url = baseUrl + "/deployment/v1/environments?page=0&size=100&sort=position,environmentId,asc";
+                for (EnvironmentEntry environment : parseEnvironments(get(url))) {
+                    environments.add(new HubBoundEnvironment(baseUrl, environment));
+                }
+            } catch (Exception ex) {
+                failures++;
+                log.warn("Failed to list Model Hub environments from {}: {}", baseUrl, ex.getMessage());
+            }
+        }
+        if (environments.isEmpty() && failures == hubs.size()) {
+            throw new ModelHubFetchException("All Model Hub URLs failed for " + tier.id());
+        }
+        return environments;
     }
 
     public List<ModelHubEnvironmentOption> listEnvironments(HealthDeploymentTier tier) {
@@ -128,80 +137,14 @@ public class ModelHubHealthService {
         return Optional.ofNullable(environmentTagsById(tier).get(environmentId.toLowerCase(Locale.ROOT)));
     }
 
-    List<SystemHealthView> fetchInstances(EnvironmentEntry environment, Instant fetchedAt, HealthDeploymentTier tier) {
-        String body;
-        if (isMockMode()) {
-            String fixture = mockPrefix(tier) + "instances/" + environment.environmentId() + ".json";
-            if (!mockFixtureExists(fixture)) {
-                fixture = "modelhub/instances/" + environment.environmentId() + ".json";
-            }
-            if (mockFixtureExists(fixture)) {
-                body = loadMockFixture(fixture);
-            } else {
-                return List.of(syntheticMockInstance(environment, fetchedAt, tier));
-            }
-        } else {
-            String url = normalizeBaseUrl(tier) + "/deployment/v1/environments/" + environment.environmentId() + "/instances";
-            body = get(url);
-        }
-        List<SystemHealthView> views = parseInstances(body, environment, fetchedAt, tier);
-        if (isMockMode() && views.isEmpty()) {
-            return List.of(syntheticMockInstance(environment, fetchedAt, tier));
-        }
-        return views;
-    }
-
-    private SystemHealthView syntheticMockInstance(EnvironmentEntry environment, Instant fetchedAt, HealthDeploymentTier tier) {
-        String envId = environment.environmentId();
-        String host = "10.48.129." + (Math.abs(envId.hashCode() % 200) + 1);
-        int port = 9000 + (Math.abs(envId.hashCode() % 99));
-        String url = "http://" + host + ":" + port;
-        String name = "ACTICO Execution Server [" + envId + " " + port + "]";
-        Instant heartbeatUntil = fetchedAt.plus(30, ChronoUnit.MINUTES);
-        String region = environment.tag() != null ? environment.tag() : environment.label();
-
-        return SystemHealthView.fromModelHub(
-                stableId(envId + "-mock"),
-                name,
-                host,
-                port,
-                resolveEnvironmentLabel(environment),
-                region,
-                HealthStatus.UP,
-                HealthStatus.UP.displayLabel(),
-                fetchedAt,
-                url,
-                envId,
-                120L + Math.abs(envId.hashCode() % 500),
-                envId.hashCode() % 17 == 0 ? 3L : 0L,
-                "10.2.0",
-                "ACTICO Execution Server",
-                heartbeatUntil,
-                tier.id()
-        );
-    }
-
-    private static String mockPrefix(HealthDeploymentTier tier) {
-        return "modelhub/" + tier.name().toLowerCase(Locale.ROOT) + "/";
-    }
-
-    private boolean mockFixtureExists(String classpathLocation) {
-        return new ClassPathResource(classpathLocation).exists();
-    }
-
-    private String loadMockFixture(String classpathLocation) {
-        try {
-            ClassPathResource resource = new ClassPathResource(classpathLocation);
-            try (InputStream in = resource.getInputStream()) {
-                String content = StreamUtils.copyToString(in, StandardCharsets.UTF_8);
-                if (content.startsWith("\uFEFF")) {
-                    content = content.substring(1);
-                }
-                return content;
-            }
-        } catch (IOException ex) {
-            throw new ModelHubFetchException("Could not load mock fixture " + classpathLocation, ex);
-        }
+    List<SystemHealthView> fetchInstances(
+            String baseUrl,
+            EnvironmentEntry environment,
+            Instant fetchedAt,
+            HealthDeploymentTier tier
+    ) {
+        String url = baseUrl + "/deployment/v1/environments/" + environment.environmentId() + "/instances";
+        return parseInstances(get(url), environment, fetchedAt, tier);
     }
 
     public List<EnvironmentEntry> parseEnvironments(String body) {
@@ -262,9 +205,6 @@ public class ModelHubHealthService {
         int port = uri != null && uri.getPort() > 0 ? uri.getPort() : 80;
 
         Instant heartbeatUntil = parseInstant(text(data, "validUntil"));
-        if (isMockMode() && heartbeatUntil != null && !fetchedAt.isBefore(heartbeatUntil)) {
-            heartbeatUntil = fetchedAt.plus(30, ChronoUnit.MINUTES);
-        }
         HealthStatus status = resolveStatus(heartbeatUntil, fetchedAt);
 
         JsonNode metrics = data.path("metrics");
@@ -366,23 +306,30 @@ public class ModelHubHealthService {
 
     private String get(String url) {
         try {
-            return restClient.get().uri(url).retrieve().body(String.class);
+            String accessToken = oauthTokenClient.getAccessToken();
+            return restClient.get()
+                    .uri(url)
+                    .header("Authorization", "Bearer " + accessToken)
+                    .retrieve()
+                    .body(String.class);
+        } catch (ModelHubOAuthTokenClient.ModelHubOAuthException ex) {
+            throw new ModelHubFetchException(ex.getMessage(), ex);
         } catch (RestClientException ex) {
             throw new ModelHubFetchException("Request failed for " + url + ": " + ex.getMessage(), ex);
         }
     }
 
-    private String normalizeBaseUrl(HealthDeploymentTier tier) {
-        String baseUrl = tier == HealthDeploymentTier.PROD
-                ? healthProperties.getModelHub().getProd().getBaseUrl()
-                : healthProperties.getModelHub().getUat().getBaseUrl();
-        if (baseUrl.endsWith("/")) {
-            return baseUrl.substring(0, baseUrl.length() - 1);
-        }
-        return baseUrl;
+    List<String> listBaseUrls(HealthDeploymentTier tier) {
+        HealthProperties.HubTarget target = tier == HealthDeploymentTier.PROD
+                ? healthProperties.getModelHub().getProd()
+                : healthProperties.getModelHub().getUat();
+        return target.resolvedBaseUrls();
     }
 
     public record EnvironmentEntry(String environmentId, String label, String tag) {
+    }
+
+    private record HubBoundEnvironment(String baseUrl, EnvironmentEntry environment) {
     }
 
     static class ModelHubFetchException extends RuntimeException {

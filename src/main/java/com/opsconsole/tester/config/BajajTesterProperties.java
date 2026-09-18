@@ -8,17 +8,8 @@ import java.util.Map;
 @ConfigurationProperties(prefix = "opsconsole.bajaj-tester")
 public class BajajTesterProperties {
 
-    private boolean mockMode = true;
     private EnvironmentConfig uat = new EnvironmentConfig();
     private EnvironmentConfig prod = new EnvironmentConfig();
-
-    public boolean isMockMode() {
-        return mockMode;
-    }
-
-    public void setMockMode(boolean mockMode) {
-        this.mockMode = mockMode;
-    }
 
     public EnvironmentConfig getUat() {
         return uat;
@@ -46,8 +37,8 @@ public class BajajTesterProperties {
     public static class EnvironmentConfig {
         private String baseUrl = "https://sauat.bajajfinserv.in/apis";
         private String operationListPath = "operationallist";
-        private String encryptionKey = "2026Unpf7T7Mr4kNAHecXKolYoD9tiOT";
-        private String encryptionIv = "2026JHNjiJSboivg";
+        private String encryptionKey = "";
+        private String encryptionIv = "";
         private Map<String, String> headers = new LinkedHashMap<>();
         private Map<String, String> requestBody = new LinkedHashMap<>();
 

@@ -42,7 +42,6 @@ public class HealthPageController {
         model.addAttribute("refreshSeconds", healthService.refreshSeconds());
         model.addAttribute("lastRefreshedAt", healthMonitor.getLastRefreshedAt());
         model.addAttribute("modelHubEnabled", healthMonitor.isModelHubEnabled());
-        model.addAttribute("modelHubMockMode", healthMonitor.isModelHubMockMode());
         model.addAttribute("environmentIds", systems.stream()
                 .map(SystemHealthView::environmentId)
                 .filter(id -> id != null && !id.isBlank())

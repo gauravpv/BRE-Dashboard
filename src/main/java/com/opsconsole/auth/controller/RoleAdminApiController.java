@@ -100,6 +100,16 @@ public class RoleAdminApiController {
         roleAdminService.updateUserEnabled(userId, body.enabled(), CurrentUser.requireUser());
     }
 
+    @PutMapping("/users/{userId}/password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateUserPassword(
+            @PathVariable Long userId,
+            @RequestBody RoleAdminService.PasswordUpdateRequest body
+    ) {
+        requireUserAdminAccess();
+        roleAdminService.updateUserPassword(userId, body.password(), CurrentUser.requireUser());
+    }
+
     @PutMapping("/roles/{roleId}/tabs")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateRoleTabs(

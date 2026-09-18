@@ -5,7 +5,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "opsconsole.transaction-dashboard")
 public class TransactionDashboardProperties {
 
-    private boolean mockMode = true;
     private String jdbcUrl = "";
     private String username = "";
     private String password = "";
@@ -14,14 +13,6 @@ public class TransactionDashboardProperties {
     private String hourlyView = "festival_summary_detailed_new";
     private String otpTable = "transaction_details_srcreq_otp";
     private int refreshSeconds = 60;
-
-    public boolean isMockMode() {
-        return mockMode;
-    }
-
-    public void setMockMode(boolean mockMode) {
-        this.mockMode = mockMode;
-    }
 
     public String getJdbcUrl() {
         return jdbcUrl;

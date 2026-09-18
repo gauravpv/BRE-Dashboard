@@ -1,44 +1,48 @@
 # OpsConsole
 
-Enterprise DevOps operations dashboard built with Spring Boot 3, Thymeleaf, and H2.
+Enterprise DevOps operations dashboard built with Spring Boot 3, Thymeleaf, and MySQL.
 
 ## Features
 
 - Dashboard with system health monitoring and uptime chart
-- System Health — actuator probes, register monitors, grid/list views
-- System Admin — SSH service control (start/stop/restart) and properties editing (dev mode simulates SSH)
+- System Health — actuator probes and Model Hub watchlists (UAT and PROD)
+- Transaction Analytics — live MySQL reporting views
+- System Admin — SSH service control (start/stop/restart) and properties editing
 - User Admin — roles, tab access, user CRUD
+- Bajaj Tester — encrypted live API invoke (UAT and PROD URLs in YAML)
 - Activity feed — logins, health changes, admin actions
-- Dev login or Azure AD (OAuth2)
+- Temporary local login, with Azure AD (OAuth2) ready when Entra is enabled
 
 ## Requirements
 
 - Java 21
 - Maven 3.9+
+- MySQL 8 for UAT/PROD (`opsconsole` + `bre_underwriting` schemas)
 
-## Run locally
+## Run locally (H2)
 
 ```bash
-mvn spring-boot:run
+mvn spring-boot:run -Dspring-boot.run.profiles=local
 ```
 
 Open http://localhost:8080
 
-**Dev login** (`opsconsole.auth.mode=dev`):
+Local profile still seeds `admin@opsconsole.local` / `Admin@123` for developers only. Do not use that profile in UAT or PROD.
 
-| Email | Password | Role |
-|-------|----------|------|
-| admin@opsconsole.local | Admin@123 | Administrator |
-| tester@opsconsole.local | Tester@123 | Tester |
-| monitoring@opsconsole.local | Monitoring@123 | Monitoring |
+## Run UAT / PROD
 
-Run only **one** app instance — the H2 file database (`data/opsconsole.mv.db`) cannot be opened by multiple processes.
+See [deploy/README.md](deploy/README.md) for SQL scripts and environment variables.
 
-## Configuration
+```bash
+# After creating MySQL schemas
+SPRING_PROFILES_ACTIVE=uat
+# or
+SPRING_PROFILES_ACTIVE=prod
+```
 
-See `src/main/resources/application.yml` for health monitors, admin servers/services (YAML seed), and Azure AD profile.
+Set `OPSCONSOLE_BOOTSTRAP_EMAIL` and `OPSCONSOLE_BOOTSTRAP_PASSWORD` on first boot, then change the password in the UI.
 
-Live SSH: set `opsconsole.admin.mode=live` and `OPS_SSH_KEY_PATH` to your private key path.
+Live SSH: `opsconsole.admin.mode=live` (default) and `OPS_SSH_KEY_PATH`.
 
 ## Tests
 
@@ -46,7 +50,7 @@ Live SSH: set `opsconsole.admin.mode=live` and `OPS_SSH_KEY_PATH` to your privat
 mvn test
 ```
 
-Tests use an in-memory H2 database and do not require the app to be stopped.
+Tests use an in-memory H2 database.
 
 ## License
 

@@ -209,6 +209,32 @@ public class RoleAdminService {
     }
 
     @Transactional
+    public void updateUserPassword(Long userId, String rawPassword, AppUser actor) {
+        if (!StringUtils.hasText(rawPassword) || rawPassword.length() < 8) {
+            throw new IllegalArgumentException("Password must be at least 8 characters");
+        }
+        AppUser user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        user.setPasswordHash(passwordEncoder.encode(rawPassword));
+        userRepository.save(user);
+        userActivityLogService.recordStatusChanged(actor, user, user.isEnabled());
+    }
+
+    @Transactional
+    public void changeOwnPassword(AppUser actor, String currentPassword, String newPassword) {
+        AppUser user = userRepository.findById(actor.getId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        if (!user.hasLocalPassword() || !passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+        if (!StringUtils.hasText(newPassword) || newPassword.length() < 8) {
+            throw new IllegalArgumentException("Password must be at least 8 characters");
+        }
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    @Transactional
     public void updateRoleTabs(Long roleId, Map<String, Boolean> tabAccess, AppUser actor) {
         AppRole role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new IllegalArgumentException("Role not found"));
@@ -246,6 +272,9 @@ public class RoleAdminService {
     }
 
     public record UpdateUserProfileRequest(String displayName, String jobTitle) {
+    }
+
+    public record PasswordUpdateRequest(String password) {
     }
 
     public record CreateUserRequest(

@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -46,7 +47,8 @@ class ServiceAdminApiControllerTest {
         Long serviceId = managedServiceRepository.findByEnabledTrueOrderByCategoryAscNameAsc().getFirst().getId();
 
         mockMvc.perform(post("/api/admin/services/" + serviceId + "/start")
-                        .with(user(OpsUserPrincipal.fromUser(admin))))
+                        .with(user(OpsUserPrincipal.fromUser(admin)))
+                        .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true));
     }

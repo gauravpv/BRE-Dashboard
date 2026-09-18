@@ -1,23 +1,21 @@
 package com.opsconsole.web.controller;
 
 import com.opsconsole.activity.service.ActivityFeedService;
-import com.opsconsole.admin.util.AdminActionLabels;
 import com.opsconsole.admin.domain.AdminActionLog;
 import com.opsconsole.admin.service.ServiceAdminService;
+import com.opsconsole.admin.util.AdminActionLabels;
 import com.opsconsole.auth.domain.AppTab;
-import com.opsconsole.config.OpsConsoleFeaturesProperties;
 import com.opsconsole.health.service.SystemHealthMonitor;
 import com.opsconsole.web.service.DashboardService;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+
 @Controller
 public class PageController {
 
@@ -30,20 +28,17 @@ public class PageController {
     private final ActivityFeedService activityFeedService;
     private final DashboardService dashboardService;
     private final ServiceAdminService serviceAdminService;
-    private final OpsConsoleFeaturesProperties features;
 
     public PageController(
             SystemHealthMonitor healthMonitor,
             ActivityFeedService activityFeedService,
             DashboardService dashboardService,
-            ServiceAdminService serviceAdminService,
-            OpsConsoleFeaturesProperties features
+            ServiceAdminService serviceAdminService
     ) {
         this.healthMonitor = healthMonitor;
         this.activityFeedService = activityFeedService;
         this.dashboardService = dashboardService;
         this.serviceAdminService = serviceAdminService;
-        this.features = features;
     }
 
     @GetMapping("/")
@@ -56,12 +51,6 @@ public class PageController {
         model.addAttribute("activities", activityFeedService.recent(DASHBOARD_ACTIVITY_LIMIT));
         model.addAttribute("recentIncidents", dashboardService.recentIncidents());
         return page("dashboard", AppTab.DASHBOARD, model);
-    }
-
-    @GetMapping("/api-tester")
-    public String apiTester(Model model) {
-        requireApiTesterEnabled();
-        return page("api-tester", AppTab.API_TESTER, model);
     }
 
     @GetMapping("/admin")
@@ -107,11 +96,6 @@ public class PageController {
         return serviceAdminService.getServiceDetail(server.services().getFirst().id());
     }
 
-    @GetMapping("/logs")
-    public String logsWatch(Model model) {
-        return page("logs-watch", AppTab.LOGS, model);
-    }
-
     @GetMapping("/dev-utils")
     public String developerUtils(Model model) {
         return page("developer-utils", AppTab.DEV_UTILS, model);
@@ -120,11 +104,5 @@ public class PageController {
     private String page(String view, AppTab nav, Model model) {
         model.addAttribute("activeNav", nav.id());
         return view;
-    }
-
-    private void requireApiTesterEnabled() {
-        if (!features.isApiTesterEnabled()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "API Tester is disabled");
-        }
     }
 }

@@ -1,5 +1,9 @@
 package com.opsconsole.health.controller;
 
+import com.opsconsole.auth.domain.AppTab;
+import com.opsconsole.auth.domain.AppUser;
+import com.opsconsole.auth.domain.CurrentUser;
+import com.opsconsole.auth.service.NavAccessService;
 import com.opsconsole.common.dto.ErrorResponse;
 import com.opsconsole.health.domain.HealthDeploymentTier;
 import com.opsconsole.health.domain.SystemHealthView;
@@ -33,25 +37,30 @@ public class HealthApiController {
     private final SystemHealthMonitor healthMonitor;
     private final MonitorRegistrationService registrationService;
     private final ModelHubHealthService modelHubHealthService;
+    private final NavAccessService navAccessService;
 
     public HealthApiController(
             SystemHealthMonitor healthMonitor,
             MonitorRegistrationService registrationService,
-            ModelHubHealthService modelHubHealthService
+            ModelHubHealthService modelHubHealthService,
+            NavAccessService navAccessService
     ) {
         this.healthMonitor = healthMonitor;
         this.registrationService = registrationService;
         this.modelHubHealthService = modelHubHealthService;
+        this.navAccessService = navAccessService;
     }
 
     @GetMapping("/systems")
     public List<SystemHealthView> systemsApi() {
+        requireHealthAccess();
         healthMonitor.refreshIfStale();
         return healthMonitor.getSystems();
     }
 
     @PostMapping("/refresh")
     public HealthRefreshResponse refreshNow() {
+        requireHealthAccess();
         healthMonitor.refresh();
         return new HealthRefreshResponse(
                 healthMonitor.getSystems(),
@@ -62,16 +71,19 @@ public class HealthApiController {
 
     @GetMapping("/monitors")
     public List<MonitorDetailsResponse> listMonitors() {
+        requireHealthAccess();
         return registrationService.listAll();
     }
 
     @PostMapping("/monitors")
     public HealthRefreshResponse registerMonitor(@RequestBody RegisterMonitorRequest request) {
+        requireHealthAccess();
         return registrationService.register(request);
     }
 
     @GetMapping("/monitors/{tier}/{id}")
     public MonitorDetailsResponse monitorDetails(@PathVariable String tier, @PathVariable Long id) {
+        requireHealthAccess();
         return registrationService.get(HealthDeploymentTier.fromPathSegment(tier), id);
     }
 
@@ -81,21 +93,25 @@ public class HealthApiController {
             @PathVariable Long id,
             @RequestBody RegisterMonitorRequest request
     ) {
+        requireHealthAccess();
         return registrationService.update(HealthDeploymentTier.fromPathSegment(tier), id, request);
     }
 
     @DeleteMapping("/monitors/{tier}/{id}")
     public HealthRefreshResponse removeMonitor(@PathVariable String tier, @PathVariable Long id) {
+        requireHealthAccess();
         return registrationService.remove(HealthDeploymentTier.fromPathSegment(tier), id);
     }
 
     @GetMapping("/environments/{tier}")
     public List<ModelHubEnvironmentOption> environmentsForTier(@PathVariable String tier) {
+        requireHealthAccess();
         return modelHubHealthService.listEnvironments(HealthDeploymentTier.fromPathSegment(tier));
     }
 
     @GetMapping("/environments")
     public List<ModelHubEnvironmentOption> environmentsApi() {
+        requireHealthAccess();
         return modelHubHealthService.listEnvironments(HealthDeploymentTier.UAT);
     }
 
@@ -104,5 +120,13 @@ public class HealthApiController {
     @ResponseBody
     public ErrorResponse handleRegistrationError(MonitorRegistrationException ex) {
         return new ErrorResponse(ex.getMessage());
+    }
+
+    private void requireHealthAccess() {
+        AppUser user = CurrentUser.userOrNull();
+        if (user == null) {
+            return;
+        }
+        navAccessService.require(user, AppTab.HEALTH);
     }
 }

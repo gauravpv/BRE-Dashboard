@@ -5,7 +5,6 @@ import java.util.List;
 public record OperationListResponseDto(
         String environment,
         String baseUrl,
-        boolean mockMode,
         String description,
         String statusCode,
         String listEncryptionKey,

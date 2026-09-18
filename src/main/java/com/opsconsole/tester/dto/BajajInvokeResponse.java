@@ -5,7 +5,6 @@ public record BajajInvokeResponse(
         long durationMs,
         int responseSizeBytes,
         String requestUrl,
-        boolean mockMode,
         String decryptedBody,
         String error
 ) {

@@ -24,13 +24,12 @@ public class BajajApiInvokeService {
 
     private final BajajTesterProperties properties;
     private final ObjectMapper objectMapper;
-    private final HttpClient httpClient = HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(20))
-            .build();
+    private final HttpClient httpClient;
 
     public BajajApiInvokeService(BajajTesterProperties properties, ObjectMapper objectMapper) {
         this.properties = properties;
         this.objectMapper = objectMapper;
+        this.httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(20)).build();
     }
 
     public BajajInvokeResponse invoke(BajajInvokeRequest request) {
@@ -38,10 +37,6 @@ public class BajajApiInvokeService {
         BajajEnvironment environment = parseEnvironment(request.environment());
         BajajTesterProperties.EnvironmentConfig config = configFor(environment);
         String requestUrl = config.apiUrl(request.publicUrl());
-
-        if (properties.isMockMode()) {
-            return mockResponse(request, requestUrl);
-        }
 
         long start = System.nanoTime();
         try {
@@ -79,7 +74,6 @@ public class BajajApiInvokeService {
                         durationMs,
                         body.getBytes(StandardCharsets.UTF_8).length,
                         requestUrl,
-                        false,
                         tryPrettyPrint(body),
                         "HTTP " + response.statusCode()
                 );
@@ -96,7 +90,6 @@ public class BajajApiInvokeService {
                     durationMs,
                     decrypted.getBytes(StandardCharsets.UTF_8).length,
                     requestUrl,
-                    false,
                     prettyJson(decrypted),
                     null
             );
@@ -109,37 +102,9 @@ public class BajajApiInvokeService {
                     durationMs,
                     0,
                     requestUrl,
-                    false,
                     "",
                     ex.getMessage() != null ? ex.getMessage() : ex.getClass().getSimpleName()
             );
-        }
-    }
-
-    private BajajInvokeResponse mockResponse(BajajInvokeRequest request, String requestUrl) {
-        long start = System.nanoTime();
-        try {
-            JsonNode parsed = objectMapper.readTree(normalizeJson(request.requestBody()));
-            var mockNode = objectMapper.createObjectNode();
-            mockNode.put("description", "Success");
-            mockNode.put("statusCode", "7001");
-            mockNode.put("mock", true);
-            mockNode.put("message", "Mock response — request encrypted/decrypted flow skipped");
-            mockNode.put("api", request.publicUrl());
-            mockNode.set("echo", parsed);
-            String body = prettyJson(objectMapper.writeValueAsString(mockNode));
-            long durationMs = Math.max(1, (System.nanoTime() - start) / 1_000_000);
-            return new BajajInvokeResponse(
-                    200,
-                    durationMs,
-                    body.getBytes(StandardCharsets.UTF_8).length,
-                    requestUrl,
-                    true,
-                    body,
-                    null
-            );
-        } catch (Exception ex) {
-            throw new BajajTesterException("Invalid request JSON: " + ex.getMessage(), ex);
         }
     }
 

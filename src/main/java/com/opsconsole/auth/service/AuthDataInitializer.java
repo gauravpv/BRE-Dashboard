@@ -1,14 +1,6 @@
 package com.opsconsole.auth.service;
 
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
+import com.opsconsole.auth.config.AuthProperties;
 import com.opsconsole.auth.domain.AppRole;
 import com.opsconsole.auth.domain.AppTab;
 import com.opsconsole.auth.domain.AppUser;
@@ -16,9 +8,23 @@ import com.opsconsole.auth.domain.RoleTabAccess;
 import com.opsconsole.auth.repository.AppRoleRepository;
 import com.opsconsole.auth.repository.AppUserRepository;
 import com.opsconsole.auth.repository.RoleTabAccessRepository;
-import com.opsconsole.config.OpsConsoleFeaturesProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+
 @Component
 public class AuthDataInitializer implements ApplicationRunner {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthDataInitializer.class);
 
     public static final String CODE_ADMINISTRATOR = "ADMIN";
     public static final String CODE_TESTER = "TESTER";
@@ -34,57 +40,75 @@ public class AuthDataInitializer implements ApplicationRunner {
     private final RoleTabAccessRepository tabAccessRepository;
     private final AppUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final OpsConsoleFeaturesProperties features;
+    private final AuthProperties authProperties;
 
     public AuthDataInitializer(
             AppRoleRepository roleRepository,
             RoleTabAccessRepository tabAccessRepository,
             AppUserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            OpsConsoleFeaturesProperties features
+            AuthProperties authProperties
     ) {
         this.roleRepository = roleRepository;
         this.tabAccessRepository = tabAccessRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.features = features;
+        this.authProperties = authProperties;
     }
 
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
         migrateLegacyRoles();
+        ensureSystemRoles();
 
-        if (roleRepository.count() == 0) {
-            AppRole admin = roleRepository.save(new AppRole(
-                    CODE_ADMINISTRATOR, "Administrator", "Full platform access", true));
-            AppRole tester = roleRepository.save(new AppRole(
-                    CODE_TESTER, "Tester", "API testing and validation tools", true));
-            AppRole monitoring = roleRepository.save(new AppRole(
-                    CODE_MONITORING, "Monitoring", "Dashboard and system health monitoring", true));
-
-            seedTabs(admin, EnumSet.allOf(AppTab.class));
-            seedTabs(tester, EnumSet.of(AppTab.DASHBOARD, AppTab.HEALTH, AppTab.TESTER, AppTab.DEV_UTILS, AppTab.LOGS));
-            seedTabs(monitoring, EnumSet.of(AppTab.DASHBOARD, AppTab.HEALTH, AppTab.TRANSACTIONS));
-
-            userRepository.save(seedUser("dev-admin", "admin@opsconsole.local", "Administrator", admin));
-            userRepository.save(seedUser("dev-tester", "tester@opsconsole.local", "Tester", tester));
-            userRepository.save(seedUser("dev-monitoring", "monitoring@opsconsole.local", "Monitoring", monitoring));
-        } else {
-            if (tabAccessRepository.count() == 0) {
-                for (AppRole role : roleRepository.findAll()) {
-                    seedTabs(role, defaultTabsFor(role.getCode()));
-                }
-            }
-
+        if (authProperties.isSeedDevUsers()) {
             ensureDevUsers();
             backfillPasswords();
-            ensureAllTabsRegistered();
         }
 
-        if (!features.isApiTesterEnabled()) {
-            revokeTab(AppTab.API_TESTER);
+        ensureBootstrapAdministrator();
+        ensureAllTabsRegistered();
+    }
+
+    private void ensureSystemRoles() {
+        AppRole admin = roleRepository.findByCode(CODE_ADMINISTRATOR).orElseGet(() ->
+                roleRepository.save(new AppRole(CODE_ADMINISTRATOR, "Administrator", "Full platform access", true)));
+        AppRole tester = roleRepository.findByCode(CODE_TESTER).orElseGet(() ->
+                roleRepository.save(new AppRole(CODE_TESTER, "Tester", "API testing and validation tools", true)));
+        AppRole monitoring = roleRepository.findByCode(CODE_MONITORING).orElseGet(() ->
+                roleRepository.save(new AppRole(CODE_MONITORING, "Monitoring", "Dashboard and system health monitoring", true)));
+
+        if (tabAccessRepository.count() == 0) {
+            seedTabs(admin, defaultTabsFor(CODE_ADMINISTRATOR));
+            seedTabs(tester, defaultTabsFor(CODE_TESTER));
+            seedTabs(monitoring, defaultTabsFor(CODE_MONITORING));
         }
+    }
+
+    private void ensureBootstrapAdministrator() {
+        if (userRepository.countByRole_Code(CODE_ADMINISTRATOR) > 0) {
+            return;
+        }
+        String email = authProperties.getBootstrapEmail() == null ? "" : authProperties.getBootstrapEmail().trim().toLowerCase();
+        String password = authProperties.getBootstrapPassword();
+        if (!StringUtils.hasText(email) || !StringUtils.hasText(password)) {
+            log.warn("No Administrator exists and bootstrap credentials are not set. Set OPSCONSOLE_BOOTSTRAP_EMAIL and OPSCONSOLE_BOOTSTRAP_PASSWORD.");
+            return;
+        }
+        if (password.length() < 8) {
+            throw new IllegalStateException("OPSCONSOLE_BOOTSTRAP_PASSWORD must be at least 8 characters");
+        }
+        if (userRepository.findByEmailIgnoreCase(email).isPresent()) {
+            log.warn("Bootstrap email {} already exists but is not an Administrator", email);
+            return;
+        }
+        AppRole admin = roleRepository.findByCode(CODE_ADMINISTRATOR).orElseThrow();
+        String displayName = StringUtils.hasText(authProperties.getBootstrapDisplayName())
+                ? authProperties.getBootstrapDisplayName().trim()
+                : "Administrator";
+        userRepository.save(new AppUser("bootstrap-admin", email, displayName, admin, passwordEncoder.encode(password)));
+        log.info("Created bootstrap Administrator {}", email);
     }
 
     private void migrateLegacyRoles() {
@@ -166,7 +190,7 @@ public class AuthDataInitializer implements ApplicationRunner {
     static EnumSet<AppTab> defaultTabsFor(String roleCode) {
         return switch (roleCode) {
             case CODE_ADMINISTRATOR, "ADMINISTRATOR" -> EnumSet.allOf(AppTab.class);
-            case CODE_TESTER, "OPERATOR" -> EnumSet.of(AppTab.DASHBOARD, AppTab.HEALTH, AppTab.TESTER, AppTab.DEV_UTILS, AppTab.LOGS);
+            case CODE_TESTER, "OPERATOR" -> EnumSet.of(AppTab.DASHBOARD, AppTab.HEALTH, AppTab.TESTER, AppTab.DEV_UTILS);
             case CODE_MONITORING, "VIEWER" -> EnumSet.of(AppTab.DASHBOARD, AppTab.HEALTH, AppTab.TRANSACTIONS);
             default -> EnumSet.of(AppTab.DASHBOARD);
         };
@@ -180,16 +204,6 @@ public class AuthDataInitializer implements ApplicationRunner {
                 if (entry == null) {
                     tabAccessRepository.save(new RoleTabAccess(role, tab, defaults.contains(tab)));
                 }
-            }
-        }
-    }
-
-    private void revokeTab(AppTab tab) {
-        for (AppRole role : roleRepository.findAll()) {
-            RoleTabAccess entry = tabAccessRepository.findByRole_IdAndTab(role.getId(), tab);
-            if (entry != null && entry.isAllowed()) {
-                entry.setAllowed(false);
-                tabAccessRepository.save(entry);
             }
         }
     }

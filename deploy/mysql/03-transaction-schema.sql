@@ -1,0 +1,845 @@
+-- Transaction reporting schema. Run against bre_underwriting.
+-- Derived from Transaction_details. DEFINER and table encryption clauses removed.
+-- Tables are created first so the reporting views can compile.
+USE bre_underwriting;
+
+CREATE TABLE `transaction_details` (
+  `CUSTOMER_ID` decimal(30,0) DEFAULT NULL,
+  `CARD_NUMBER` varchar(19) DEFAULT NULL,
+  `RRN_NUMBER` varchar(20) NOT NULL,
+  `GROSS_TENURE` decimal(12,0) DEFAULT NULL,
+  `ADVANCE_EMI` decimal(12,0) DEFAULT NULL,
+  `POS_ENTRY_MODE` varchar(4) DEFAULT NULL,
+  `NO_OF_ADVANCE_EMI` decimal(2,0) DEFAULT NULL,
+  `MODE_OF_TRANSACTION` varchar(30) DEFAULT NULL,
+  `SOURCE_OF_TRANSACTION` varchar(50) DEFAULT NULL,
+  `RESPONSE_CODE` varchar(2) DEFAULT NULL,
+  `DECLINE_REASON_DESCRIPTION` varchar(150) DEFAULT NULL,
+  `FAILED_RULE_ID` varchar(7) DEFAULT NULL,
+  `NOW_AVAILABLE_LIMIT` decimal(12,0) DEFAULT NULL,
+  `BEFORE_TXN_AVAILABLE_LIMIT` decimal(12,2) DEFAULT NULL,
+  `OPEN_ECS_AVAILABLE_EMI_LIMIT_C` decimal(12,2) DEFAULT NULL,
+  `OPEN_ECS_VALID_DATE_C` date DEFAULT NULL,
+  `CIBIL_TRIGGERED_ID` varchar(7) DEFAULT NULL,
+  `PRICING_CALCULATED_FEE` decimal(6,0) DEFAULT NULL,
+  `NO_LIVE_LOANS_DIGI` decimal(5,0) DEFAULT NULL,
+  `NO_LIVE_LOANS_REMI` decimal(5,0) DEFAULT NULL,
+  `NO_LIVE_LOANS_ECOM` decimal(5,0) DEFAULT NULL,
+  `NO_LIVE_LOANS_NONDIGI` decimal(5,0) DEFAULT NULL,
+  `NO_LIVE_LOANS_REP` decimal(5,0) DEFAULT NULL,
+  `NO_LIVE_LOANS_EPL` decimal(5,0) DEFAULT NULL,
+  `NO_LIVE_LOANS_SPL` decimal(5,0) DEFAULT NULL,
+  `NO_LIVE_LOANS_ERL` decimal(5,0) DEFAULT NULL,
+  `NO_LIVE_LOANS_WLT` decimal(5,0) DEFAULT NULL,
+  `NO_LIVE_LOANS_RWT` decimal(5,0) DEFAULT NULL,
+  `NO_LOANS_EVER_DIGI` decimal(5,0) DEFAULT NULL,
+  `NO_LOANS_EVER_REMI` decimal(5,0) DEFAULT NULL,
+  `NO_LOANS_EVER_ECOM` decimal(5,0) DEFAULT NULL,
+  `NO_LOANS_EVER_NONDIGI` decimal(5,0) DEFAULT NULL,
+  `DEALER_CODE_ETAILER` decimal(12,0) DEFAULT NULL,
+  `DEALER_FORMAT` varchar(20) DEFAULT NULL,
+  `EMI_AMT` decimal(12,2) DEFAULT NULL,
+  `TOTAL_EMI_LIVE_LOANS_ALL` decimal(12,2) DEFAULT NULL,
+  `TOTAL_EMI_LIVE_LOANS_ECF` decimal(12,2) DEFAULT NULL,
+  `TOTAL_EMI_LIVE_LOANS_ERF` decimal(12,2) DEFAULT NULL,
+  `TOTAL_EMI_LIVE_LOANS_REMI` decimal(12,2) DEFAULT NULL,
+  `TOTAL_EMI_LIVE_LOANS_DIGI` decimal(12,2) DEFAULT NULL,
+  `TOTAL_EMI_LIVE_LOANS_NONDIGI` decimal(12,2) DEFAULT NULL,
+  `CARD_UTILIZATION_ACCOUNT` decimal(12,2) DEFAULT NULL,
+  `CARD_UTILIZATION_CUSTOMER` decimal(12,2) DEFAULT NULL,
+  `HIGHEST_UTILIZATION_L6M` decimal(12,2) DEFAULT NULL,
+  `NO_OF_NON_TECH_BOUNCE_12M_ALL_LOANS` decimal(5,0) DEFAULT NULL,
+  `NO_OF_NON_TECH_BOUNCE_6M_ALL_LOANS` decimal(5,0) DEFAULT NULL,
+  `NO_NONTECH_BNC_L3M` decimal(5,0) DEFAULT NULL,
+  `NO_BNC_L12M` decimal(5,0) DEFAULT NULL,
+  `DAYS_DIFF_BASELOAN` decimal(5,0) DEFAULT NULL,
+  `HAS_HL_BUREAU` varchar(4) DEFAULT NULL,
+  `HAS_CC_BUREAU` varchar(4) DEFAULT NULL,
+  `BUREAU_TIMESERIES_SEG` varchar(4) DEFAULT NULL,
+  `MBK_DNLD_DT_STATUS` varchar(4) DEFAULT NULL,
+  `DEALER_RANK` varchar(20) DEFAULT NULL,
+  `DEALER_CITY_ID` decimal(8,0) DEFAULT NULL,
+  `DEALER_PINCODE` decimal(6,0) DEFAULT NULL,
+  `DEALER_STATE` decimal(8,0) DEFAULT NULL,
+  `CUSTOMER_PINCODE` decimal(8,0) DEFAULT NULL,
+  `CUSTOMER_STATE` decimal(8,0) DEFAULT NULL,
+  `INTERCITY_TRXN` varchar(1) DEFAULT NULL,
+  `MBL_CHANGE_DATE` datetime DEFAULT NULL,
+  `DAYS_DIFF_MBLCHNG` decimal(5,0) DEFAULT NULL,
+  `CIBILSCORE` varchar(12) DEFAULT NULL,
+  `CARD_TYPE` varchar(9) DEFAULT NULL,
+  `CUSTOMER_TYPE` varchar(10) DEFAULT NULL,
+  `CARD_SOURCE_IDENTIFIER` varchar(255) DEFAULT NULL,
+  `ASSET_CATEGORY` decimal(8,0) DEFAULT NULL,
+  `DAYS_FROM_LAST_CIBIL` decimal(5,0) DEFAULT NULL,
+  `ASSET_CATEGORY_RISK_HIGH_MEDIUM_LOW` varchar(3) DEFAULT NULL,
+  `PRODUCT` varchar(10) DEFAULT NULL,
+  `LTV` decimal(6,2) DEFAULT NULL,
+  `DAYS_FROM_CARD_VALID_DATE` decimal(5,0) DEFAULT NULL,
+  `DAYS_FROM_LAST_LOAN` decimal(5,0) DEFAULT NULL,
+  `B_SCORE` decimal(3,0) DEFAULT NULL,
+  `DAYS_FROM_LAST_TRANSACTION` decimal(5,0) DEFAULT NULL,
+  `NET_LOAN_AMOUNT` decimal(12,0) DEFAULT NULL,
+  `VALIDFROM_C_CUSTOMER_LEVEL` date DEFAULT NULL,
+  `LAST_CIBIL_DATE_C` datetime DEFAULT NULL,
+  `NO_OF_ACTIVE_LOANS_C` decimal(5,0) DEFAULT NULL,
+  `PROCESS_DEVIATION_FLAG` varchar(10) DEFAULT NULL,
+  `SMT_FLAG` varchar(1) DEFAULT NULL,
+  `HML_TAG` varchar(4) DEFAULT NULL,
+  `LAST_MODIFIED_DATE_RESIDENCE_EMAIL` datetime DEFAULT NULL,
+  `LAST_MODIFIED_DATE_OFFICE_MOBILE_NO` datetime DEFAULT NULL,
+  `LAST_MODIFIED_DATE_RESIDENCE_ADDRESS` datetime DEFAULT NULL,
+  `LAST_MODIFIED_DATE_OFFICE_ADDRESS` datetime DEFAULT NULL,
+  `ORIGINAL_AUTH_AMOUNT` decimal(12,2) DEFAULT NULL,
+  `PERTNER_EDC_CHANNEL` decimal(4,0) DEFAULT NULL,
+  `FRAUD_FLAG` varchar(3) DEFAULT NULL,
+  `CIBIL_THICK_THIN` varchar(10) DEFAULT NULL,
+  `LINE_MULTIPLIER` decimal(6,2) DEFAULT NULL,
+  `COMPUTED_LIMIT` decimal(12,0) DEFAULT NULL,
+  `DEALER_TYPE` varchar(24) DEFAULT NULL,
+  `BLOCK_CODE_SYSTEM` varchar(10) DEFAULT NULL,
+  `CARD_DESIGN` varchar(9) DEFAULT NULL,
+  `DEALER_SUPER_GROUP` decimal(10,0) DEFAULT NULL,
+  `PRICING_OVL_LINE_AMOUNT` decimal(12,0) DEFAULT NULL,
+  `PRICING_OVL_LINE_CONSUMPTION` decimal(12,0) DEFAULT NULL,
+  `PRICING_OVL_PCNT_CONSUMPTION` decimal(12,2) DEFAULT NULL,
+  `AUTH_REQUEST_DATE_TIME` timestamp(3) NULL DEFAULT NULL,
+  `CHAMPAIGN_CHALLENGER_NAME` varchar(255) DEFAULT NULL,
+  `CUSTOMER_CITY_ID` decimal(8,0) DEFAULT NULL,
+  `CARD_LIMIT` decimal(12,0) DEFAULT NULL,
+  `TOTAL_NET_ACTIVE_LOAN` decimal(5,0) DEFAULT NULL,
+  `TRANSACTION_STATUS` varchar(30) DEFAULT NULL,
+  `VOID_DATE` datetime DEFAULT NULL,
+  `CONVENIENCE_FEE` decimal(12,2) DEFAULT NULL,
+  `CONVENIENCE_FEE_CHARGE_ID` int DEFAULT NULL,
+  `CHARGE_FEE` decimal(12,2) DEFAULT NULL,
+  `CHARGE_ID` int DEFAULT NULL,
+  `PRICING_FEE_CHARGE_ID` int DEFAULT NULL,
+  `SHADOW_LIMIT` decimal(12,2) DEFAULT NULL,
+  `SHADOW_LIMIT_CONSUMPTION` decimal(12,2) DEFAULT NULL,
+  `DELIVERY_PIN_CODE` decimal(6,0) DEFAULT NULL,
+  `NO_OF_APPR_TXNS_DONE_ON_CARD_SAME_DAY` decimal(5,0) DEFAULT NULL,
+  `NO_OF_REJ_TXNS_DONE_ON_CARD_SAME_DAY` decimal(5,0) DEFAULT NULL,
+  `NO_OF_TXNS_DONE_ON_CARD_SAME_DAY` decimal(5,0) DEFAULT NULL,
+  `DAYS_DIFF_MBLCHNG_RCU` decimal(5,0) DEFAULT NULL,
+  `CARDS_CUSTOMER_IDS_MARKED_RISKY_IN_ATOS` varchar(1) DEFAULT NULL,
+  `PRIOR_FAILED_TRANSACTION_ON_THE_SAME_DAY_DUE_TO_OTP_EXPIRY` varchar(1) DEFAULT NULL,
+  `MULT_TXNS_ON_CARD_ON_SAME_DAY_TOT_AMT_GREATER_THAN_30000` varchar(1) DEFAULT NULL,
+  `OTHER_TXN_TYPE_ON_THE_SAME_DAY` varchar(1) DEFAULT NULL,
+  `TRANSACTION_DONE_ON_INTERSTATE_DEALER` varchar(1) DEFAULT NULL,
+  `DELIVERY_ADDRESS_CHANGE_FLAG` varchar(1) DEFAULT NULL,
+  `NO_OF_CARDS_LINKED_TO_MOBILE` decimal(10,0) DEFAULT NULL,
+  `ADDON_CARD_FLAG` varchar(1) DEFAULT NULL,
+  `ASSET_TYPE` varchar(50) DEFAULT NULL,
+  `ORDER_NUMBER_ECOM_PARTNER` varchar(150) DEFAULT NULL,
+  `EMAIL_ID` varchar(50) DEFAULT NULL,
+  `LAST_APPROVED_TRANSACTION_DATE` datetime DEFAULT NULL,
+  `DOB` date DEFAULT NULL,
+  `RESIDENCE_MOBILE_NUMBER_C` varchar(15) DEFAULT NULL,
+  `OFFICE_MOBILE_NUMBER_C` varchar(15) DEFAULT NULL,
+  `DELER_NAME_C` varchar(150) DEFAULT NULL,
+  `CUSTOMER_RESIDENCE_CITY_C` decimal(8,0) DEFAULT NULL,
+  `CUSTOMER_STATE_C` decimal(8,0) DEFAULT NULL,
+  `DEALER_CITY_C` varchar(105) DEFAULT NULL,
+  `DEALER_STATE_C` varchar(20) DEFAULT NULL,
+  `OLD_MOBILENUMBER` varchar(15) DEFAULT NULL,
+  `FOS_MOBILE` varchar(15) DEFAULT NULL,
+  `RESIDENCE_MOBILE_CHG_DATE` datetime DEFAULT NULL,
+  `CRD_SYSTEM_BLOCK_CODE` varchar(10) DEFAULT NULL,
+  `CST_VIP_NONVIP_FLAG` varchar(1) DEFAULT NULL,
+  `FRAUD_PROCESS_FLAG` varchar(1) DEFAULT 'P',
+  `FRAUD_PROCESS_TIMESTAMP` timestamp NULL DEFAULT NULL,
+  `creation_date` timestamp(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
+  `CST_CLI_TXN_RISK_SCORE` decimal(3,0) DEFAULT NULL,
+  `SAME_DAY_SAME_DELEAR` varchar(1) DEFAULT NULL,
+  `FLAG_DATA_NOT_IN_BRE` varchar(1) DEFAULT NULL,
+  `ACC_VIP_NONVIP_FLAG` varchar(1) DEFAULT NULL,
+  `DEALER_RANK_DIGI` varchar(50) DEFAULT NULL,
+  `CST_CLI_ECS_AUTH_BLOCKED` decimal(12,0) DEFAULT NULL,
+  `CST_CLI_ECS_LOAN_BLOCKED` decimal(12,0) DEFAULT NULL,
+  `product_descriptions` varchar(100) DEFAULT NULL,
+  `EDW_SEND_DATE_TIME` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `MOBILE_BASED_AUTH` varchar(1) DEFAULT NULL,
+  `ADDR_LENGTH` varchar(3) DEFAULT NULL,
+  `HIERARCHY__C` int DEFAULT NULL,
+  `DEALER_CASH_FUNDING` varchar(1) DEFAULT NULL,
+  `DEALER_CUST_AMT` decimal(12,2) DEFAULT NULL,
+  `DEALER_DIY_FLAG` varchar(1) DEFAULT NULL,
+  `DEALER_DIY_AMT` decimal(12,2) DEFAULT NULL,
+  `FRUAD_GEN_REMARK` varchar(45) DEFAULT NULL,
+  `REQUEST_ID` varchar(100) DEFAULT NULL,
+  `API_REQUEST_START_TIME` timestamp(3) NULL DEFAULT NULL,
+  `API_REQUEST_END_TIME` timestamp(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
+  `CIBILV3_SCORE` varchar(12) DEFAULT NULL,
+  `GAID` varchar(30) DEFAULT NULL,
+  `LATITUDE` varchar(30) DEFAULT NULL,
+  `LONGITUDE` varchar(30) DEFAULT NULL,
+  `IPADDRESS` varchar(15) DEFAULT NULL,
+  `IPCITY` varchar(20) DEFAULT NULL,
+  `REPEATFLAG` varchar(1) DEFAULT NULL,
+  `GAIDCOUNT` int DEFAULT NULL,
+  `CLI_DOCS_PENDING_FLAG` varchar(1) DEFAULT NULL,
+  `SFDC_ORG` varchar(1) DEFAULT NULL,
+  `FIRST_TRANSACTION_LIMIT` decimal(12,2) DEFAULT NULL,
+  `FIRST_TRANSACTION_DATE` datetime DEFAULT NULL,
+  `SDK_SEGMENT` varchar(6) DEFAULT NULL,
+  `SDK_SEGMENT_DATE` date DEFAULT NULL,
+  `CREDIT_LIMIT_CHG_DATE` date DEFAULT NULL,
+  `DIGITAL_TXN_ELIGIBILITY` varchar(2) DEFAULT NULL,
+  `NON_DIGITAL_TXN_ELIGIBILITY` varchar(2) DEFAULT NULL,
+  `L6M_ENQUIRY_UNSEC` int DEFAULT NULL,
+  `B2B_POS` decimal(12,2) DEFAULT NULL,
+  `DIM_CUSTOMER_BRANCH` varchar(20) DEFAULT NULL,
+  `REQUEST_TYPE` varchar(20) DEFAULT NULL,
+  `COUNT_OF_ACNT_ON_IP` int DEFAULT NULL,
+  `GEO_CORD_CITY` varchar(60) DEFAULT NULL,
+  `COUNT_OF_DEV_ON_IP` int DEFAULT NULL,
+  `TXN_FLAG` varchar(6) DEFAULT NULL,
+  `DELIVERY_PICK` int DEFAULT NULL,
+  `DIST_OF_CUST_DEL_ADD` varchar(60) DEFAULT NULL,
+  `PL_SCORE` int DEFAULT NULL,
+  `COVID_RESTRUCTURE_FLAG` varchar(255) DEFAULT NULL,
+  `MODEL_ID` int DEFAULT '0',
+  `CLV_IDENTIFIER` varchar(12) DEFAULT NULL,
+  `RISK_BAND` int DEFAULT '0',
+  `RURAL_RISK_SCORE` decimal(10,2) DEFAULT '0.00',
+  `CUSTOMER_LOCATION_FLAG` varchar(100) DEFAULT NULL,
+  `BURO_TIMESERIES_SEGMENT` varchar(12) DEFAULT NULL,
+  `EBIKE_COUNT` int DEFAULT '0',
+  `EVER_BOUNCE_COUNT` int DEFAULT '0',
+  `EVER_BUCKET` int DEFAULT '0',
+  `DEROG_VARIABLE` varchar(50) DEFAULT NULL,
+  `UNSEC_ENQ_12M` int DEFAULT '0',
+  `UPI_NO_SUCCESS_TXNS` int DEFAULT '0',
+  `UPI_TXN_SUCCESS_VALUE` decimal(20,0) DEFAULT '0',
+  `UPI_P2M_TXN_COUNT` int DEFAULT '0',
+  `UPI_P2M_TXN_VALUE` decimal(20,0) DEFAULT '0',
+  `PPI_TRANSACTION_SUCCESS` int DEFAULT '0',
+  `PPI_TXN_COUNT_LOAD` int DEFAULT '0',
+  `PPI_TXN_VALUE_LOAD` decimal(20,0) DEFAULT '0',
+  `PPI_TXN_COUNT_SPEND` int DEFAULT '0',
+  `PPI_TXN_VALUE_SPEND` decimal(20,0) DEFAULT '0',
+  `BBPS_TOTAL_TXNS_SUCCESS` int DEFAULT '0',
+  `BBPS_TXN_SUCCESS_VALUE` decimal(20,0) DEFAULT '0',
+  `BBPS_ELECTRICITY_TXNS` int DEFAULT '0',
+  `BBPS_ELECTRICITY_TXN_VALUE` decimal(20,0) DEFAULT '0',
+  `SDK_AMT_10K` varchar(1) DEFAULT NULL,
+  `RISK_SCORE_MODULE` int DEFAULT '0',
+  `CLI_CREATION_RISK_SEGMENT` varchar(12) DEFAULT NULL,
+  `BUREAU_VINTAGE` date DEFAULT NULL,
+  `REKYC_FLAG` varchar(1) DEFAULT NULL,
+  `BRE9_FLAG` varchar(2) DEFAULT 'N',
+  `EXECUTION_TIME` varchar(1000) DEFAULT NULL,
+  `PHONE_LOCK_FLAG` varchar(10) DEFAULT NULL,
+  `PHONE_LOCK_COUNT_PREV` int DEFAULT NULL,
+  `REKYC_REASON` varchar(100) DEFAULT NULL,
+  `REKYC_DATE` varchar(30) DEFAULT NULL,
+  `VELOCITY_BUCKET_COUNT` longtext,
+  `CST_CLI_AA_LAST_UPDATE_DATE_TIME` datetime DEFAULT NULL,
+  `L3M_ENQUIRY_UNSEC` int DEFAULT NULL,
+  `PL_ENQUIRY_L3M` int DEFAULT NULL,
+  `PL_ENQUIRY_L6M` int DEFAULT NULL,
+  `MANUFACTURE_ID` int DEFAULT NULL,
+  `FUTURE_USE_ONE` varchar(15) DEFAULT NULL,
+  `FUTURE_USE_SECOND` varchar(15) DEFAULT NULL,
+  `TXN_INTERCITY_FLAG` varchar(15) DEFAULT NULL,
+  `TXN_ISPOAAVAILABLEC` varchar(15) DEFAULT NULL,
+  `BRANCH_NAME` varchar(15) DEFAULT NULL,
+  `DEALER_RISK_CATEGORY` varchar(20) DEFAULT NULL,
+  `AUTH_SERVER_NAME` varchar(75) DEFAULT NULL,
+  `DEALER_INTERCITY_FLAG` varchar(15) DEFAULT NULL,
+  `EMI_ANYWHERE` varchar(15) DEFAULT NULL,
+  `AA_CONSENT_FLAG` varchar(15) DEFAULT NULL,
+  `FIELD1_PROMO` varchar(20) DEFAULT NULL,
+  `PROMOELIGIBLE` varchar(20) DEFAULT NULL,
+  `TXN_CUG_FLAG` varchar(5) DEFAULT NULL,
+  `CST_CLI_AA_AVERAGE_BAL` int DEFAULT NULL,
+  `CST_CLI_AA_LATEST_BANK_BAL` int DEFAULT NULL,
+  `CST_MFI_FLAG` varchar(45) DEFAULT NULL,
+  `TXN_APP_PRIMARY_INCOME` int DEFAULT NULL,
+  `TXN_APP_OTHER_INCOME` int DEFAULT NULL,
+  `TXN_HOUSEHOLD_MEMBER_INCOME` int DEFAULT NULL,
+  `TXN_HOUSEHOLD_OBLIGATION` int DEFAULT NULL,
+  `FOIR` decimal(10,2) DEFAULT NULL,
+  `TXN_POS_PAN_NUMBER` varchar(45) DEFAULT NULL,
+  `FOIR_FLAG` varchar(45) DEFAULT NULL,
+  `CST_FOIR_NUM` decimal(5,2) DEFAULT '0.00',
+  `TXN_NAME_MATCH_RESPONSE_C` varchar(25) DEFAULT NULL,
+  `TXN_ULI_AREA_C` decimal(10,7) DEFAULT '0.0000000',
+  `TXN_ULI_AREA_UNIT_C` varchar(25) DEFAULT NULL,
+  `TXN_VEHICLE_TYPE` varchar(25) DEFAULT NULL,
+  `TXN_VAAHAN_VEHICLE_CLASS_C` varchar(50) DEFAULT NULL,
+  `OFFUS_EMI_AMT` decimal(20,2) DEFAULT '0.00',
+  `ONUS_EMI_AMT` decimal(20,2) DEFAULT '0.00',
+  `ELIGIBLE_EMI_AMOUNT` decimal(20,2) DEFAULT '0.00',
+  `CST_STATUS_CODE` varchar(50) DEFAULT NULL,
+  `CST_NAME_MATCH_SCORE` varchar(50) DEFAULT NULL,
+  `CST_KYC_RECEIVED_DATE` datetime DEFAULT NULL,
+  `CST_CLI_KYC_PROCESS` varchar(100) DEFAULT NULL,
+  `TXN_CUSTOMER_IP` varchar(20) DEFAULT NULL,
+  `TXN_WLSERVER_IP` varchar(10) DEFAULT NULL,
+  `NEGATIVE_AREA_MATCH` varchar(25) DEFAULT NULL,
+  `WARRANTY` varchar(5) DEFAULT NULL,
+  `RELATIONSHIP_DECLARATION` varchar(50) DEFAULT NULL,
+  `FINAL_AVAILABLE_OVL` decimal(12,0) DEFAULT NULL,
+  `MIGRATED` tinyint(1) DEFAULT '0',
+  `MIGRATED_AT` datetime DEFAULT NULL,
+  PRIMARY KEY (`RRN_NUMBER`),
+  KEY `idx_customer_id` (`CUSTOMER_ID`),
+  KEY `idx_product` (`PRODUCT`),
+  KEY `idx_req_date_time` (`AUTH_REQUEST_DATE_TIME`),
+  KEY `idx_transaction_status` (`TRANSACTION_STATUS`),
+  KEY `idx_cust_id_req_date` (`CUSTOMER_ID`,`AUTH_REQUEST_DATE_TIME`),
+  KEY `idx_response_code` (`RESPONSE_CODE`),
+  KEY `idx_transaction_details_creation_date` (`creation_date`),
+  KEY `idx_transaction_details_EDW_SEND_DATE_TIME` (`EDW_SEND_DATE_TIME`),
+  KEY `idx_transaction_details_FRUAD_GEN_REMARK` (`FRUAD_GEN_REMARK`),
+  KEY `idx_transaction_details_REQUEST_ID` (`REQUEST_ID`),
+  KEY `idx_transaction_details_TRANSACTION_STATUS_CUSTOMER_ID` (`TRANSACTION_STATUS`,`CUSTOMER_ID`),
+  KEY `idx_transaction_details_MODEL_ID` (`MODEL_ID`),
+  KEY `idx_transaction_details_BRE9_FLAG` (`BRE9_FLAG`),
+  KEY `idx_txn_details_query` (`CUSTOMER_ID`,`TRANSACTION_STATUS`,`AUTH_REQUEST_DATE_TIME`,`PRODUCT`),
+  KEY `idx_transaction_details_migrated` (`MIGRATED`),
+  KEY `idx_transaction_details_server_migrated` (`AUTH_SERVER_NAME`,`MIGRATED`),
+  KEY `idx_txn_dashboard_date_product` (`AUTH_REQUEST_DATE_TIME`,`PRODUCT`,`DEALER_CODE_ETAILER`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `transaction_details_srcreq_otp` (
+  `CUSTOMER_ID` decimal(30,0) DEFAULT NULL,
+  `CARD_NUMBER` varchar(19) DEFAULT NULL,
+  `RRN_NUMBER` varchar(20) DEFAULT NULL,
+  `GROSS_TENURE` decimal(12,0) DEFAULT NULL,
+  `ADVANCE_EMI` decimal(12,0) DEFAULT NULL,
+  `POS_ENTRY_MODE` varchar(4) DEFAULT NULL,
+  `NO_OF_ADVANCE_EMI` decimal(2,0) DEFAULT NULL,
+  `MODE_OF_TRANSACTION` varchar(30) DEFAULT NULL,
+  `SOURCE_OF_TRANSACTION` varchar(50) DEFAULT NULL,
+  `RESPONSE_CODE` varchar(2) DEFAULT NULL,
+  `DECLINE_REASON_DESCRIPTION` varchar(150) DEFAULT NULL,
+  `FAILED_RULE_ID` varchar(100) DEFAULT NULL,
+  `NOW_AVAILABLE_LIMIT` decimal(12,0) DEFAULT NULL,
+  `BEFORE_TXN_AVAILABLE_LIMIT` decimal(12,2) DEFAULT NULL,
+  `OPEN_ECS_AVAILABLE_EMI_LIMIT_C` decimal(12,2) DEFAULT NULL,
+  `OPEN_ECS_VALID_DATE_C` date DEFAULT NULL,
+  `CIBIL_TRIGGERED_ID` varchar(7) DEFAULT NULL,
+  `PRICING_CALCULATED_FEE` decimal(6,0) DEFAULT NULL,
+  `NO_LIVE_LOANS_DIGI` decimal(5,0) DEFAULT NULL,
+  `NO_LIVE_LOANS_REMI` decimal(5,0) DEFAULT NULL,
+  `NO_LIVE_LOANS_ECOM` decimal(5,0) DEFAULT NULL,
+  `NO_LIVE_LOANS_NONDIGI` decimal(5,0) DEFAULT NULL,
+  `NO_LIVE_LOANS_REP` decimal(5,0) DEFAULT NULL,
+  `NO_LIVE_LOANS_EPL` decimal(5,0) DEFAULT NULL,
+  `NO_LIVE_LOANS_SPL` decimal(5,0) DEFAULT NULL,
+  `NO_LIVE_LOANS_ERL` decimal(5,0) DEFAULT NULL,
+  `NO_LIVE_LOANS_WLT` decimal(5,0) DEFAULT NULL,
+  `NO_LIVE_LOANS_RWT` decimal(5,0) DEFAULT NULL,
+  `NO_LOANS_EVER_DIGI` decimal(5,0) DEFAULT NULL,
+  `NO_LOANS_EVER_REMI` decimal(5,0) DEFAULT NULL,
+  `NO_LOANS_EVER_ECOM` decimal(5,0) DEFAULT NULL,
+  `NO_LOANS_EVER_NONDIGI` decimal(5,0) DEFAULT NULL,
+  `DEALER_CODE_ETAILER` decimal(12,0) DEFAULT NULL,
+  `DEALER_FORMAT` varchar(20) DEFAULT NULL,
+  `EMI_AMT` decimal(12,2) DEFAULT NULL,
+  `TOTAL_EMI_LIVE_LOANS_ALL` decimal(12,2) DEFAULT NULL,
+  `TOTAL_EMI_LIVE_LOANS_ECF` decimal(12,2) DEFAULT NULL,
+  `TOTAL_EMI_LIVE_LOANS_ERF` decimal(12,2) DEFAULT NULL,
+  `TOTAL_EMI_LIVE_LOANS_REMI` decimal(12,2) DEFAULT NULL,
+  `TOTAL_EMI_LIVE_LOANS_DIGI` decimal(12,2) DEFAULT NULL,
+  `TOTAL_EMI_LIVE_LOANS_NONDIGI` decimal(12,2) DEFAULT NULL,
+  `CARD_UTILIZATION_ACCOUNT` decimal(12,2) DEFAULT NULL,
+  `CARD_UTILIZATION_CUSTOMER` decimal(12,2) DEFAULT NULL,
+  `HIGHEST_UTILIZATION_L6M` decimal(12,2) DEFAULT NULL,
+  `NO_OF_NON_TECH_BOUNCE_12M_ALL_LOANS` decimal(5,0) DEFAULT NULL,
+  `NO_OF_NON_TECH_BOUNCE_6M_ALL_LOANS` decimal(5,0) DEFAULT NULL,
+  `NO_NONTECH_BNC_L3M` decimal(5,0) DEFAULT NULL,
+  `NO_BNC_L12M` decimal(5,0) DEFAULT NULL,
+  `DAYS_DIFF_BASELOAN` decimal(5,0) DEFAULT NULL,
+  `HAS_HL_BUREAU` varchar(4) DEFAULT NULL,
+  `HAS_CC_BUREAU` varchar(4) DEFAULT NULL,
+  `BUREAU_TIMESERIES_SEG` varchar(4) DEFAULT NULL,
+  `MBK_DNLD_DT_STATUS` varchar(4) DEFAULT NULL,
+  `DEALER_RANK` varchar(20) DEFAULT NULL,
+  `DEALER_CITY_ID` decimal(8,0) DEFAULT NULL,
+  `DEALER_PINCODE` decimal(6,0) DEFAULT NULL,
+  `DEALER_STATE` decimal(8,0) DEFAULT NULL,
+  `CUSTOMER_PINCODE` decimal(8,0) DEFAULT NULL,
+  `CUSTOMER_STATE` decimal(8,0) DEFAULT NULL,
+  `INTERCITY_TRXN` varchar(1) DEFAULT NULL,
+  `MBL_CHANGE_DATE` datetime DEFAULT NULL,
+  `DAYS_DIFF_MBLCHNG` decimal(5,0) DEFAULT NULL,
+  `CIBILSCORE` varchar(12) DEFAULT NULL,
+  `CARD_TYPE` varchar(9) DEFAULT NULL,
+  `CUSTOMER_TYPE` varchar(10) DEFAULT NULL,
+  `CARD_SOURCE_IDENTIFIER` varchar(255) DEFAULT NULL,
+  `ASSET_CATEGORY` decimal(8,0) DEFAULT NULL,
+  `DAYS_FROM_LAST_CIBIL` decimal(5,0) DEFAULT NULL,
+  `ASSET_CATEGORY_RISK_HIGH_MEDIUM_LOW` varchar(3) DEFAULT NULL,
+  `PRODUCT` varchar(10) DEFAULT NULL,
+  `LTV` decimal(6,2) DEFAULT NULL,
+  `DAYS_FROM_CARD_VALID_DATE` decimal(5,0) DEFAULT NULL,
+  `DAYS_FROM_LAST_LOAN` decimal(5,0) DEFAULT NULL,
+  `B_SCORE` decimal(3,0) DEFAULT NULL,
+  `DAYS_FROM_LAST_TRANSACTION` decimal(5,0) DEFAULT NULL,
+  `NET_LOAN_AMOUNT` decimal(12,0) DEFAULT NULL,
+  `VALIDFROM_C_CUSTOMER_LEVEL` date DEFAULT NULL,
+  `LAST_CIBIL_DATE_C` datetime DEFAULT NULL,
+  `NO_OF_ACTIVE_LOANS_C` decimal(5,0) DEFAULT NULL,
+  `PROCESS_DEVIATION_FLAG` varchar(1) DEFAULT NULL,
+  `SMT_FLAG` varchar(1) DEFAULT NULL,
+  `HML_TAG` varchar(4) DEFAULT NULL,
+  `LAST_MODIFIED_DATE_RESIDENCE_EMAIL` datetime DEFAULT NULL,
+  `LAST_MODIFIED_DATE_OFFICE_MOBILE_NO` datetime DEFAULT NULL,
+  `LAST_MODIFIED_DATE_RESIDENCE_ADDRESS` datetime DEFAULT NULL,
+  `LAST_MODIFIED_DATE_OFFICE_ADDRESS` datetime DEFAULT NULL,
+  `ORIGINAL_AUTH_AMOUNT` decimal(12,2) DEFAULT NULL,
+  `PERTNER_EDC_CHANNEL` decimal(4,0) DEFAULT NULL,
+  `FRAUD_FLAG` varchar(3) DEFAULT NULL,
+  `CIBIL_THICK_THIN` varchar(10) DEFAULT NULL,
+  `LINE_MULTIPLIER` decimal(6,2) DEFAULT NULL,
+  `COMPUTED_LIMIT` decimal(12,0) DEFAULT NULL,
+  `DEALER_TYPE` varchar(24) DEFAULT NULL,
+  `BLOCK_CODE_SYSTEM` varchar(10) DEFAULT NULL,
+  `CARD_DESIGN` varchar(9) DEFAULT NULL,
+  `DEALER_SUPER_GROUP` decimal(10,0) DEFAULT NULL,
+  `PRICING_OVL_LINE_AMOUNT` decimal(12,0) DEFAULT NULL,
+  `PRICING_OVL_LINE_CONSUMPTION` decimal(12,0) DEFAULT NULL,
+  `PRICING_OVL_PCNT_CONSUMPTION` decimal(12,2) DEFAULT NULL,
+  `AUTH_REQUEST_DATE_TIME` timestamp(3) NULL DEFAULT NULL,
+  `CHAMPAIGN_CHALLENGER_NAME` varchar(255) DEFAULT NULL,
+  `CUSTOMER_CITY_ID` decimal(8,0) DEFAULT NULL,
+  `CARD_LIMIT` decimal(12,0) DEFAULT NULL,
+  `TOTAL_NET_ACTIVE_LOAN` decimal(5,0) DEFAULT NULL,
+  `TRANSACTION_STATUS` varchar(30) DEFAULT NULL,
+  `VOID_DATE` datetime DEFAULT NULL,
+  `CONVENIENCE_FEE` decimal(12,2) DEFAULT NULL,
+  `CONVENIENCE_FEE_CHARGE_ID` int DEFAULT NULL,
+  `CHARGE_FEE` decimal(12,2) DEFAULT NULL,
+  `CHARGE_ID` int DEFAULT NULL,
+  `PRICING_FEE_CHARGE_ID` int DEFAULT NULL,
+  `SHADOW_LIMIT` decimal(12,2) DEFAULT NULL,
+  `SHADOW_LIMIT_CONSUMPTION` decimal(12,2) DEFAULT NULL,
+  `DELIVERY_PIN_CODE` decimal(6,0) DEFAULT NULL,
+  `NO_OF_APPR_TXNS_DONE_ON_CARD_SAME_DAY` decimal(5,0) DEFAULT NULL,
+  `NO_OF_REJ_TXNS_DONE_ON_CARD_SAME_DAY` decimal(5,0) DEFAULT NULL,
+  `NO_OF_TXNS_DONE_ON_CARD_SAME_DAY` decimal(5,0) DEFAULT NULL,
+  `DAYS_DIFF_MBLCHNG_RCU` decimal(5,0) DEFAULT NULL,
+  `CARDS_CUSTOMER_IDS_MARKED_RISKY_IN_ATOS` varchar(1) DEFAULT NULL,
+  `PRIOR_FAILED_TRANSACTION_ON_THE_SAME_DAY_DUE_TO_OTP_EXPIRY` varchar(1) DEFAULT NULL,
+  `MULT_TXNS_ON_CARD_ON_SAME_DAY_TOT_AMT_GREATER_THAN_30000` varchar(1) DEFAULT NULL,
+  `OTHER_TXN_TYPE_ON_THE_SAME_DAY` varchar(1) DEFAULT NULL,
+  `TRANSACTION_DONE_ON_INTERSTATE_DEALER` varchar(1) DEFAULT NULL,
+  `DELIVERY_ADDRESS_CHANGE_FLAG` varchar(1) DEFAULT NULL,
+  `NO_OF_CARDS_LINKED_TO_MOBILE` decimal(10,0) DEFAULT NULL,
+  `ADDON_CARD_FLAG` varchar(1) DEFAULT NULL,
+  `ASSET_TYPE` varchar(50) DEFAULT NULL,
+  `ORDER_NUMBER_ECOM_PARTNER` varchar(150) DEFAULT NULL,
+  `EMAIL_ID` varchar(50) DEFAULT NULL,
+  `LAST_APPROVED_TRANSACTION_DATE` datetime DEFAULT NULL,
+  `DOB` date DEFAULT NULL,
+  `RESIDENCE_MOBILE_NUMBER_C` varchar(15) DEFAULT NULL,
+  `OFFICE_MOBILE_NUMBER_C` varchar(15) DEFAULT NULL,
+  `DELER_NAME_C` varchar(150) DEFAULT NULL,
+  `CUSTOMER_RESIDENCE_CITY_C` decimal(8,0) DEFAULT NULL,
+  `CUSTOMER_STATE_C` decimal(8,0) DEFAULT NULL,
+  `DEALER_CITY_C` varchar(105) DEFAULT NULL,
+  `DEALER_STATE_C` varchar(20) DEFAULT NULL,
+  `OLD_MOBILENUMBER` varchar(15) DEFAULT NULL,
+  `FOS_MOBILE` varchar(15) DEFAULT NULL,
+  `RESIDENCE_MOBILE_CHG_DATE` datetime DEFAULT NULL,
+  `CRD_SYSTEM_BLOCK_CODE` varchar(10) DEFAULT NULL,
+  `CST_VIP_NONVIP_FLAG` varchar(1) DEFAULT NULL,
+  `REQ_TYPE` varchar(20) DEFAULT NULL,
+  `creation_date` timestamp(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
+  `REQUEST_ID` varchar(100) DEFAULT NULL,
+  `API_REQUEST_START_TIME` timestamp(3) NULL DEFAULT NULL,
+  `API_REQUEST_END_TIME` timestamp(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
+  `CIBILV3_SCORE` varchar(12) DEFAULT NULL,
+  `CST_CLI_ECS_AUTH_BLOCKED` decimal(12,0) DEFAULT NULL,
+  `CST_CLI_ECS_LOAN_BLOCKED` decimal(12,0) DEFAULT NULL,
+  `tdso_id` bigint NOT NULL AUTO_INCREMENT,
+  `BRE9_FLAG` varchar(2) DEFAULT 'N',
+  `EXECUTION_TIME` varchar(1000) DEFAULT NULL,
+  `CAST_AUTH_REQUEST_DATE_TIME` date GENERATED ALWAYS AS (cast(`AUTH_REQUEST_DATE_TIME` as date)) VIRTUAL,
+  `CD_PROMO` varchar(25) DEFAULT NULL,
+  `DIGITAL_PROMO` varchar(25) DEFAULT NULL,
+  `LCF_PROMO` varchar(25) DEFAULT NULL,
+  `LSF_PROMO` varchar(25) DEFAULT NULL,
+  `MSH_PROMO` varchar(25) DEFAULT NULL,
+  `IFC_PROMO` varchar(25) DEFAULT NULL,
+  `DCDP_PROMO` varchar(25) DEFAULT NULL,
+  `BLKREAON` varchar(25) DEFAULT NULL,
+  `CNBLOCK` varchar(25) DEFAULT NULL,
+  `DIG_LIMI_COLOR` varchar(25) DEFAULT NULL,
+  `NON_DIG_LIM_COLOR` varchar(25) DEFAULT NULL,
+  `VELOCITY_BUCKET_COUNT` longtext,
+  `AUTH_SERVER_NAME` varchar(75) DEFAULT NULL,
+  `DEALER_INTERCITY_FLAG` varchar(15) DEFAULT NULL,
+  `EMI_ANYWHERE` varchar(15) DEFAULT NULL,
+  `AA_CONSENT_FLAG` varchar(15) DEFAULT NULL,
+  `FIELD1_PROMO` varchar(20) DEFAULT NULL,
+  `PROMOELIGIBLE` varchar(20) DEFAULT NULL,
+  `TXN_CUG_FLAG` varchar(5) DEFAULT NULL,
+  `IFC_LINE` varchar(20) DEFAULT NULL,
+  `DCDP_LINE` varchar(20) DEFAULT NULL,
+  `CD_REASON` varchar(20) DEFAULT NULL,
+  `DPF_REASON` varchar(20) DEFAULT NULL,
+  `IFC_REASON` varchar(20) DEFAULT NULL,
+  `DCDP_REASON` varchar(20) DEFAULT NULL,
+  `DCDP_RESPONSE_CODE` varchar(20) DEFAULT NULL,
+  `CD_RESPONSE_CODE` varchar(20) DEFAULT NULL,
+  `DPF_RESPONSE_CODE` varchar(20) DEFAULT NULL,
+  `IFC_RESPONSE_CODE` varchar(20) DEFAULT NULL,
+  `MAX_LAST_EMI_DATE` varchar(100) DEFAULT NULL,
+  `MAX_EMI_AMT` varchar(50) DEFAULT NULL,
+  `MAX_NET_LOAN` varchar(50) DEFAULT NULL,
+  `MAX_NET_TENURE` varchar(50) DEFAULT NULL,
+  `MAX_LTV` varchar(50) DEFAULT NULL,
+  `RISK_BAND` decimal(6,0) DEFAULT NULL,
+  `DIM_CUSTOMER_BRANCH` varchar(45) DEFAULT NULL,
+  `TXN_MODEL_ID` int DEFAULT '0',
+  `RESPONSE_CODE_NEW` varchar(5) DEFAULT NULL,
+  `REASON_NEW` varchar(100) DEFAULT NULL,
+  `STG_FLAG` varchar(5) DEFAULT NULL,
+  `CST_KYC_RECEIVED_DATE` datetime DEFAULT NULL,
+  `CST_CLI_KYC_PROCESS` varchar(100) DEFAULT NULL,
+  `LSF_LINE` varchar(20) DEFAULT NULL,
+  `LSF_REASON` varchar(20) DEFAULT NULL,
+  `LSF_RESPONSE_CODE` varchar(20) DEFAULT NULL,
+  `LCF_LINE` varchar(20) DEFAULT NULL,
+  `LCF_REASON` varchar(20) DEFAULT NULL,
+  `LCF_RESPONSE_CODE` varchar(20) DEFAULT NULL,
+  `HLBFHL_LINE` varchar(20) DEFAULT NULL,
+  `HLBFHL_REASON` varchar(20) DEFAULT NULL,
+  `HLBFHL_RESPONSE_CODE` varchar(20) DEFAULT NULL,
+  `HLBFHL_PROMO` varchar(20) DEFAULT NULL,
+  `TXN_WLSERVER_IP` varchar(10) DEFAULT NULL,
+  `NEGATIVE_AREA_MATCH` varchar(25) DEFAULT NULL,
+  `ADDITIONAL_RESPONSE` longtext,
+  `WARRANTY` varchar(5) DEFAULT NULL,
+  `RELATIONSHIP_DECLARATION` varchar(50) DEFAULT NULL,
+  `FINAL_AVAILABLE_OVL` decimal(12,0) DEFAULT NULL,
+  `ELIGIBLE_NET_LOAN_AMOUNT` varchar(20) DEFAULT NULL,
+  `ELIGIBLE_EMI_AMOUNT` varchar(20) DEFAULT NULL,
+  `ELIGIBLE_LTV` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`tdso_id`),
+  KEY `idx_CUSTOMER_ID_RRN_NUMBER_AUTH_REQUEST_DATE_TIME` (`CUSTOMER_ID`,`RRN_NUMBER`,`AUTH_REQUEST_DATE_TIME`),
+  KEY `idx_transaction_details_srcreq_otp_creation_date` (`creation_date`),
+  KEY `idx_auth_request_date_time` (`AUTH_REQUEST_DATE_TIME`),
+  KEY `idx_transaction_details_srcreq_otp_REQUEST_ID` (`REQUEST_ID`),
+  KEY `idx_transaction_details_srcreq_otp_BRE9_FLAG` (`BRE9_FLAG`),
+  KEY `idx_transaction_details_srcreq_otp_CAST_AUTH_REQUEST_DATE_TIME` (`CAST_AUTH_REQUEST_DATE_TIME`),
+  KEY `idx_otp_req_type_auth_time` (`REQ_TYPE`,`AUTH_REQUEST_DATE_TIME`)
+) ENGINE=InnoDB AUTO_INCREMENT=220482431 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE OR REPLACE VIEW `bre_underwriting`.`festival_summary_detailed_mins_new` AS
+    SELECT 
+        `finalloop`.`TXNDATE` AS `TXN DATE`,
+        IFNULL(`finalloop`.`HRS`, 'TOTAL') AS `HRS`,
+        IFNULL(`finalloop`.`MINS`, 'TOTAL') AS `MINS`,
+        SUM(`finalloop`.`TOTAL_AUTH_HITS`) AS `TOTAL AUTH HITS`,
+        SUM(`finalloop`.`TOTAL_ECOM_HITS`) AS `TOTAL ECOM HITS`,
+        SUM(`finalloop`.`ECOM_APPROVED`) AS `ECOM APPROVED`,
+        FORMAT(AVG(`finalloop`.`ECOM_APPROVAL_RATE`),
+            2) AS `ECOM APPROVAL RATE`,
+        SUM(`finalloop`.`FK_HITS`) AS `FK HITS`,
+        SUM(`finalloop`.`FK_APPROVED`) AS `FK APPROVED`,
+        FORMAT(AVG(`finalloop`.`FK_APPROVAL_RATE`),
+            2) AS `FK APPROVAL RATE`,
+        SUM(`finalloop`.`AZ_HITS`) AS `AZ HITS`,
+        SUM(`finalloop`.`AZ_APPROVED`) AS `AZ APPROVED`,
+        FORMAT(AVG(`finalloop`.`AZ_APPROVAL_RATE`),
+            2) AS `AZ APPROVAL RATE`,
+        SUM(`finalloop`.`VOID`) AS `VOID`,
+        SUM(`finalloop`.`DECLINED`) AS `DECLINED`
+    FROM
+        (SELECT 
+            `trar`.`dates` AS `TXNDATE`,
+                `trar`.`hours` AS `HRS`,
+                `trar`.`mins` AS `MINS`,
+                SUM(`trar`.`total`) AS `TOTAL_AUTH_HITS`,
+                SUM(`trar`.`ecom_total`) AS `TOTAL_ECOM_HITS`,
+                SUM(`trar`.`ECOM_Approved`) AS `ECOM_APPROVED`,
+                FORMAT(((SUM(`trar`.`ECOM_Approved`) / SUM(`trar`.`ecom_total`)) * 100), 2) AS `ECOM_APPROVAL_RATE`,
+                SUM(`trar`.`Flipkart`) AS `FK_HITS`,
+                SUM(`trar`.`Flipkart_Approved`) AS `FK_APPROVED`,
+                FORMAT(((SUM(`trar`.`Flipkart_Approved`) / SUM(`trar`.`Flipkart`)) * 100), 2) AS `FK_APPROVAL_RATE`,
+                SUM(`trar`.`Amazon`) AS `AZ_HITS`,
+                SUM(`trar`.`Amazon_Approved`) AS `AZ_APPROVED`,
+                FORMAT(((SUM(`trar`.`Amazon_Approved`) / SUM(`trar`.`Amazon`)) * 100), 2) AS `AZ_APPROVAL_RATE`,
+                SUM(`trar`.`A_Void`) AS `VOID`,
+                SUM(`trar`.`A_Declined`) AS `DECLINED`
+        FROM
+            (SELECT 
+            DATE_FORMAT(`bre_underwriting`.`transaction_details`.`AUTH_REQUEST_DATE_TIME`, '%Y-%m-%d') AS `dates`,
+                DATE_FORMAT(`bre_underwriting`.`transaction_details`.`AUTH_REQUEST_DATE_TIME`, '%H') AS `hours`,
+                DATE_FORMAT(`bre_underwriting`.`transaction_details`.`AUTH_REQUEST_DATE_TIME`, '%i') AS `mins`,
+                `bre_underwriting`.`transaction_details`.`DEALER_CODE_ETAILER` AS `DEALER_CODE_ETAILER`,
+                `bre_underwriting`.`transaction_details`.`TRANSACTION_STATUS` AS `TRANSACTION_STATUS`,
+                COUNT(0) AS `total`,
+                SUM((CASE
+                    WHEN (`bre_underwriting`.`transaction_details`.`TRANSACTION_STATUS` = 'APPROVED') THEN 1
+                    ELSE 0
+                END)) AS `Total_Approved`,
+                SUM((CASE
+                    WHEN
+                        ((`bre_underwriting`.`transaction_details`.`TRANSACTION_STATUS` = 'APPROVED')
+                            AND (`bre_underwriting`.`transaction_details`.`PRODUCT` IN ('PECF' , 'PERF', 'PVECF', 'PVERF')))
+                    THEN
+                        1
+                    ELSE 0
+                END)) AS `ECOM_Approved`,
+                SUM((CASE
+                    WHEN
+                        ((`bre_underwriting`.`transaction_details`.`TRANSACTION_STATUS` = 'APPROVED')
+                            AND (`bre_underwriting`.`transaction_details`.`PRODUCT` NOT IN ('PECF' , 'PERF', 'PVECF', 'PVERF')))
+                    THEN
+                        1
+                    ELSE 0
+                END)) AS `Non_ECOM_Approved`,
+                SUM((CASE
+                    WHEN (`bre_underwriting`.`transaction_details`.`TRANSACTION_STATUS` = 'VOID') THEN 1
+                    ELSE 0
+                END)) AS `A_Void`,
+                SUM((CASE
+                    WHEN (`bre_underwriting`.`transaction_details`.`TRANSACTION_STATUS` = 'DECLINED') THEN 1
+                    ELSE 0
+                END)) AS `A_Declined`,
+                SUM((CASE
+                    WHEN
+                        ((`bre_underwriting`.`transaction_details`.`DEALER_CODE_ETAILER` = '139908')
+                            AND (`bre_underwriting`.`transaction_details`.`PRODUCT` IN ('PECF' , 'PERF', 'PVECF', 'PVERF')))
+                    THEN
+                        1
+                    ELSE 0
+                END)) AS `Flipkart`,
+                SUM((CASE
+                    WHEN
+                        ((`bre_underwriting`.`transaction_details`.`DEALER_CODE_ETAILER` = '139908')
+                            AND (`bre_underwriting`.`transaction_details`.`TRANSACTION_STATUS` = 'APPROVED')
+                            AND (`bre_underwriting`.`transaction_details`.`PRODUCT` IN ('PECF' , 'PERF', 'PVECF', 'PVERF')))
+                    THEN
+                        1
+                    ELSE 0
+                END)) AS `Flipkart_Approved`,
+                SUM((CASE
+                    WHEN
+                        ((`bre_underwriting`.`transaction_details`.`DEALER_CODE_ETAILER` = '195298')
+                            AND (`bre_underwriting`.`transaction_details`.`PRODUCT` IN ('PECF' , 'PERF', 'PVECF', 'PVERF')))
+                    THEN
+                        1
+                    ELSE 0
+                END)) AS `Amazon`,
+                SUM((CASE
+                    WHEN
+                        ((`bre_underwriting`.`transaction_details`.`DEALER_CODE_ETAILER` = '195298')
+                            AND (`bre_underwriting`.`transaction_details`.`TRANSACTION_STATUS` = 'APPROVED')
+                            AND (`bre_underwriting`.`transaction_details`.`PRODUCT` IN ('PECF' , 'PERF', 'PVECF', 'PVERF')))
+                    THEN
+                        1
+                    ELSE 0
+                END)) AS `Amazon_Approved`,
+                SUM((CASE
+                    WHEN (`bre_underwriting`.`transaction_details`.`FRAUD_PROCESS_FLAG` = 'Y') THEN 1
+                    ELSE 0
+                END)) AS `Fraud_Y`,
+                SUM((CASE
+                    WHEN
+                        ((`bre_underwriting`.`transaction_details`.`FRAUD_PROCESS_FLAG` <> 'Y')
+                            AND (`bre_underwriting`.`transaction_details`.`TRANSACTION_STATUS` <> 'DECLINED'))
+                    THEN
+                        1
+                    ELSE 0
+                END)) AS `Fraud_N`,
+                SUM((CASE
+                    WHEN
+                        ((`bre_underwriting`.`transaction_details`.`FRAUD_PROCESS_FLAG` <> 'Y')
+                            AND (`bre_underwriting`.`transaction_details`.`TRANSACTION_STATUS` <> 'DECLINED')
+                            AND (`bre_underwriting`.`transaction_details`.`PRODUCT` IN ('PECF' , 'PERF', 'PVECF', 'PVERF')))
+                    THEN
+                        1
+                    ELSE 0
+                END)) AS `ecom_fraud_pending`,
+                SUM((CASE
+                    WHEN
+                        ((`bre_underwriting`.`transaction_details`.`FRAUD_PROCESS_FLAG` <> 'Y')
+                            AND (`bre_underwriting`.`transaction_details`.`TRANSACTION_STATUS` <> 'DECLINED')
+                            AND (`bre_underwriting`.`transaction_details`.`PRODUCT` NOT IN ('PECF' , 'PERF', 'PVECF', 'PVERF')))
+                    THEN
+                        1
+                    ELSE 0
+                END)) AS `non_ecom_fraud_pending`,
+                SUM((CASE
+                    WHEN (`bre_underwriting`.`transaction_details`.`PRODUCT` IN ('PECF' , 'PERF', 'PVECF', 'PVERF')) THEN 1
+                    ELSE 0
+                END)) AS `ecom_total`,
+                SUM((CASE
+                    WHEN (`bre_underwriting`.`transaction_details`.`PRODUCT` NOT IN ('PECF' , 'PERF', 'PVECF', 'PVERF')) THEN 1
+                    ELSE 0
+                END)) AS `non_ecom_total`
+        FROM
+            `bre_underwriting`.`transaction_details`
+        WHERE
+            ((`bre_underwriting`.`transaction_details`.`AUTH_REQUEST_DATE_TIME` >= (CURDATE() + INTERVAL 0 DAY))
+                AND (`bre_underwriting`.`transaction_details`.`AUTH_REQUEST_DATE_TIME` < (CURDATE() + INTERVAL 1 DAY))
+                AND (`bre_underwriting`.`transaction_details`.`FRUAD_GEN_REMARK` = ''))
+        GROUP BY DATE_FORMAT(`bre_underwriting`.`transaction_details`.`AUTH_REQUEST_DATE_TIME`, '%Y-%m-%d') , DATE_FORMAT(`bre_underwriting`.`transaction_details`.`AUTH_REQUEST_DATE_TIME`, '%H') , DATE_FORMAT(`bre_underwriting`.`transaction_details`.`AUTH_REQUEST_DATE_TIME`, '%i') , `bre_underwriting`.`transaction_details`.`DEALER_CODE_ETAILER` , `bre_underwriting`.`transaction_details`.`TRANSACTION_STATUS`) `trar`
+        GROUP BY `trar`.`mins` , `trar`.`hours` , `trar`.`dates`
+        ORDER BY `trar`.`hours` DESC , `trar`.`mins` DESC) `finalloop`
+    GROUP BY `finalloop`.`TXNDATE` , `finalloop`.`HRS` , `finalloop`.`MINS` WITH ROLLUP
+    ORDER BY `finalloop`.`TXNDATE` , `HRS` DESC , `MINS` DESC
+    LIMIT 1 , 1500
+
+CREATE OR REPLACE VIEW `bre_underwriting`.`festival_summary_detailed_new` AS
+    SELECT 
+        IFNULL(`finalloop`.`TXN_DATES`, 'TOTAL') AS `DATE`,
+        IFNULL(`finalloop`.`HRS`, 'TOTAL') AS `HRS`,
+        SUM(`finalloop`.`TOTAL_AUTH_HITS`) AS `TOTAL AUTH HITS`,
+        SUM(`finalloop`.`TOTAL_ECOM_HITS`) AS `TOTAL ECOM HITS`,
+        SUM(`finalloop`.`ECOM_APPROVED`) AS `ECOM APPROVED`,
+        FORMAT(AVG(`finalloop`.`ECOM_APPROVAL_RATE`),
+            2) AS `ECOM APPROVAL RATE`,
+        SUM(`finalloop`.`FK_HITS`) AS `FK HITS`,
+        SUM(`finalloop`.`FK_APPROVED`) AS `FK APPROVED`,
+        FORMAT(AVG(`finalloop`.`FK_APPROVAL_RATE`),
+            2) AS `FK APPROVAL RATE`,
+        SUM(`finalloop`.`AZ_HITS`) AS `AZ HITS`,
+        SUM(`finalloop`.`AZ_APPROVED`) AS `AZ APPROVED`,
+        FORMAT(AVG(`finalloop`.`AZ_APPROVAL_RATE`),
+            2) AS `AZ APPROVAL RATE`,
+        SUM(`finalloop`.`VOID`) AS `VOID`,
+        SUM(`finalloop`.`DECLINED`) AS `DECLINED`
+    FROM
+        (SELECT 
+            `trar`.`dates` AS `TXN_DATES`,
+                `trar`.`hours` AS `HRS`,
+                SUM(`trar`.`total`) AS `TOTAL_AUTH_HITS`,
+                SUM(`trar`.`ecom_total`) AS `TOTAL_ECOM_HITS`,
+                SUM(`trar`.`ECOM_Approved`) AS `ECOM_APPROVED`,
+                FORMAT(((SUM(`trar`.`ECOM_Approved`) / SUM(`trar`.`ecom_total`)) * 100), 2) AS `ECOM_APPROVAL_RATE`,
+                SUM(`trar`.`Flipkart`) AS `FK_HITS`,
+                SUM(`trar`.`Flipkart_Approved`) AS `FK_APPROVED`,
+                FORMAT(((SUM(`trar`.`Flipkart_Approved`) / SUM(`trar`.`Flipkart`)) * 100), 2) AS `FK_APPROVAL_RATE`,
+                SUM(`trar`.`Amazon`) AS `AZ_HITS`,
+                SUM(`trar`.`Amazon_Approved`) AS `AZ_APPROVED`,
+                FORMAT(((SUM(`trar`.`Amazon_Approved`) / SUM(`trar`.`Amazon`)) * 100), 2) AS `AZ_APPROVAL_RATE`,
+                SUM(`trar`.`A_Void`) AS `VOID`,
+                SUM(`trar`.`A_Declined`) AS `DECLINED`
+        FROM
+            (SELECT 
+            DATE_FORMAT(`bre_underwriting`.`transaction_details`.`AUTH_REQUEST_DATE_TIME`, '%Y-%m-%d') AS `dates`,
+                DATE_FORMAT(`bre_underwriting`.`transaction_details`.`AUTH_REQUEST_DATE_TIME`, '%H') AS `hours`,
+                `bre_underwriting`.`transaction_details`.`DEALER_CODE_ETAILER` AS `DEALER_CODE_ETAILER`,
+                `bre_underwriting`.`transaction_details`.`TRANSACTION_STATUS` AS `TRANSACTION_STATUS`,
+                COUNT(0) AS `total`,
+                SUM((CASE
+                    WHEN (`bre_underwriting`.`transaction_details`.`TRANSACTION_STATUS` = 'APPROVED') THEN 1
+                    ELSE 0
+                END)) AS `Total_Approved`,
+                SUM((CASE
+                    WHEN
+                        ((`bre_underwriting`.`transaction_details`.`TRANSACTION_STATUS` = 'APPROVED')
+                            AND (`bre_underwriting`.`transaction_details`.`PRODUCT` IN ('ECF' , 'ERF', 'VECF', 'VERF')))
+                    THEN
+                        1
+                    ELSE 0
+                END)) AS `ECOM_Approved`,
+                SUM((CASE
+                    WHEN
+                        ((`bre_underwriting`.`transaction_details`.`TRANSACTION_STATUS` = 'APPROVED')
+                            AND (`bre_underwriting`.`transaction_details`.`PRODUCT` NOT IN ('ECF' , 'ERF', 'VECF', 'VERF')))
+                    THEN
+                        1
+                    ELSE 0
+                END)) AS `Non_ECOM_Approved`,
+                SUM((CASE
+                    WHEN (`bre_underwriting`.`transaction_details`.`TRANSACTION_STATUS` = 'VOID') THEN 1
+                    ELSE 0
+                END)) AS `A_Void`,
+                SUM((CASE
+                    WHEN (`bre_underwriting`.`transaction_details`.`TRANSACTION_STATUS` = 'DECLINED') THEN 1
+                    ELSE 0
+                END)) AS `A_Declined`,
+                SUM((CASE
+                    WHEN
+                        ((`bre_underwriting`.`transaction_details`.`DEALER_CODE_ETAILER` = '139908')
+                            AND (`bre_underwriting`.`transaction_details`.`PRODUCT` IN ('ECF' , 'ERF', 'VECF', 'VERF')))
+                    THEN
+                        1
+                    ELSE 0
+                END)) AS `Flipkart`,
+                SUM((CASE
+                    WHEN
+                        ((`bre_underwriting`.`transaction_details`.`DEALER_CODE_ETAILER` = '139908')
+                            AND (`bre_underwriting`.`transaction_details`.`TRANSACTION_STATUS` = 'APPROVED')
+                            AND (`bre_underwriting`.`transaction_details`.`PRODUCT` IN ('ECF' , 'ERF', 'VECF', 'VERF')))
+                    THEN
+                        1
+                    ELSE 0
+                END)) AS `Flipkart_Approved`,
+                SUM((CASE
+                    WHEN
+                        ((`bre_underwriting`.`transaction_details`.`DEALER_CODE_ETAILER` = '195298')
+                            AND (`bre_underwriting`.`transaction_details`.`PRODUCT` IN ('ECF' , 'ERF', 'VECF', 'VERF')))
+                    THEN
+                        1
+                    ELSE 0
+                END)) AS `Amazon`,
+                SUM((CASE
+                    WHEN
+                        ((`bre_underwriting`.`transaction_details`.`DEALER_CODE_ETAILER` = '195298')
+                            AND (`bre_underwriting`.`transaction_details`.`TRANSACTION_STATUS` = 'APPROVED')
+                            AND (`bre_underwriting`.`transaction_details`.`PRODUCT` IN ('ECF' , 'ERF', 'VECF', 'VERF')))
+                    THEN
+                        1
+                    ELSE 0
+                END)) AS `Amazon_Approved`,
+                SUM((CASE
+                    WHEN (`bre_underwriting`.`transaction_details`.`FRAUD_PROCESS_FLAG` = 'Y') THEN 1
+                    ELSE 0
+                END)) AS `Fraud_Y`,
+                SUM((CASE
+                    WHEN
+                        ((`bre_underwriting`.`transaction_details`.`FRAUD_PROCESS_FLAG` <> 'Y')
+                            AND (`bre_underwriting`.`transaction_details`.`TRANSACTION_STATUS` <> 'DECLINED'))
+                    THEN
+                        1
+                    ELSE 0
+                END)) AS `Fraud_N`,
+                SUM((CASE
+                    WHEN
+                        ((`bre_underwriting`.`transaction_details`.`FRAUD_PROCESS_FLAG` <> 'Y')
+                            AND (`bre_underwriting`.`transaction_details`.`TRANSACTION_STATUS` <> 'DECLINED')
+                            AND (`bre_underwriting`.`transaction_details`.`PRODUCT` IN ('ECF' , 'ERF', 'VECF', 'VERF')))
+                    THEN
+                        1
+                    ELSE 0
+                END)) AS `ecom_fraud_pending`,
+                SUM((CASE
+                    WHEN
+                        ((`bre_underwriting`.`transaction_details`.`FRAUD_PROCESS_FLAG` <> 'Y')
+                            AND (`bre_underwriting`.`transaction_details`.`TRANSACTION_STATUS` <> 'DECLINED')
+                            AND (`bre_underwriting`.`transaction_details`.`PRODUCT` NOT IN ('ECF' , 'ERF', 'VECF', 'VERF')))
+                    THEN
+                        1
+                    ELSE 0
+                END)) AS `non_ecom_fraud_pending`,
+                SUM((CASE
+                    WHEN (`bre_underwriting`.`transaction_details`.`PRODUCT` IN ('ECF' , 'ERF', 'VECF', 'VERF')) THEN 1
+                    ELSE 0
+                END)) AS `ecom_total`,
+                SUM((CASE
+                    WHEN (`bre_underwriting`.`transaction_details`.`PRODUCT` NOT IN ('ECF' , 'ERF', 'VECF', 'VERF')) THEN 1
+                    ELSE 0
+                END)) AS `non_ecom_total`
+        FROM
+            `bre_underwriting`.`transaction_details`
+        WHERE
+            ((`bre_underwriting`.`transaction_details`.`AUTH_REQUEST_DATE_TIME` >= (CURDATE() + INTERVAL 0 DAY))
+                AND (`bre_underwriting`.`transaction_details`.`AUTH_REQUEST_DATE_TIME` < (CURDATE() + INTERVAL 1 DAY))
+                AND (`bre_underwriting`.`transaction_details`.`FRUAD_GEN_REMARK` = ''))
+        GROUP BY DATE_FORMAT(`bre_underwriting`.`transaction_details`.`AUTH_REQUEST_DATE_TIME`, '%Y-%m-%d') , DATE_FORMAT(`bre_underwriting`.`transaction_details`.`AUTH_REQUEST_DATE_TIME`, '%H') , `bre_underwriting`.`transaction_details`.`DEALER_CODE_ETAILER` , `bre_underwriting`.`transaction_details`.`TRANSACTION_STATUS`) `trar`
+        GROUP BY `trar`.`hours` , `trar`.`dates`
+        ORDER BY `trar`.`hours` DESC) `finalloop`
+    GROUP BY `finalloop`.`TXN_DATES` , `finalloop`.`HRS` WITH ROLLUP
+    ORDER BY `HRS` DESC
+    LIMIT 1 , 30

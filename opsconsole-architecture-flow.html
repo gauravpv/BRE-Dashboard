@@ -1,0 +1,196 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>OpsConsole Architecture Flow</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", system-ui, sans-serif; background: #ffffff; color: #1f2328; font-size: 14px; line-height: 1.6; padding: 32px 24px 48px; }
+  h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .sub { color: #57606a; font-size: 13px; margin-bottom: 32px; }
+
+  .diagram { display: flex; flex-direction: column; gap: 0; max-width: 900px; margin: 0 auto; }
+
+  /* ---- lane headers ---- */
+  .lane { display: grid; grid-template-columns: 140px 1fr; border: 1px solid #e5e7eb; border-radius: 10px; margin-bottom: 16px; overflow: hidden; }
+  .lane-label { background: #f7f8fa; border-right: 1px solid #e5e7eb; padding: 16px 12px; display: flex; align-items: center; justify-content: center; text-align: center; font-weight: 600; font-size: 12px; color: #57606a; text-transform: uppercase; letter-spacing: .04em; writing-mode: horizontal-tb; }
+  .lane-body { padding: 16px 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+  /* ---- nodes ---- */
+  .node { border-radius: 8px; padding: 8px 14px; font-size: 12px; line-height: 1.45; text-align: center; border: 1px solid; min-width: 110px; }
+  .node small { display: block; font-size: 10px; opacity: .75; margin-top: 2px; }
+
+  .node-security  { background: #fce7f3; border-color: #ec4899; color: #831843; }
+  .node-auth      { background: #ede9fe; border-color: #7c3aed; color: #3b0764; }
+  .node-page      { background: #e0f2fe; border-color: #0284c7; color: #0c4a6e; }
+  .node-core      { background: #dbeafe; border-color: #3b82f6; color: #1e3a5f; }
+  .node-admin     { background: #fff7ed; border-color: #f97316; color: #7c2d12; }
+  .node-activity  { background: #f0fdf4; border-color: #22c55e; color: #14532d; }
+  .node-db        { background: #f0fdf4; border-color: #16a34a; color: #14532d; border-style: dashed; }
+  .node-external  { background: #fef9c3; border-color: #ca8a04; color: #713f12; }
+  .node-mock      { background: #f5f3ff; border-color: #8b5cf6; color: #3b0764; }
+
+  /* ---- arrow connectors ---- */
+  .arrows { max-width: 900px; margin: 0 auto 16px; padding: 0 20px; }
+  .flow-row { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; }
+  .flow-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #57606a; }
+  .arrow { color: #3b82d4; font-size: 16px; line-height: 1; }
+  .label { background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 4px; padding: 1px 6px; font-size: 11px; color: #57606a; }
+
+  .section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #57606a; margin: 20px 0 10px; max-width: 900px; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; max-width: 900px; margin: 24px auto 0; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #57606a; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; border: 1px solid; flex-shrink: 0; }
+
+  footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #e5e7eb; text-align: center; font-size: 12px; color: #57606a; }
+</style>
+</head>
+<body>
+
+<h1>OpsConsole — Architecture Flow</h1>
+<p class="sub">End-to-end request and data flow for the Spring Boot 3 operations dashboard</p>
+
+<div class="section-title">1 · Entry &amp; Authentication</div>
+<div class="diagram">
+  <div class="lane">
+    <div class="lane-label">Browser</div>
+    <div class="lane-body">
+      <div class="node node-security">User Request</div>
+      <span class="arrow">→</span>
+      <div class="node node-security">Spring Security<br /><small>Filter Chain</small></div>
+      <span class="arrow">→</span>
+      <div class="node node-security">NavAccessInterceptor<br /><small>Role → Tab access</small></div>
+      <span class="arrow">→</span>
+      <div class="node node-page">Page / API Controller</div>
+    </div>
+  </div>
+  <div class="lane">
+    <div class="lane-label">Auth Modes</div>
+    <div class="lane-body">
+      <div class="node node-auth">Dev Mode<br /><small>Email + Password · Local DB</small></div>
+      <span style="color:#57606a;font-size:12px">or</span>
+      <div class="node node-auth">Azure Mode<br /><small>Microsoft Entra · OIDC</small></div>
+      <span class="arrow">←→</span>
+      <div class="node node-external">Azure AD<br /><small>login.microsoftonline.com</small></div>
+    </div>
+  </div>
+</div>
+
+<div class="section-title">2 · Page Controllers</div>
+<div class="diagram">
+  <div class="lane">
+    <div class="lane-label">Thymeleaf Pages</div>
+    <div class="lane-body">
+      <div class="node node-page">/ Dashboard</div>
+      <div class="node node-page">/health<br /><small>System Health</small></div>
+      <div class="node node-page">/admin<br /><small>System Admin</small></div>
+      <div class="node node-page">/users<br /><small>User Admin</small></div>
+      <div class="node node-page">/tester<br /><small>Bajaj Tester</small></div>
+      <div class="node node-page">/logs<br /><small>Logs Watch</small></div>
+    </div>
+  </div>
+</div>
+
+<div class="section-title">3 · Health Monitoring Core</div>
+<div class="diagram">
+  <div class="lane">
+    <div class="lane-label">Scheduler</div>
+    <div class="lane-body">
+      <div class="node node-core">SystemHealthMonitor<br /><small>@PostConstruct + @Scheduled 30s · refreshIfStale on load</small></div>
+    </div>
+  </div>
+  <div class="lane">
+    <div class="lane-label">Pipeline A<br />Actuator</div>
+    <div class="lane-body">
+      <div class="node node-core">ActuatorHealthService<br /><small>Parallel HTTP probe</small></div>
+      <span class="arrow">→</span>
+      <div class="node node-external">Monitored Services<br /><small>/actuator/health</small></div>
+      <span style="color:#57606a;font-size:11px;align-self:center">↳ fallback to /actuator/health if custom path fails</span>
+    </div>
+  </div>
+  <div class="lane">
+    <div class="lane-label">Pipeline B<br />Model Hub</div>
+    <div class="lane-body">
+      <div class="node node-core">ModelHubHealthService<br /><small>Fetch environments + instances</small></div>
+      <span class="arrow">→</span>
+      <div class="node node-core">ModelHubWatchlistService<br /><small>Cross-reference DB watchlist</small></div>
+      <span class="arrow">→</span>
+      <div class="node node-external">Model Hub REST API<br /><small>/deployment/v1/environments</small></div>
+      <span style="color:#57606a;font-size:11px">or</span>
+      <div class="node node-mock">Classpath Fixtures<br /><small>modelhub/uat/ + prod/ (mock-mode)</small></div>
+    </div>
+  </div>
+</div>
+
+<div class="section-title">4 · System Admin Core</div>
+<div class="diagram">
+  <div class="lane">
+    <div class="lane-label">SSH Admin</div>
+    <div class="lane-body">
+      <div class="node node-admin">ServiceAdminService</div>
+      <span class="arrow">→</span>
+      <div class="node node-admin">SshRemoteExecutor<br /><small>interface</small></div>
+      <span class="arrow">→</span>
+      <div class="node node-admin">DevSshRemoteExecutor<br /><small>In-memory (mode=dev)</small></div>
+      <span style="color:#57606a;font-size:11px">or</span>
+      <div class="node node-admin">LiveSshRemoteExecutor<br /><small>Apache SSHD (mode=live)</small></div>
+      <span class="arrow">→</span>
+      <div class="node node-external">Remote Linux Servers<br /><small>start / stop / restart / edit properties</small></div>
+    </div>
+  </div>
+</div>
+
+<div class="section-title">5 · Activity, History &amp; Database</div>
+<div class="diagram">
+  <div class="lane">
+    <div class="lane-label">Activity &amp; History</div>
+    <div class="lane-body">
+      <div class="node node-activity">ActivityFeedService<br /><small>Logins · health changes · admin actions</small></div>
+      <span class="arrow">→</span>
+      <div class="node node-db">system_activity_log</div>
+      <div class="node node-activity">HealthHistoryService<br /><small>24h snapshot chart data</small></div>
+      <span class="arrow">→</span>
+      <div class="node node-db">health_snapshots</div>
+    </div>
+  </div>
+  <div class="lane">
+    <div class="lane-label">Persistent Store<br />(H2 JPA)</div>
+    <div class="lane-body">
+      <div class="node node-db">monitored_hosts<br /><small>UAT watchlist</small></div>
+      <div class="node node-db">monitored_hosts_prod<br /><small>PROD watchlist</small></div>
+      <div class="node node-db">admin_action_log</div>
+      <div class="node node-db">app_users · app_roles<br /><small>role_tab_access</small></div>
+    </div>
+  </div>
+</div>
+
+<div class="section-title">6 · External Integrations</div>
+<div class="diagram">
+  <div class="lane">
+    <div class="lane-label">Bajaj Tester</div>
+    <div class="lane-body">
+      <div class="node node-page">/tester Page</div>
+      <span class="arrow">→</span>
+      <div class="node node-admin">BajajApiInvokeService<br /><small>AES-CBC encryption (AesCbcCrypto)</small></div>
+      <span class="arrow">→</span>
+      <div class="node node-external">Bajaj Finserv APIs<br /><small>UAT + PROD base URLs</small></div>
+    </div>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#fce7f3;border-color:#ec4899"></div> Security</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ede9fe;border-color:#7c3aed"></div> Auth</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#e0f2fe;border-color:#0284c7"></div> Pages</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#dbeafe;border-color:#3b82f6"></div> Health Core</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#fff7ed;border-color:#f97316"></div> Admin / SSH</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f0fdf4;border-color:#22c55e"></div> Activity / History</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f0fdf4;border-color:#16a34a;border-style:dashed"></div> Database</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#fef9c3;border-color:#ca8a04"></div> External Systems</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f5f3ff;border-color:#8b5cf6"></div> Mock / Classpath</div>
+</div>
+
+<footer>Made with IBM Bob</footer>
+</body>
+</html>

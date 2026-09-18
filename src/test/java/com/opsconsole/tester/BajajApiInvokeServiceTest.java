@@ -3,36 +3,45 @@ package com.opsconsole.tester;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opsconsole.tester.config.BajajTesterProperties;
 import com.opsconsole.tester.dto.BajajInvokeRequest;
-import com.opsconsole.tester.dto.BajajInvokeResponse;
+import com.opsconsole.tester.exception.BajajTesterException;
 import com.opsconsole.tester.service.BajajApiInvokeService;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class BajajApiInvokeServiceTest {
 
     @Test
-    void invoke_mockMode_returnsPrettyJsonWithEcho() {
-        BajajTesterProperties properties = new BajajTesterProperties();
-        properties.setMockMode(true);
-        BajajApiInvokeService service = new BajajApiInvokeService(properties, new ObjectMapper());
+    void invoke_rejectsMissingEncryptionMaterial() {
+        BajajApiInvokeService service = new BajajApiInvokeService(new BajajTesterProperties(), new ObjectMapper());
+
+        BajajInvokeRequest request = new BajajInvokeRequest(
+                "UAT",
+                "authbre/authorization",
+                "",
+                "",
+                "{\"mobile\":\"9999999999\"}"
+        );
+
+        assertThatThrownBy(() -> service.invoke(request))
+                .isInstanceOf(BajajTesterException.class)
+                .hasMessageContaining("Encryption key");
+    }
+
+    @Test
+    void invoke_rejectsInvalidJson() {
+        BajajApiInvokeService service = new BajajApiInvokeService(new BajajTesterProperties(), new ObjectMapper());
 
         BajajInvokeRequest request = new BajajInvokeRequest(
                 "UAT",
                 "authbre/authorization",
                 "19LPRFUYTVERETJY",
                 "S5AFOYRNUNZENGJCEQ1W81DJB55QK76M",
-                "{\"mobile\":\"9999999999\"}"
+                "{not-json"
         );
 
-        BajajInvokeResponse response = service.invoke(request);
-
-        assertThat(response.mockMode()).isTrue();
-        assertThat(response.statusCode()).isEqualTo(200);
-        assertThat(response.durationMs()).isGreaterThanOrEqualTo(0);
-        assertThat(response.decryptedBody()).contains("\"mock\" : true");
-        assertThat(response.decryptedBody()).contains("\"mobile\" : \"9999999999\"");
-        assertThat(response.error()).isNull();
-        assertThat(response.requestUrl()).contains("authbre/authorization");
+        assertThatThrownBy(() -> service.invoke(request))
+                .isInstanceOf(BajajTesterException.class)
+                .hasMessageContaining("valid JSON");
     }
 }

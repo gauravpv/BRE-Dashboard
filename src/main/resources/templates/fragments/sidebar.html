@@ -80,20 +80,6 @@
 
         </a>
 
-        <a th:if="${navAccess == null or navAccess['api-tester'] == true}" th:href="@{/api-tester}"
-
-           th:classappend="${activeNav == 'api-tester'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
-
-           class="flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200"
-
-           title="API Tester">
-
-            <span class="material-symbols-outlined">api</span>
-
-            <span class="font-body-md text-body-md oc-sidebar-label">API Tester</span>
-
-        </a>
-
         <a th:if="${navAccess == null or navAccess['tester'] == true}" th:href="@{/tester}"
 
            th:classappend="${activeNav == 'tester'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
@@ -147,20 +133,6 @@
             <span class="material-symbols-outlined">group</span>
 
             <span class="font-body-md text-body-md oc-sidebar-label">User Admin</span>
-
-        </a>
-
-        <a th:if="${navAccess == null or navAccess['logs'] == true}" th:href="@{/logs}"
-
-           th:classappend="${activeNav == 'logs'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
-
-           class="flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200"
-
-           title="Logs Watch">
-
-            <span class="material-symbols-outlined">analytics</span>
-
-            <span class="font-body-md text-body-md oc-sidebar-label">Logs Watch</span>
 
         </a>
 

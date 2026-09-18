@@ -36,11 +36,7 @@ class TransactionDashboardPageTest {
                 .andExpect(view().name("transaction-dashboard"))
                 .andExpect(model().attribute("activeNav", "transactions"))
                 .andExpect(model().attributeExists("dashboard", "refreshSeconds"))
-                .andExpect(content().string(containsString("Customer journey")))
-                .andExpect(content().string(containsString("Eligibility checks")))
-                .andExpect(content().string(containsString("Authorization volume")))
-                .andExpect(content().string(containsString("Flipkart")))
-                .andExpect(content().string(containsString("Amazon")))
-                .andExpect(content().string(containsString("Eligibility check speed")));
+                .andExpect(content().string(containsString("Transaction data unavailable")))
+                .andExpect(content().string(containsString("TXN_DB_URL")));
     }
 }

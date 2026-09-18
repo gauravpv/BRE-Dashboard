@@ -264,9 +264,8 @@
 <main class="ml-[240px] min-h-screen flex flex-col">
 <div class="oc-page-main--fixed flex-1 px-unit-xl pb-unit-xl">
 <div th:if="${modelHubEnabled}" class="health-source-banner">
-<span class="material-symbols-outlined text-secondary text-[18px]" th:text="${modelHubMockMode ? 'science' : 'cloud_sync'}">cloud_sync</span>
-<span th:if="${modelHubMockMode}">Systems are stored in the database. Mock Model Hub data is matched against configured IP and port. Refreshes every <span th:text="${refreshSeconds}">30</span>s.</span>
-<span th:unless="${modelHubMockMode}">Systems are stored in the database and matched against live Model Hub instance URLs. Refreshes every <span th:text="${refreshSeconds}">30</span>s.</span>
+<span class="material-symbols-outlined text-secondary text-[18px]">cloud_sync</span>
+<span>Systems are stored in the database and matched against live Model Hub instance URLs. Refreshes every <span th:text="${refreshSeconds}">30</span>s.</span>
 </div>
 <div th:if="${!modelHubEnabled}" class="health-source-banner">
 <span class="material-symbols-outlined text-secondary text-[18px]">database</span>
@@ -401,8 +400,8 @@
 <label class="block text-xs font-medium text-on-surface-variant mb-1" for="reg-environment">Environment</label>
 <select id="reg-environment" name="environment" required
         class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 text-body-sm text-on-surface focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20">
-    <option value="UAT">UAT — emicardbre.bajajfinserv.in</option>
-    <option value="PROD">Prod — emicardbre-prod.bajajfinserv.in</option>
+    <option value="UAT">UAT — emicardbre + bfldaasbre</option>
+    <option value="PROD">Prod — emicardbre-prod + bfldaasbre-prod</option>
 </select>
 </div>
 <div>

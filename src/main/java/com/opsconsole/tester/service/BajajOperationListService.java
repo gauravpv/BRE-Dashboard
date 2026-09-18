@@ -8,7 +8,6 @@ import com.opsconsole.tester.dto.OperationEntryDto;
 import com.opsconsole.tester.dto.OperationListResponseDto;
 import com.opsconsole.tester.exception.BajajTesterException;
 import com.opsconsole.tester.util.AesCbcCrypto;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -26,41 +25,22 @@ public class BajajOperationListService {
 
     private final BajajTesterProperties properties;
     private final ObjectMapper objectMapper;
-    private final HttpClient httpClient = HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(20))
-            .build();
+    private final HttpClient httpClient;
 
     public BajajOperationListService(BajajTesterProperties properties, ObjectMapper objectMapper) {
         this.properties = properties;
         this.objectMapper = objectMapper;
+        this.httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(20)).build();
     }
 
     public OperationListResponseDto fetchOperations(BajajEnvironment environment) {
         BajajTesterProperties.EnvironmentConfig config = configFor(environment);
-        if (properties.isMockMode()) {
-            return parseOperationList(loadMockPayload(environment), environment, config, true);
-        }
         String plainJson = fetchLiveOperationList(config);
-        return parseOperationList(plainJson, environment, config, false);
+        return parseOperationList(plainJson, environment, config);
     }
 
     private BajajTesterProperties.EnvironmentConfig configFor(BajajEnvironment environment) {
         return environment == BajajEnvironment.PROD ? properties.getProd() : properties.getUat();
-    }
-
-    private String loadMockPayload(BajajEnvironment environment) {
-        String resource = environment == BajajEnvironment.PROD
-                ? "tester/operation-list-prod-mock.json"
-                : "tester/operation-list-uat-mock.json";
-        try {
-            ClassPathResource classPathResource = new ClassPathResource(resource);
-            if (!classPathResource.exists() && environment == BajajEnvironment.PROD) {
-                classPathResource = new ClassPathResource("tester/operation-list-uat-mock.json");
-            }
-            return new String(classPathResource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-        } catch (Exception ex) {
-            throw new BajajTesterException("Failed to load mock operation list", ex);
-        }
     }
 
     private String fetchLiveOperationList(BajajTesterProperties.EnvironmentConfig config) {
@@ -114,8 +94,7 @@ public class BajajOperationListService {
     private OperationListResponseDto parseOperationList(
             String plainJson,
             BajajEnvironment environment,
-            BajajTesterProperties.EnvironmentConfig config,
-            boolean mockMode
+            BajajTesterProperties.EnvironmentConfig config
     ) {
         try {
             JsonNode root = objectMapper.readTree(plainJson);
@@ -148,7 +127,6 @@ public class BajajOperationListService {
             return new OperationListResponseDto(
                     environment.name(),
                     config.getBaseUrl(),
-                    mockMode,
                     text(root, "description"),
                     text(root, "statusCode"),
                     config.getEncryptionKey(),

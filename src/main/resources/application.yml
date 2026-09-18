@@ -2,39 +2,57 @@ spring:
   application:
     name: opsconsole
   datasource:
-    # Embedded file DB only (no AUTO_SERVER — avoids stale remote H2 connection timeouts)
-    url: jdbc:h2:file:./data/opsconsole;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=10000
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+    url: ${OPSCONSOLE_DB_URL:}
+    username: ${OPSCONSOLE_DB_USERNAME:}
+    password: ${OPSCONSOLE_DB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 10000
+      validation-timeout: 3000
   jpa:
     hibernate:
-      ddl-auto: update
-    database-platform: org.hibernate.dialect.H2Dialect
+      ddl-auto: validate
+    database-platform: org.hibernate.dialect.MySQLDialect
     open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
   thymeleaf:
     cache: false
+  h2:
+    console:
+      enabled: false
 
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
+  ssl:
+    # Server certificate for the dashboard's own hostname (e.g. bflbre-dashboard-prod.bajajfinserv.in).
+    enabled: ${SERVER_SSL_ENABLED:false}
+    key-store: ${SERVER_SSL_KEYSTORE:}
+    key-store-password: ${SERVER_SSL_KEYSTORE_PASSWORD:}
+    key-store-type: PKCS12
+    key-alias: ${SERVER_SSL_KEY_ALIAS:}
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        same-site: lax
+        secure: ${OPSCONSOLE_SESSION_SECURE:false}
 
 management:
   endpoints:
     web:
       exposure:
         include: health,info
+  health:
+    db:
+      enabled: true
 
 opsconsole:
-  features:
-    api-tester-enabled: false
   transaction-dashboard:
-    # mock-mode keeps the dashboard usable locally. Set false and provide
-    # TXN_DB_* values to read the production reporting views.
-    mock-mode: ${TXN_DASHBOARD_MOCK_MODE:true}
     jdbc-url: ${TXN_DB_URL:}
     username: ${TXN_DB_USERNAME:}
     password: ${TXN_DB_PASSWORD:}
@@ -44,12 +62,13 @@ opsconsole:
     otp-table: transaction_details_srcreq_otp
     refresh-seconds: 60
   auth:
-    # dev = email/password; azure = Microsoft Entra ID (Azure AD)
-    mode: dev
+    # Keep form login until Entra/ADID is wired. Switch mode to azure and activate the azure profile.
+    mode: ${OPSCONSOLE_AUTH_MODE:dev}
     default-role-code: MONITORING
-    # Dev seed passwords: admin@opsconsole.local / Admin@123,
-    # tester@opsconsole.local / Tester@123, monitoring@opsconsole.local / Monitoring@123
-    # (legacy: operator@opsconsole.local / Operator@123, viewer@opsconsole.local / Viewer@123)
+    seed-dev-users: false
+    bootstrap-email: ${OPSCONSOLE_BOOTSTRAP_EMAIL:}
+    bootstrap-password: ${OPSCONSOLE_BOOTSTRAP_PASSWORD:}
+    bootstrap-display-name: ${OPSCONSOLE_BOOTSTRAP_DISPLAY_NAME:Administrator}
   health:
     refresh-seconds: 30
     refresh-interval-ms: 30000
@@ -58,35 +77,44 @@ opsconsole:
     default-actuator-path: /actuator/health
     model-hub:
       enabled: true
-      mock-mode: true
+      oauth:
+        token-url: https://login.microsoftonline.com/710de1d3-2901-4647-89e7-3b01f1c2806d/oauth2/v2.0/token
+        client-id: ${MODELHUB_OAUTH_CLIENT_ID:91becc5d-213e-4d9b-b0dc-e481c31fde4c}
+        grant-type: password
+        username: ""
+        password: ""
+        scope: ${MODELHUB_OAUTH_SCOPE:email openid profile offline_access api://91becc5d-213e-4d9b-b0dc-e481c31fde4c/default}
       uat:
         base-url: https://emicardbre.bajajfinserv.in
+        base-urls:
+          - https://bfldaasbre-uat.bajajfinserv.in
       prod:
         base-url: https://emicardbre-prod.bajajfinserv.in
+        base-urls:
+          - https://bfldaasbre-prod.bajajfinserv.in
   bajaj-tester:
-    mock-mode: true
     uat:
       base-url: https://sauat.bajajfinserv.in/apis
       operation-list-path: operationallist
-      encryption-key: "2026Unpf7T7Mr4kNAHecXKolYoD9tiOT"
-      encryption-iv: "2026JHNjiJSboivg"
+      encryption-key: ${BAJAJ_UAT_ENCRYPTION_KEY:}
+      encryption-iv: ${BAJAJ_UAT_ENCRYPTION_IV:}
       headers:
-        Authorization: ${BAJAJ_UAT_AUTHORIZATION:WWNRYkYyRUlmNUZ4bldUOjI3YzgyQUtSa0pRYTQ4bVdSOHFCaDQzWTJTZQ==}
+        Authorization: ${BAJAJ_UAT_AUTHORIZATION:}
         connection-from: Upgrade-ws
-        source: hqoYIrMWpVbGXPh2pqBKJxfTo110as
+        source: ${BAJAJ_UAT_SOURCE:}
         token: ${BAJAJ_UAT_TOKEN:}
         additionalinfo5: cbc
         additionalinfo1: ${BAJAJ_UAT_ADDITIONALINFO1:}
         subscriptionid: ${BAJAJ_UAT_SUBSCRIPTION_ID:}
       request-body:
-        channel: hqoYIrMWpVbGXPh2pqBKJxfTo110as
-        appversion: hqoYIrMWpVbGXPh2pqBKJxfTo110as_web_1.0.0.158
-        deviceId: hqoYIrMWpVbGXPh2pqBKJxfTo110as
+        channel: ${BAJAJ_UAT_CHANNEL:}
+        appversion: ${BAJAJ_UAT_APPVERSION:}
+        deviceId: ${BAJAJ_UAT_DEVICE_ID:}
     prod:
       base-url: https://superapp.bajajfinserv.in/apis
       operation-list-path: operationallist
-      encryption-key: ${BAJAJ_PROD_ENCRYPTION_KEY:2026Unpf7T7Mr4kNAHecXKolYoD9tiOT}
-      encryption-iv: ${BAJAJ_PROD_ENCRYPTION_IV:2026JHNjiJSboivg}
+      encryption-key: ${BAJAJ_PROD_ENCRYPTION_KEY:}
+      encryption-iv: ${BAJAJ_PROD_ENCRYPTION_IV:}
       headers:
         Authorization: ${BAJAJ_PROD_AUTHORIZATION:}
         connection-from: Upgrade-ws
@@ -99,44 +127,17 @@ opsconsole:
         channel: ${BAJAJ_PROD_CHANNEL:}
         appversion: ${BAJAJ_PROD_APPVERSION:}
         deviceId: ${BAJAJ_PROD_DEVICE_ID:}
-  # Monitored systems (IP, port, environment) are stored in the database (monitored_hosts).
-  # Add or edit systems from the System Health page; they persist across restarts.
   admin:
-    # dev = simulate SSH; live = real SSH (requires OPS_SSH_KEY_PATH)
-    mode: dev
+    mode: live
     ssh:
       private-key-path: ${OPS_SSH_KEY_PATH:}
       connect-timeout-ms: 10000
       command-timeout-ms: 60000
-    # Linux host prerequisites (live mode):
-    # - opsconsole SSH user with key login (OPS_SSH_KEY_PATH)
-    # - start/stop/restart scripts executable on the server
-    # - sudoers for properties: NOPASSWD tee/cp on configured properties-path only
-    servers:
-      - name: dev-linux-01
-        host: 127.0.0.1
-        ssh-user: opsconsole
-        services:
-          - name: payment-api
-            description: Core Payment Processing Engine
-            port: 8081
-            category: Payment Services
-            start-script: /opt/payment/bin/start.sh
-            stop-script: /opt/payment/bin/stop.sh
-            restart-script: /opt/payment/bin/restart.sh
-            properties-path: /opt/payment/config/application.properties
-          - name: auth-core
-            description: User Auth Core
-            port: 8082
-            category: User Auth Core
-            start-script: /opt/auth/bin/start.sh
-            stop-script: /opt/auth/bin/stop.sh
-            restart-script: /opt/auth/bin/restart.sh
-            properties-path: /opt/auth/config/application.properties
+    servers: []
 
 ---
-# Azure AD login — set opsconsole.auth.mode=azure and env vars below.
-# App registration redirect URI: http://localhost:8080/login/oauth2/code/azure
+# Azure AD login — add the azure profile when Entra is ready:
+# SPRING_PROFILES_ACTIVE=prod,azure
 spring:
   config:
     activate:

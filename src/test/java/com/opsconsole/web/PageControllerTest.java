@@ -10,12 +10,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 @SpringBootTest
@@ -69,7 +69,8 @@ class PageControllerTest {
         Long serviceId = managedServiceRepository.findAll().getFirst().getId();
 
         mockMvc.perform(post("/api/admin/services/" + serviceId + "/start")
-                        .with(user(OpsUserPrincipal.fromUser(admin))))
+                        .with(user(OpsUserPrincipal.fromUser(admin)))
+                        .with(csrf()))
                 .andExpect(status().isOk());
 
         mockMvc.perform(get("/admin").with(user(OpsUserPrincipal.fromUser(admin))))
@@ -87,13 +88,5 @@ class PageControllerTest {
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Developer Utils")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("developer-utils.js")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("developer-utils.css")));
-    }
-
-    @Test
-    void apiTester_redirectsWhenDisabled() throws Exception {
-        AppUser admin = userRepository.findByAzureAdId("dev-admin").orElseThrow();
-        mockMvc.perform(get("/api-tester").with(user(OpsUserPrincipal.fromUser(admin))))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/?denied=1"));
     }
 }

@@ -69,7 +69,6 @@ class HealthControllerTest {
         when(healthMonitor.getSystems()).thenReturn(List.of());
         when(healthMonitor.summary()).thenReturn(emptySummary());
         when(healthMonitor.isModelHubEnabled()).thenReturn(false);
-        when(healthMonitor.isModelHubMockMode()).thenReturn(false);
         when(modelHubHealthService.listEnvironments(HealthDeploymentTier.UAT)).thenReturn(List.of());
         when(modelHubHealthService.listEnvironments(HealthDeploymentTier.PROD)).thenReturn(List.of());
         when(healthService.refreshSeconds()).thenReturn(30);
@@ -89,7 +88,6 @@ class HealthControllerTest {
         when(healthMonitor.getSystems()).thenReturn(List.of());
         when(healthMonitor.summary()).thenReturn(emptySummary());
         when(healthMonitor.isModelHubEnabled()).thenReturn(false);
-        when(healthMonitor.isModelHubMockMode()).thenReturn(false);
         when(modelHubHealthService.listEnvironments(HealthDeploymentTier.UAT)).thenReturn(List.of());
         when(modelHubHealthService.listEnvironments(HealthDeploymentTier.PROD)).thenReturn(List.of());
         when(healthService.refreshSeconds()).thenReturn(30);

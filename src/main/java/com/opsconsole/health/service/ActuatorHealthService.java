@@ -27,10 +27,10 @@ public class ActuatorHealthService {
     public ActuatorHealthService(ObjectMapper objectMapper, HealthProperties healthProperties) {
         this.objectMapper = objectMapper;
         this.healthProperties = healthProperties;
-        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(healthProperties.getHealth().getConnectTimeoutMs());
-        factory.setReadTimeout(healthProperties.getHealth().getReadTimeoutMs());
-        this.restClient = RestClient.builder().requestFactory(factory).build();
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(healthProperties.getHealth().getConnectTimeoutMs());
+        requestFactory.setReadTimeout(healthProperties.getHealth().getReadTimeoutMs());
+        this.restClient = RestClient.builder().requestFactory(requestFactory).build();
     }
 
     public SystemHealthView check(MonitoredHost host) {
