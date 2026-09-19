@@ -40,8 +40,8 @@ public class BajajApiInvokeService {
 
     public BajajInvokeResponse invoke(BajajInvokeRequest request) {
         validateRequest(request);
-        BajajEnvironment environment = parseEnvironment(request.environment());
-        BajajTesterProperties.EnvironmentConfig config = configFor(environment);
+        BajajEnvironment environment = BajajEnvironment.parseOrUat(request.environment());
+        BajajTesterProperties.EnvironmentConfig config = properties.config(environment);
         String requestUrl = config.apiUrl(request.publicUrl());
 
         long start = System.nanoTime();
@@ -78,7 +78,7 @@ public class BajajApiInvokeService {
                         durationMs,
                         body.getBytes(StandardCharsets.UTF_8).length,
                         requestUrl,
-                        tryPrettyPrint(body),
+                        prettyJson(body),
                         "HTTP " + response.statusCode()
                 );
             }
@@ -164,11 +164,10 @@ public class BajajApiInvokeService {
         }
     }
 
-    private String normalizeJson(String body) {
-        return body.trim();
-    }
-
     private String prettyJson(String json) {
+        if (!StringUtils.hasText(json)) {
+            return "";
+        }
         try {
             JsonNode node = objectMapper.readTree(json);
             return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
@@ -177,25 +176,7 @@ public class BajajApiInvokeService {
         }
     }
 
-    private String tryPrettyPrint(String body) {
-        if (!StringUtils.hasText(body)) {
-            return "";
-        }
-        try {
-            return prettyJson(body);
-        } catch (Exception ex) {
-            return body;
-        }
-    }
-
-    private static BajajEnvironment parseEnvironment(String environment) {
-        if (environment != null && environment.equalsIgnoreCase("PROD")) {
-            return BajajEnvironment.PROD;
-        }
-        return BajajEnvironment.UAT;
-    }
-
-    private BajajTesterProperties.EnvironmentConfig configFor(BajajEnvironment environment) {
-        return environment == BajajEnvironment.PROD ? properties.getProd() : properties.getUat();
+    private String normalizeJson(String body) {
+        return body.trim();
     }
 }

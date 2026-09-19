@@ -7,25 +7,19 @@ public record OperationListResponseDto(
         String baseUrl,
         String description,
         String statusCode,
-        String listEncryptionKey,
-        String listEncryptionIv,
-        String responseEncryptionKey,
         List<OperationEntryDto> operations,
-        TokenStatusDto tokenStatus
+        TokenStatusDto tokenStatus,
+        boolean fromCache,
+        Long listExpiresInSeconds
 ) {
 
-    /** Returns a copy carrying the token state fetched immediately after this list. */
     public OperationListResponseDto withTokenStatus(TokenStatusDto status) {
         return new OperationListResponseDto(
-                environment,
-                baseUrl,
-                description,
-                statusCode,
-                listEncryptionKey,
-                listEncryptionIv,
-                responseEncryptionKey,
-                operations,
-                status
-        );
+                environment, baseUrl, description, statusCode, operations, status, fromCache, listExpiresInSeconds);
+    }
+
+    public OperationListResponseDto withCacheMeta(boolean cached, Long expiresInSeconds) {
+        return new OperationListResponseDto(
+                environment, baseUrl, description, statusCode, operations, tokenStatus, cached, expiresInSeconds);
     }
 }

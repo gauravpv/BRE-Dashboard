@@ -105,6 +105,8 @@ opsconsole:
       operation-list-path: operationallist
       token-path: oauth-token
       token-ttl-seconds: ${BAJAJ_UAT_TOKEN_TTL_SECONDS:600}
+      # Bajaj rotates hashcode/salt about every 24 hours; reuse the list until then.
+      operation-list-ttl-seconds: ${BAJAJ_UAT_OPERATION_LIST_TTL_SECONDS:86400}
       # Per-API calls post the ciphertext wrapped in quotes; the list/token calls do not.
       quote-encrypted-body: true
       encryption-key: ${BAJAJ_UAT_ENCRYPTION_KEY:}
@@ -136,6 +138,7 @@ opsconsole:
       operation-list-path: operationallist
       token-path: oauth-token
       token-ttl-seconds: ${BAJAJ_PROD_TOKEN_TTL_SECONDS:600}
+      operation-list-ttl-seconds: ${BAJAJ_PROD_OPERATION_LIST_TTL_SECONDS:86400}
       quote-encrypted-body: true
       encryption-key: ${BAJAJ_PROD_ENCRYPTION_KEY:}
       encryption-iv: ${BAJAJ_PROD_ENCRYPTION_IV:}

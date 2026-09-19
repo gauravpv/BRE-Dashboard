@@ -6,10 +6,6 @@ public record OperationEntryDto(
         String appVersion,
         String module,
         String apiVersion,
-        String hashcode,
-        String salt,
-        String hashcode32,
-        String hashcode256,
         String fullUrl,
         String encryptionKey,
         String encryptionIv

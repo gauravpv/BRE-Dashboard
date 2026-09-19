@@ -1,5 +1,6 @@
 package com.opsconsole.tester.config;
 
+import com.opsconsole.tester.domain.BajajEnvironment;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.LinkedHashMap;
@@ -27,11 +28,8 @@ public class BajajTesterProperties {
         this.prod = prod;
     }
 
-    public EnvironmentConfig forEnvironment(String environment) {
-        if (environment != null && environment.equalsIgnoreCase("PROD")) {
-            return prod;
-        }
-        return uat;
+    public EnvironmentConfig config(BajajEnvironment environment) {
+        return environment == BajajEnvironment.PROD ? prod : uat;
     }
 
     public static class EnvironmentConfig {
@@ -39,6 +37,8 @@ public class BajajTesterProperties {
         private String operationListPath = "operationallist";
         private String tokenPath = "oauth-token";
         private long tokenTtlSeconds = 600;
+        /** How long a fetched operation list (hashcode/salt per API) is reused. Bajaj rotates it daily. */
+        private long operationListTtlSeconds = 86_400;
         /**
          * API invokes post the Base64 ciphertext wrapped in JSON quotes ({@code "abc..."}),
          * matching the per-API Postman pre-request script. The operation-list and oauth-token
@@ -108,6 +108,14 @@ public class BajajTesterProperties {
 
         public void setTokenTtlSeconds(long tokenTtlSeconds) {
             this.tokenTtlSeconds = tokenTtlSeconds;
+        }
+
+        public long getOperationListTtlSeconds() {
+            return operationListTtlSeconds;
+        }
+
+        public void setOperationListTtlSeconds(long operationListTtlSeconds) {
+            this.operationListTtlSeconds = operationListTtlSeconds;
         }
 
         public boolean isQuoteEncryptedBody() {

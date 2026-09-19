@@ -240,17 +240,6 @@
     }
   }
 
-  function renderApiSelect() {
-    closeApiDropdown();
-    if (!operations.length) {
-      setApiPickerEnabled(false, NO_APIS);
-      renderApiList('');
-      return;
-    }
-    setApiPickerEnabled(true, PLACEHOLDER);
-    renderApiList('');
-  }
-
   function selectOperation(index) {
     selectedIndex = index;
     const op = operations[index];
@@ -270,28 +259,31 @@
     renderApiList(apiSearch.value);
   }
 
-  async function loadOperations() {
+  async function loadOperations(forceRefresh = false) {
     const environment = environmentSelect.value;
     updateEnvStyle();
     closeApiDropdown();
-    setStatus(`Loading ${environment} operation list…`);
+    setStatus(forceRefresh
+      ? `Refreshing ${environment} operation list…`
+      : `Loading ${environment} operation list…`);
     reloadBtn.disabled = true;
     sendBtn.disabled = true;
     setApiPickerEnabled(false, 'Loading APIs…');
     setTokenStatus({ loading: true });
 
     try {
-      const response = await fetch(`/api/tester/operations?environment=${encodeURIComponent(environment)}`, {
-        headers: { Accept: 'application/json' },
-      });
+      const refreshParam = forceRefresh ? '&refresh=true' : '';
+      const response = await fetch(
+        `/api/tester/operations?environment=${encodeURIComponent(environment)}${refreshParam}`,
+        { headers: { Accept: 'application/json' } }
+      );
       const payload = await response.json();
       if (!response.ok) {
         throw new Error(payload.message || `Request failed (${response.status})`);
       }
 
       operations = payload.operations || [];
-      selectedIndex = -1;
-      renderApiSelect();
+      setApiPickerEnabled(operations.length > 0, operations.length ? PLACEHOLDER : NO_APIS);
       clearSelection();
 
       modeBadge.textContent = 'Live';
@@ -302,13 +294,15 @@
       // already warm before any API is selected.
       setTokenStatus(payload.tokenStatus);
 
+      const cacheNote = payload.fromCache
+        ? `cached${payload.listExpiresInSeconds != null ? ' · ' + formatDuration(payload.listExpiresInSeconds) + ' left' : ''}`
+        : 'fresh from Bajaj';
       setStatus(
-        `${payload.description || 'Loaded'} — ${operations.length} endpoints · ${payload.baseUrl}`
+        `${payload.description || 'Loaded'} — ${operations.length} endpoints · ${cacheNote} · ${payload.baseUrl}`
       );
     } catch (err) {
       operations = [];
-      selectedIndex = -1;
-      renderApiSelect();
+      setApiPickerEnabled(false, NO_APIS);
       clearSelection();
       apiCountEl.textContent = '0 APIs';
       setTokenStatus({ ready: false, error: 'Operation list failed, so no token was fetched' });
@@ -425,8 +419,8 @@
         body: JSON.stringify({
           environment: environmentSelect.value,
           publicUrl: op.publicUrl,
-          encryptionKey: op.encryptionKey || op.hashcode,
-          encryptionIv: op.encryptionIv || op.salt,
+          encryptionKey: op.encryptionKey,
+          encryptionIv: op.encryptionIv,
           requestBody: body,
         }),
       });
@@ -485,8 +479,8 @@
     }
   }
 
-  environmentSelect.addEventListener('change', loadOperations);
-  reloadBtn.addEventListener('click', loadOperations);
+  environmentSelect.addEventListener('change', () => loadOperations(false));
+  reloadBtn.addEventListener('click', () => loadOperations(true));
   sendBtn.addEventListener('click', sendRequest);
   formatBtn.addEventListener('click', formatRequest);
   clearReqBtn.addEventListener('click', clearRequest);

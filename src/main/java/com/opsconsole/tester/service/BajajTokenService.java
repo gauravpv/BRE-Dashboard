@@ -264,7 +264,7 @@ public class BajajTokenService {
     }
 
     private BajajTesterProperties.EnvironmentConfig configFor(BajajEnvironment environment) {
-        return environment == BajajEnvironment.PROD ? properties.getProd() : properties.getUat();
+        return properties.config(environment);
     }
 
     private static String abbreviate(String value, int max) {

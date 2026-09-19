@@ -81,9 +81,14 @@ class BajajTokenParsingTest {
     @Test
     void primeToken_failsWhenOauthTokenMissingFromList() {
         List<OperationEntryDto> operations = List.of(new OperationEntryDto(
-                "authbre/authorization", "authorization", "v1", "*", "v1",
-                "hash", "salt", null, null,
-                "https://example.test/authbre/authorization", "hash", "salt"));
+                "authbre/authorization",
+                "authorization",
+                "v1",
+                "*",
+                "v1",
+                "https://example.test/authbre/authorization",
+                "hash",
+                "salt"));
 
         TokenStatusDto status = newService().primeToken(BajajEnvironment.UAT, operations);
 

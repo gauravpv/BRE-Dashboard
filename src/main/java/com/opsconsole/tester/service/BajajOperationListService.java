@@ -16,16 +16,23 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class BajajOperationListService {
 
+    /** Refresh a few minutes before Bajaj rotates hashcode/salt (every 24 hours). */
+    private static final long CACHE_SKEW_SECONDS = 900;
+    private static final long DEFAULT_TTL_SECONDS = 86_400;
+
     private final BajajTesterProperties properties;
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient;
+    private final Map<BajajEnvironment, CachedList> cache = new ConcurrentHashMap<>();
 
     public BajajOperationListService(BajajTesterProperties properties, ObjectMapper objectMapper) {
         this.properties = properties;
@@ -34,17 +41,33 @@ public class BajajOperationListService {
     }
 
     public OperationListResponseDto fetchOperations(BajajEnvironment environment) {
-        BajajTesterProperties.EnvironmentConfig config = configFor(environment);
-        String plainJson = fetchLiveOperationList(config);
-        return parseOperationList(plainJson, environment, config);
+        return fetchOperations(environment, false);
     }
 
     /**
-     * Resolves a single operation (by publicurl or slug, case-insensitive) from the live
-     * operation list. Used to obtain the per-API hashcode/salt, e.g. for {@code oauth-token}.
+     * Returns the cached list when it is still within the 24-hour window. {@code forceRefresh}
+     * is the tester reload button — it hits Bajaj again and replaces the cache.
+     */
+    public OperationListResponseDto fetchOperations(BajajEnvironment environment, boolean forceRefresh) {
+        if (!forceRefresh) {
+            CachedList cached = cache.get(environment);
+            if (cached != null && !cached.isExpired()) {
+                return cached.list().withCacheMeta(true, cached.secondsRemaining());
+            }
+        }
+        BajajTesterProperties.EnvironmentConfig config = configFor(environment);
+        OperationListResponseDto fresh = parseOperationList(fetchLiveOperationList(config), environment, config);
+        long ttl = config.getOperationListTtlSeconds() > 0 ? config.getOperationListTtlSeconds() : DEFAULT_TTL_SECONDS;
+        long effectiveTtl = Math.max(ttl - Math.min(CACHE_SKEW_SECONDS, ttl / 2), 60L);
+        cache.put(environment, new CachedList(fresh, Instant.now().plusSeconds(effectiveTtl)));
+        return fresh.withCacheMeta(false, effectiveTtl);
+    }
+
+    /**
+     * Resolves a single operation (by publicurl or slug, case-insensitive) from the cached
+     * operation list, fetching from Bajaj only when the 24-hour cache is empty or expired.
      */
     public OperationEntryDto findOperation(BajajEnvironment environment, String publicUrlOrSlug) {
-        // Validate before fetching so a bad name fails fast instead of costing a round-trip.
         requireOperationName(publicUrlOrSlug);
         return findOperation(fetchOperations(environment).operations(), publicUrlOrSlug, environment);
     }
@@ -76,7 +99,7 @@ public class BajajOperationListService {
     }
 
     private BajajTesterProperties.EnvironmentConfig configFor(BajajEnvironment environment) {
-        return environment == BajajEnvironment.PROD ? properties.getProd() : properties.getUat();
+        return properties.config(environment);
     }
 
     private String fetchLiveOperationList(BajajTesterProperties.EnvironmentConfig config) {
@@ -148,10 +171,6 @@ public class BajajOperationListService {
                         text(node, "appversion"),
                         text(node, "module"),
                         text(node, "apiversion"),
-                        text(node, "hashcode"),
-                        text(node, "salt"),
-                        text(node, "hashcode32"),
-                        text(node, "hashcode256"),
                         config.apiUrl(publicUrl),
                         text(node, "hashcode"),
                         text(node, "salt")
@@ -165,10 +184,9 @@ public class BajajOperationListService {
                     config.getBaseUrl(),
                     text(root, "description"),
                     text(root, "statusCode"),
-                    config.getEncryptionKey(),
-                    config.getEncryptionIv(),
-                    text(root, "encryptionkey"),
                     operations,
+                    null,
+                    false,
                     null
             );
         } catch (BajajTesterException ex) {
@@ -202,5 +220,20 @@ public class BajajOperationListService {
             trimmed = trimmed.substring(1);
         }
         return trimmed.toLowerCase();
+    }
+
+    /** Visible for tests. */
+    void putCache(BajajEnvironment environment, OperationListResponseDto list, Instant expiresAt) {
+        cache.put(environment, new CachedList(list, expiresAt));
+    }
+
+    private record CachedList(OperationListResponseDto list, Instant expiresAt) {
+        boolean isExpired() {
+            return Instant.now().isAfter(expiresAt);
+        }
+
+        long secondsRemaining() {
+            return Math.max(Duration.between(Instant.now(), expiresAt).getSeconds(), 0L);
+        }
     }
 }

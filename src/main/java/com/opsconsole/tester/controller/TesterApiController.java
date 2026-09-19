@@ -4,6 +4,7 @@ import com.opsconsole.auth.domain.AppTab;
 import com.opsconsole.auth.domain.AppUser;
 import com.opsconsole.auth.domain.CurrentUser;
 import com.opsconsole.auth.service.NavAccessService;
+import com.opsconsole.common.dto.ErrorResponse;
 import com.opsconsole.tester.domain.BajajEnvironment;
 import com.opsconsole.tester.dto.BajajInvokeRequest;
 import com.opsconsole.tester.dto.BajajInvokeResponse;
@@ -23,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import com.opsconsole.common.dto.ErrorResponse;
 
 @RestController
 @RequestMapping("/api/tester")
@@ -47,13 +47,16 @@ public class TesterApiController {
     }
 
     @GetMapping("/operations")
-    public OperationListResponseDto operations(@RequestParam(defaultValue = "UAT") String environment) {
+    public OperationListResponseDto operations(
+            @RequestParam(defaultValue = "UAT") String environment,
+            @RequestParam(defaultValue = "false") boolean refresh
+    ) {
         requireTesterAccess();
-        BajajEnvironment env = parseEnvironment(environment);
-
-        // Step 1: operation list. Step 2: oauth-token, reusing that list for its key/IV so the
-        // token header is already warm by the time the user picks an API.
-        OperationListResponseDto operations = operationListService.fetchOperations(env);
+        BajajEnvironment env = requireEnvironment(environment);
+        if (refresh) {
+            tokenService.invalidate(env);
+        }
+        OperationListResponseDto operations = operationListService.fetchOperations(env, refresh);
         return operations.withTokenStatus(tokenService.primeToken(env, operations.operations()));
     }
 
@@ -63,12 +66,10 @@ public class TesterApiController {
         return invokeService.invoke(request);
     }
 
-    /** Forces a fresh oauth-token call; returns only a masked preview, never the raw token. */
     @PostMapping("/token/refresh")
     public TokenStatusDto refreshToken(@RequestParam(defaultValue = "UAT") String environment) {
         requireTesterAccess();
-        BajajEnvironment env = parseEnvironment(environment);
-        tokenService.invalidate(env);
+        BajajEnvironment env = requireEnvironment(environment);
         tokenService.refreshToken(env);
         return tokenService.status(env);
     }
@@ -79,14 +80,12 @@ public class TesterApiController {
         return new ErrorResponse(ex.getMessage());
     }
 
-    private static BajajEnvironment parseEnvironment(String environment) {
-        if (environment != null && environment.equalsIgnoreCase("PROD")) {
-            return BajajEnvironment.PROD;
+    private static BajajEnvironment requireEnvironment(String environment) {
+        BajajEnvironment parsed = BajajEnvironment.parse(environment);
+        if (parsed == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Environment must be UAT or PROD");
         }
-        if (environment != null && environment.equalsIgnoreCase("UAT")) {
-            return BajajEnvironment.UAT;
-        }
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Environment must be UAT or PROD");
+        return parsed;
     }
 
     private void requireTesterAccess() {
