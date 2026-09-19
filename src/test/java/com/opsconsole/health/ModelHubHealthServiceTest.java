@@ -1,5 +1,12 @@
 package com.opsconsole.health;
 
+import com.opsconsole.health.config.HealthProperties;
+import com.opsconsole.health.domain.HealthDeploymentTier;
+import com.opsconsole.health.domain.HealthStatus;
+import com.opsconsole.health.domain.SystemHealthView;
+import com.opsconsole.health.service.ModelHubHealthService;
+import com.opsconsole.health.service.ModelHubOAuthTokenClient;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
@@ -9,12 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import com.opsconsole.health.config.HealthProperties;
-import com.opsconsole.health.domain.HealthDeploymentTier;
-import com.opsconsole.health.domain.HealthStatus;
-import com.opsconsole.health.domain.SystemHealthView;
-import com.opsconsole.health.service.ModelHubHealthService;
-import com.opsconsole.health.service.ModelHubOAuthTokenClient;
+
 class ModelHubHealthServiceTest {
 
     private ModelHubHealthService service;

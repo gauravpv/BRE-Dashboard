@@ -1,9 +1,12 @@
 package com.opsconsole.admin.controller;
 
+import com.opsconsole.admin.service.ServiceAdminService;
+import com.opsconsole.admin.util.AdminActionLabels;
 import com.opsconsole.auth.domain.AppTab;
 import com.opsconsole.auth.domain.AppUser;
 import com.opsconsole.auth.domain.CurrentUser;
 import com.opsconsole.auth.service.NavAccessService;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,8 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.List;
-import com.opsconsole.admin.service.ServiceAdminService;
-import com.opsconsole.admin.util.AdminActionLabels;
+
 @RestController
 @RequestMapping("/api/admin")
 public class ServiceAdminApiController {

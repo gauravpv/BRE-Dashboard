@@ -1,10 +1,15 @@
 package com.opsconsole.auth.controller;
 
+import com.opsconsole.auth.domain.AppTab;
+import com.opsconsole.auth.domain.AppUser;
+import com.opsconsole.auth.domain.CurrentUser;
 import com.opsconsole.auth.dto.UserActivityLogView;
 import com.opsconsole.auth.dto.UserDetailResponse;
+import com.opsconsole.auth.service.NavAccessService;
 import com.opsconsole.auth.service.RoleAdminService;
 import com.opsconsole.auth.service.UserActivityLogService;
 import com.opsconsole.auth.service.UserSessionService;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,11 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import com.opsconsole.auth.domain.AppTab;
-import com.opsconsole.auth.domain.AppUser;
-import com.opsconsole.auth.domain.CurrentUser;
-import com.opsconsole.auth.service.NavAccessService;
-import com.opsconsole.auth.service.RoleAdminService;
+
 @RestController
 @RequestMapping("/api/admin")
 public class RoleAdminApiController {

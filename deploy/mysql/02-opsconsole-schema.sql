@@ -1,4 +1,7 @@
 -- OpsConsole application schema. Run against the opsconsole database.
+-- From scratch (after 01): all JPA tables, account_status, system roles, default tab access.
+-- Re-runnable: CREATE TABLE IF NOT EXISTS, INSERT IGNORE / NOT EXISTS for seeds.
+-- Does not insert users. First Administrator comes from OPSCONSOLE_BOOTSTRAP_* on app start.
 USE opsconsole;
 
 CREATE TABLE IF NOT EXISTS app_roles (
@@ -131,3 +134,46 @@ CREATE TABLE IF NOT EXISTS system_activity_logs (
     KEY idx_system_activity_created (created_at),
     KEY idx_system_activity_type_created (type, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- System roles. The app also ensures these on startup; INSERT IGNORE is safe to re-run.
+INSERT IGNORE INTO app_roles (code, name, description, system_role) VALUES
+    ('ADMIN', 'Administrator', 'Full platform access', 1),
+    ('TESTER', 'Tester', 'API testing and validation tools', 1),
+    ('MONITORING', 'Monitoring', 'Dashboard and system health monitoring', 1);
+
+-- Default tab matrix (AppTab enum names). Missing rows are also added by AuthDataInitializer.
+INSERT INTO role_tab_access (role_id, tab, allowed)
+SELECT r.id, m.tab, m.allowed
+FROM app_roles r
+INNER JOIN (
+    SELECT 'ADMIN' AS code, 'DASHBOARD'     AS tab, 1 AS allowed UNION ALL
+    SELECT 'ADMIN',         'HEALTH',              1 UNION ALL
+    SELECT 'ADMIN',         'TRANSACTIONS',        1 UNION ALL
+    SELECT 'ADMIN',         'TESTER',              1 UNION ALL
+    SELECT 'ADMIN',         'ADMIN',               1 UNION ALL
+    SELECT 'ADMIN',         'USERS',               1 UNION ALL
+    SELECT 'ADMIN',         'DEV_UTILS',           1 UNION ALL
+    SELECT 'TESTER',        'DASHBOARD',           1 UNION ALL
+    SELECT 'TESTER',        'HEALTH',              1 UNION ALL
+    SELECT 'TESTER',        'TRANSACTIONS',        0 UNION ALL
+    SELECT 'TESTER',        'TESTER',              1 UNION ALL
+    SELECT 'TESTER',        'ADMIN',               0 UNION ALL
+    SELECT 'TESTER',        'USERS',               0 UNION ALL
+    SELECT 'TESTER',        'DEV_UTILS',           1 UNION ALL
+    SELECT 'MONITORING',    'DASHBOARD',           1 UNION ALL
+    SELECT 'MONITORING',    'HEALTH',              1 UNION ALL
+    SELECT 'MONITORING',    'TRANSACTIONS',        1 UNION ALL
+    SELECT 'MONITORING',    'TESTER',              0 UNION ALL
+    SELECT 'MONITORING',    'ADMIN',               0 UNION ALL
+    SELECT 'MONITORING',    'USERS',               0 UNION ALL
+    SELECT 'MONITORING',    'DEV_UTILS',           0
+) m ON m.code = r.code
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM role_tab_access existing
+    WHERE existing.role_id = r.id
+      AND existing.tab = m.tab
+);
+
+-- Do not insert users here. First Administrator is created on app start from
+-- OPSCONSOLE_BOOTSTRAP_EMAIL and OPSCONSOLE_BOOTSTRAP_PASSWORD.

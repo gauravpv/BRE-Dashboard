@@ -1,11 +1,13 @@
 package com.opsconsole.health.service;
 
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.stereotype.Component;
 import com.opsconsole.health.config.HealthProperties;
 import com.opsconsole.health.domain.MonitoredHost;
 import com.opsconsole.health.repository.MonitoredHostRepository;
+
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.stereotype.Component;
+
 @Component
 public class MonitorCatalogInitializer implements ApplicationRunner {
 

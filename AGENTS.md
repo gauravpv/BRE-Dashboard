@@ -55,11 +55,12 @@ These are parallel classes, not a hierarchy. Services have separate `evaluateUat
 ## Module layout
 ```
 com.opsconsole.
-  activity/     — system activity feed (events, log)
-  admin/        — SSH-based service admin (start/stop/restart, properties edit)
-  tester/       — Bajaj-specific AES-CBC encrypted API tester
-  config/       — app-wide beans and H2 migration
-  health/       — Spring Actuator polling + Model Hub integration
-  tester/       — Bajaj-specific AES-CBC encrypted API tester
-  web/          — top-level page controllers
+  activity/      — system activity feed (events, log)
+  admin/         — SSH-based service admin (start/stop/restart, properties edit)
+  auth/          — login, Entra OIDC, roles, user admin, sessions
+  config/        — app-wide beans and H2 migration
+  health/        — Spring Actuator polling + Model Hub integration
+  tester/        — Bajaj-specific AES-CBC encrypted API tester
+  transactions/  — reporting dashboard
+  web/           — top-level page controllers
 ```

@@ -1,11 +1,13 @@
 package com.opsconsole.admin.repository;
 
+import com.opsconsole.admin.domain.ManagedService;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
-import com.opsconsole.admin.domain.ManagedService;
+
 public interface ManagedServiceRepository extends JpaRepository<ManagedService, Long> {
 
     @Query("""

@@ -1,11 +1,13 @@
 package com.opsconsole.auth.repository;
 
+import com.opsconsole.auth.domain.AccountStatus;
+import com.opsconsole.auth.domain.AppUser;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
-import com.opsconsole.auth.domain.AccountStatus;
-import com.opsconsole.auth.domain.AppUser;
+
 public interface AppUserRepository extends JpaRepository<AppUser, Long> {
 
     Optional<AppUser> findByAzureAdId(String azureAdId);

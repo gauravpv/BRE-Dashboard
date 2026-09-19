@@ -1,14 +1,15 @@
 package com.opsconsole.admin.controller;
 
+import com.opsconsole.admin.exception.ServiceAdminException;
 import com.opsconsole.auth.controller.RoleAdminApiController;
 import com.opsconsole.common.dto.ErrorResponse;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
-import com.opsconsole.admin.exception.ServiceAdminException;
-import com.opsconsole.common.dto.ErrorResponse;
+
 @RestControllerAdvice(assignableTypes = {RoleAdminApiController.class, ServiceAdminApiController.class})
 public class AdminApiExceptionHandler {
 

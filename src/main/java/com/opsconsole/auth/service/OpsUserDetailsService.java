@@ -1,14 +1,16 @@
 package com.opsconsole.auth.service;
 
+import com.opsconsole.auth.domain.AppUser;
+import com.opsconsole.auth.domain.OpsUserPrincipal;
+import com.opsconsole.auth.repository.AppUserRepository;
+
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.opsconsole.auth.domain.AppUser;
-import com.opsconsole.auth.domain.OpsUserPrincipal;
-import com.opsconsole.auth.repository.AppUserRepository;
+
 @Service
 public class OpsUserDetailsService implements UserDetailsService {
 

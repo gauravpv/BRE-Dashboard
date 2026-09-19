@@ -1,7 +1,20 @@
 package com.opsconsole.admin;
 
 import com.opsconsole.activity.service.ActivityFeedService;
+import com.opsconsole.admin.domain.AdminAction;
+import com.opsconsole.admin.domain.ManagedServer;
+import com.opsconsole.admin.domain.ManagedService;
+import com.opsconsole.admin.domain.SshCommandResult;
+import com.opsconsole.admin.exception.ServiceAdminException;
+import com.opsconsole.admin.repository.AdminActionLogRepository;
+import com.opsconsole.admin.repository.ManagedServerRepository;
+import com.opsconsole.admin.repository.ManagedServiceRepository;
+import com.opsconsole.admin.service.AdminActionLogger;
+import com.opsconsole.admin.service.ServiceAdminService;
+import com.opsconsole.admin.ssh.SshRemoteExecutor;
+import com.opsconsole.admin.util.AdminPathValidator;
 import com.opsconsole.auth.domain.AppUser;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,18 +30,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import com.opsconsole.admin.domain.AdminAction;
-import com.opsconsole.admin.domain.ManagedServer;
-import com.opsconsole.admin.domain.ManagedService;
-import com.opsconsole.admin.domain.SshCommandResult;
-import com.opsconsole.admin.exception.ServiceAdminException;
-import com.opsconsole.admin.repository.AdminActionLogRepository;
-import com.opsconsole.admin.repository.ManagedServerRepository;
-import com.opsconsole.admin.repository.ManagedServiceRepository;
-import com.opsconsole.admin.service.AdminActionLogger;
-import com.opsconsole.admin.service.ServiceAdminService;
-import com.opsconsole.admin.ssh.SshRemoteExecutor;
-import com.opsconsole.admin.util.AdminPathValidator;
+
 @ExtendWith(MockitoExtension.class)
 class ServiceAdminServiceTest {
 

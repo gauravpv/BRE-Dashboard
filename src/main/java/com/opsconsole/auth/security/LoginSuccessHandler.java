@@ -1,20 +1,23 @@
 package com.opsconsole.auth.security;
 
 import com.opsconsole.activity.service.ActivityFeedService;
+import com.opsconsole.auth.domain.AppUser;
+import com.opsconsole.auth.domain.OpsOidcUser;
+import com.opsconsole.auth.domain.OpsUserPrincipal;
+import com.opsconsole.auth.repository.AppUserRepository;
+import com.opsconsole.auth.service.UserActivityLogService;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.Instant;
-import com.opsconsole.auth.domain.AppUser;
-import com.opsconsole.auth.domain.OpsOidcUser;
-import com.opsconsole.auth.domain.OpsUserPrincipal;
-import com.opsconsole.auth.repository.AppUserRepository;
-import com.opsconsole.auth.service.UserActivityLogService;
+
 @Component
 public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 

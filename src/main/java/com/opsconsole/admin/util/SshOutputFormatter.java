@@ -1,6 +1,7 @@
 package com.opsconsole.admin.util;
 
 import com.opsconsole.admin.domain.SshCommandResult;
+
 public final class SshOutputFormatter {
 
     private SshOutputFormatter() {

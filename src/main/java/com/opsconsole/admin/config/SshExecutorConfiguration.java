@@ -1,10 +1,12 @@
 package com.opsconsole.admin.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import com.opsconsole.admin.ssh.DevSshRemoteExecutor;
 import com.opsconsole.admin.ssh.LiveSshRemoteExecutor;
 import com.opsconsole.admin.ssh.SshRemoteExecutor;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
 @Configuration
 public class SshExecutorConfiguration {
 

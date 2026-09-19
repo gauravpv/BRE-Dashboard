@@ -1,6 +1,15 @@
 package com.opsconsole.auth.service;
 
 import com.opsconsole.activity.service.ActivityFeedService;
+import com.opsconsole.auth.domain.AccountStatus;
+import com.opsconsole.auth.domain.AppRole;
+import com.opsconsole.auth.domain.AppTab;
+import com.opsconsole.auth.domain.AppUser;
+import com.opsconsole.auth.domain.RoleTabAccess;
+import com.opsconsole.auth.repository.AppRoleRepository;
+import com.opsconsole.auth.repository.AppUserRepository;
+import com.opsconsole.auth.repository.RoleTabAccessRepository;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,14 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import com.opsconsole.auth.domain.AccountStatus;
-import com.opsconsole.auth.domain.AppRole;
-import com.opsconsole.auth.domain.AppTab;
-import com.opsconsole.auth.domain.AppUser;
-import com.opsconsole.auth.domain.RoleTabAccess;
-import com.opsconsole.auth.repository.AppRoleRepository;
-import com.opsconsole.auth.repository.AppUserRepository;
-import com.opsconsole.auth.repository.RoleTabAccessRepository;
+
 @Service
 public class RoleAdminService {
 

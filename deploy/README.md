@@ -2,9 +2,9 @@
 
 Use the same OpsConsole build for UAT and PROD. Switch only the Spring profile and environment variables.
 
-## 1. Create databases and users
+## 1. MySQL from scratch (PROD / UAT)
 
-Edit passwords in `01-create-databases-and-users.sql`, then as a DBA:
+Edit passwords in `01-create-databases-and-users.sql`, then as a DBA run **in this order**:
 
 ```bash
 mysql -u root -p < deploy/mysql/01-create-databases-and-users.sql
@@ -14,13 +14,25 @@ mysql -u root -p < deploy/mysql/04-grants.sql
 mysql -u root -p < deploy/mysql/05-verification.sql
 ```
 
-`03-transaction-schema.sql` creates `bre_underwriting.transaction_details`, `transaction_details_srcreq_otp`, and the two festival summary views. If those objects already exist in the reporting database, skip that script and only grant `SELECT`.
+| Script | What it creates |
+|--------|-----------------|
+| `01` | Databases `opsconsole` and `bre_underwriting`, users `opsconsole` and `opsconsole_txn` |
+| `02` | All 11 application tables, `account_status` on `app_users`, system roles, default tab matrix |
+| `03` | Reporting tables `transaction_details`, `transaction_details_srcreq_otp`, and the two festival views |
+| `04` | Least-privilege grants |
+| `05` | Checks tables, `account_status`, roles, tab rows, and grants |
 
-For an existing OpsConsole database created before account approval was added, run this once before deploying the new build:
+`02` does **not** insert users. On first app start, set `OPSCONSOLE_BOOTSTRAP_EMAIL` and `OPSCONSOLE_BOOTSTRAP_PASSWORD` so the first Administrator is created. Health hosts and SSH catalog are seeded by the app when those tables are empty.
+
+`03-transaction-schema.sql` uses `CREATE TABLE IF NOT EXISTS`. If `bre_underwriting` already has live reporting objects, skip `03` and run only `04` so `opsconsole_txn` gets `SELECT`.
+
+Do **not** run `06` on a fresh database. Use it only for an older OpsConsole schema that still has `app_users.enabled` and is missing `account_status`:
 
 ```bash
 mysql -u root -p < deploy/mysql/06-add-user-approval-status.sql
 ```
+
+Prod/UAT JPA is `ddl-auto: validate`. The app will not create or alter tables; the scripts above must be applied first.
 
 ## 2. Environment variables
 

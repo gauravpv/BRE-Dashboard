@@ -1,15 +1,17 @@
 package com.opsconsole.admin.service;
 
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import com.opsconsole.admin.config.AdminProperties;
 import com.opsconsole.admin.domain.ManagedServer;
 import com.opsconsole.admin.domain.ManagedService;
 import com.opsconsole.admin.repository.ManagedServerRepository;
 import com.opsconsole.admin.repository.ManagedServiceRepository;
 import com.opsconsole.admin.util.AdminPathValidator;
+
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 @Component
 public class AdminCatalogInitializer implements ApplicationRunner {
 

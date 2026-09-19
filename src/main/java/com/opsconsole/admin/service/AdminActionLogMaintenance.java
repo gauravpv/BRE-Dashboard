@@ -1,11 +1,13 @@
 package com.opsconsole.admin.service;
 
+import com.opsconsole.admin.domain.AdminAction;
+import com.opsconsole.admin.repository.AdminActionLogRepository;
+
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import com.opsconsole.admin.domain.AdminAction;
-import com.opsconsole.admin.repository.AdminActionLogRepository;
+
 @Component
 public class AdminActionLogMaintenance implements ApplicationRunner {
 

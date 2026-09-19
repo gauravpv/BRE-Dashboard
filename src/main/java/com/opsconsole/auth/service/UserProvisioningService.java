@@ -1,16 +1,16 @@
 package com.opsconsole.auth.service;
 
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.opsconsole.auth.config.AuthProperties;
 import com.opsconsole.auth.domain.AccountStatus;
 import com.opsconsole.auth.domain.AppRole;
 import com.opsconsole.auth.domain.AppUser;
 import com.opsconsole.auth.repository.AppRoleRepository;
 import com.opsconsole.auth.repository.AppUserRepository;
-import com.opsconsole.auth.service.UserActivityLogService;
+
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
 public class UserProvisioningService {
 
@@ -42,9 +42,9 @@ public class UserProvisioningService {
         String displayName = firstNonBlank(oauthUser.getAttribute("name"), email);
 
         return userRepository.findByAzureAdId(azureAdId)
-                .map(existing -> updateOnLogin(existing, displayName, email))
+                .map(existing -> updateOnLogin(existing, displayName))
                 .orElseGet(() -> userRepository.findByEmailIgnoreCase(email)
-                        .map(existing -> linkExistingAccount(existing, azureAdId, displayName, email))
+                        .map(existing -> linkExistingAccount(existing, azureAdId, displayName))
                         .orElseGet(() -> createUser(azureAdId, email, displayName)));
     }
 
@@ -60,24 +60,14 @@ public class UserProvisioningService {
         return saved;
     }
 
-    private AppUser updateOnLogin(AppUser user, String displayName, String email) {
+    private AppUser updateOnLogin(AppUser user, String displayName) {
         user.setDisplayName(displayName);
-        if (email != null && !email.isBlank()) {
-            if (user.getEmail().equalsIgnoreCase(email) || userRepository.findByEmailIgnoreCase(email).isEmpty()) {
-                // keep existing email field immutable in DB for simplicity
-            }
-        }
         return userRepository.save(user);
     }
 
-    private AppUser linkExistingAccount(
-            AppUser user,
-            String azureAdId,
-            String displayName,
-            String email
-    ) {
+    private AppUser linkExistingAccount(AppUser user, String azureAdId, String displayName) {
         user.setAzureAdId(azureAdId);
-        return updateOnLogin(user, displayName, email);
+        return updateOnLogin(user, displayName);
     }
 
     private static String requireClaim(OAuth2User user, String... keys) {

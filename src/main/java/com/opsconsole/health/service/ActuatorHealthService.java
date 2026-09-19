@@ -2,6 +2,12 @@ package com.opsconsole.health.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.opsconsole.health.config.HealthProperties;
+import com.opsconsole.health.domain.HealthStatus;
+import com.opsconsole.health.domain.MonitoredHost;
+import com.opsconsole.health.domain.MonitoredHostProd;
+import com.opsconsole.health.domain.SystemHealthView;
+
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -11,11 +17,6 @@ import org.springframework.web.client.RestClientResponseException;
 import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
-import com.opsconsole.health.config.HealthProperties;
-import com.opsconsole.health.domain.HealthStatus;
-import com.opsconsole.health.domain.MonitoredHost;
-import com.opsconsole.health.domain.MonitoredHostProd;
-import com.opsconsole.health.domain.SystemHealthView;
 
 @Service
 public class ActuatorHealthService {

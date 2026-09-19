@@ -1,8 +1,10 @@
 package com.opsconsole.admin.ssh;
 
-import java.util.concurrent.ConcurrentHashMap;
 import com.opsconsole.admin.domain.ManagedServer;
 import com.opsconsole.admin.domain.SshCommandResult;
+
+import java.util.concurrent.ConcurrentHashMap;
+
 public class DevSshRemoteExecutor implements SshRemoteExecutor {
 
     private final ConcurrentHashMap<String, String> propertiesStore = new ConcurrentHashMap<>();

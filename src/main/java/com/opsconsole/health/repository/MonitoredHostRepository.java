@@ -1,9 +1,11 @@
 package com.opsconsole.health.repository;
 
+import com.opsconsole.health.domain.MonitoredHost;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-import com.opsconsole.health.domain.MonitoredHost;
+
 public interface MonitoredHostRepository extends JpaRepository<MonitoredHost, Long> {
 
     List<MonitoredHost> findByEnabledTrueOrderByNameAsc();

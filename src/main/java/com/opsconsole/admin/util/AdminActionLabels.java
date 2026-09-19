@@ -1,6 +1,7 @@
 package com.opsconsole.admin.util;
 
 import com.opsconsole.admin.domain.AdminAction;
+
 public final class AdminActionLabels {
 
     private AdminActionLabels() {

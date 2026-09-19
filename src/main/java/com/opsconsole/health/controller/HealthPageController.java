@@ -1,17 +1,19 @@
 package com.opsconsole.health.controller;
 
-import com.opsconsole.auth.domain.AppTab;
 import com.opsconsole.activity.service.ActivityFeedService;
-import com.opsconsole.health.service.ActuatorHealthService;
+import com.opsconsole.auth.domain.AppTab;
 import com.opsconsole.health.domain.HealthRegionGroup;
-import com.opsconsole.health.service.SystemHealthMonitor;
 import com.opsconsole.health.domain.SystemHealthView;
+import com.opsconsole.health.service.ActuatorHealthService;
+import com.opsconsole.health.service.SystemHealthMonitor;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+
 @Controller
 public class HealthPageController {
 

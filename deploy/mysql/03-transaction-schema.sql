@@ -3,7 +3,7 @@
 -- Tables are created first so the reporting views can compile.
 USE bre_underwriting;
 
-CREATE TABLE `transaction_details` (
+CREATE TABLE IF NOT EXISTS `transaction_details` (
   `CUSTOMER_ID` decimal(30,0) DEFAULT NULL,
   `CARD_NUMBER` varchar(19) DEFAULT NULL,
   `RRN_NUMBER` varchar(20) NOT NULL,
@@ -304,7 +304,7 @@ CREATE TABLE `transaction_details` (
   KEY `idx_txn_dashboard_date_product` (`AUTH_REQUEST_DATE_TIME`,`PRODUCT`,`DEALER_CODE_ETAILER`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE `transaction_details_srcreq_otp` (
+CREATE TABLE IF NOT EXISTS `transaction_details_srcreq_otp` (
   `CUSTOMER_ID` decimal(30,0) DEFAULT NULL,
   `CARD_NUMBER` varchar(19) DEFAULT NULL,
   `RRN_NUMBER` varchar(20) DEFAULT NULL,
@@ -529,7 +529,7 @@ CREATE TABLE `transaction_details_srcreq_otp` (
   KEY `idx_transaction_details_srcreq_otp_BRE9_FLAG` (`BRE9_FLAG`),
   KEY `idx_transaction_details_srcreq_otp_CAST_AUTH_REQUEST_DATE_TIME` (`CAST_AUTH_REQUEST_DATE_TIME`),
   KEY `idx_otp_req_type_auth_time` (`REQ_TYPE`,`AUTH_REQUEST_DATE_TIME`)
-) ENGINE=InnoDB AUTO_INCREMENT=220482431 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE OR REPLACE VIEW `bre_underwriting`.`festival_summary_detailed_mins_new` AS
     SELECT 

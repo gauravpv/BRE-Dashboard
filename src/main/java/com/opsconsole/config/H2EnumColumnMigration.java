@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+
 /**
  * H2 persists Hibernate {@code @Enumerated} columns as ENUM types with a fixed value set.
  * Alter evolving enum columns to VARCHAR so newly introduced values can be inserted.

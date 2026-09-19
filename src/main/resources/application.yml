@@ -20,6 +20,8 @@ spring:
       hibernate:
         jdbc:
           time_zone: UTC
+        type:
+          preferred_boolean_jdbc_type: TINYINT
   thymeleaf:
     cache: false
   h2:

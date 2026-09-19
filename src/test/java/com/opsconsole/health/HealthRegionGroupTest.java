@@ -1,14 +1,16 @@
 package com.opsconsole.health;
 
+import com.opsconsole.health.domain.HealthRegionGroup;
+import com.opsconsole.health.domain.HealthStatus;
+import com.opsconsole.health.domain.SystemHealthView;
+
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import com.opsconsole.health.domain.HealthRegionGroup;
-import com.opsconsole.health.domain.HealthStatus;
-import com.opsconsole.health.domain.SystemHealthView;
+
 class HealthRegionGroupTest {
 
     @Test
