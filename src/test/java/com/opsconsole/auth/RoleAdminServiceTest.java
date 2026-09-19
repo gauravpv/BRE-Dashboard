@@ -3,14 +3,17 @@ package com.opsconsole.auth;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.opsconsole.auth.domain.AppUser;
+import com.opsconsole.auth.domain.OpsUserPrincipal;
 import com.opsconsole.auth.repository.AppUserRepository;
 import com.opsconsole.auth.service.AuthDataInitializer;
 import com.opsconsole.auth.service.RoleAdminService;
+import com.opsconsole.auth.service.UserSessionService;
 @SpringBootTest
 @Transactional
 class RoleAdminServiceTest {
@@ -20,6 +23,12 @@ class RoleAdminServiceTest {
 
     @Autowired
     private AppUserRepository userRepository;
+
+    @Autowired
+    private SessionRegistry sessionRegistry;
+
+    @Autowired
+    private UserSessionService userSessionService;
 
     @Test
     void createUser_persistsWithPassword() {
@@ -90,5 +99,16 @@ class RoleAdminServiceTest {
         assertThatThrownBy(() -> roleAdminService.deleteUser(admin.getId(), admin))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("own account");
+    }
+
+    @Test
+    void revokeSessions_expiresTheUsersActiveSession() {
+        AppUser admin = userRepository.findByAzureAdId("dev-admin").orElseThrow();
+        String sessionId = "admin-session-test";
+        sessionRegistry.registerNewSession(sessionId, OpsUserPrincipal.fromUser(admin));
+
+        assertThat(userSessionService.activeSessionCount(admin.getId())).isEqualTo(1);
+        assertThat(userSessionService.revokeAll(admin.getId())).isEqualTo(1);
+        assertThat(userSessionService.activeSessionCount(admin.getId())).isZero();
     }
 }

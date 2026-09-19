@@ -60,7 +60,7 @@ Add user
 </thead>
 <tbody id="usersTableBody" class="divide-y divide-outline-variant">
 <tr th:each="u : ${users}" class="user-row hover:bg-surface-container-low/50 transition-colors duration-150 group hidden"
-    th:attr="data-search=${#strings.toLowerCase(u.displayName + ' ' + u.email + ' ' + u.role.name + ' ' + u.role.code + ' ' + (u.enabled ? 'active' : 'inactive') + ' ' + (u.jobTitle != null ? u.jobTitle : ''))}">
+    th:attr="data-search=${#strings.toLowerCase(u.displayName + ' ' + u.email + ' ' + u.role.name + ' ' + u.role.code + ' ' + u.accountStatus.name() + ' ' + (u.jobTitle != null ? u.jobTitle : ''))}">
 <td class="px-4 py-3 align-middle">
 <div class="flex items-center gap-3 min-w-0">
 <div class="w-9 h-9 rounded-full bg-secondary-container/20 border border-outline-variant flex items-center justify-center shrink-0">
@@ -78,8 +78,8 @@ Add user
 </td>
 <td class="px-4 py-3 align-middle">
 <div class="flex items-center gap-2 whitespace-nowrap">
-<span th:class="${u.enabled} ? 'w-2 h-2 rounded-full oc-status-dot-active shrink-0' : 'w-2 h-2 rounded-full bg-error shrink-0'"></span>
-<span class="font-body-sm text-body-sm text-on-surface" th:text="${u.enabled ? 'Active' : 'Inactive'}">Active</span>
+<span th:class="${u.accountStatus.name() == 'ACTIVE' ? 'w-2 h-2 rounded-full oc-status-dot-active shrink-0' : (u.accountStatus.name() == 'PENDING' ? 'w-2 h-2 rounded-full bg-tertiary shrink-0' : 'w-2 h-2 rounded-full bg-error shrink-0')}"></span>
+<span class="font-body-sm text-body-sm text-on-surface" th:text="${#strings.capitalize(#strings.toLowerCase(u.accountStatus.name()))}">Active</span>
 </div>
 </td>
 <td class="px-4 py-3 align-middle">
@@ -259,8 +259,19 @@ Save tab access
 <span class="text-on-surface text-right tabular-nums" id="drawerLastLogin">—</span>
 </div>
 <div class="flex justify-between gap-4 text-body-sm">
+<span class="text-on-surface-variant">Approval status</span>
+<span class="text-on-surface text-right" id="drawerAccountStatus">—</span>
+</div>
+<div class="flex justify-between gap-4 text-body-sm">
 <span class="text-on-surface-variant">Sign-in</span>
 <span class="text-on-surface text-right" id="drawerSignInType">—</span>
+</div>
+<div class="flex justify-between items-center gap-4 text-body-sm">
+<span class="text-on-surface-variant">Active sessions</span>
+<div class="flex items-center gap-2">
+<span class="text-on-surface text-right tabular-nums" id="drawerActiveSessions">0</span>
+<button type="button" id="revokeSessionsBtn" class="hidden px-2 py-1 rounded border border-error/40 text-error text-label-sm hover:bg-error/10">Force logout</button>
+</div>
 </div>
 </section>
 <section class="space-y-unit-md">
@@ -294,12 +305,14 @@ Save tab access
 </div>
 <div class="p-unit-lg border-t border-outline-variant flex gap-unit-md">
 <button type="button" class="flex-1 px-unit-lg py-2 rounded-lg border border-outline-variant text-on-surface font-title-md hover:bg-surface-container-low" onclick="closeUserDrawer()">Cancel</button>
+<button type="button" id="approveUserBtn" class="hidden flex-1 px-unit-lg py-2 rounded-lg bg-secondary-container text-on-secondary-container font-title-md hover:bg-secondary-container/90 active:scale-95">Approve &amp; Activate</button>
 <button type="button" id="saveUserBtn" class="flex-1 px-unit-lg py-2 rounded-lg bg-secondary-container text-on-secondary-container font-title-md hover:bg-secondary-container/90 active:scale-95">Save Changes</button>
 </div>
 </div>
 
 <script th:inline="javascript">
     let selectedUserId = null;
+    let selectedUserStatus = null;
     const currentUserId = /*[[${currentUser != null ? currentUser.id : null}]]*/ null;
     const USERS_PAGE_SIZE = 10;
     let usersCurrentPage = 1;
@@ -544,10 +557,24 @@ Save tab access
             document.getElementById('drawerEmail').textContent = user.email || '—';
             document.getElementById('drawerCreatedAt').textContent = formatDateTime(user.createdAt);
             document.getElementById('drawerLastLogin').textContent = formatDateTime(user.lastLoginAt);
+            document.getElementById('drawerAccountStatus').textContent =
+                user.accountStatus.charAt(0) + user.accountStatus.slice(1).toLowerCase();
             document.getElementById('drawerSignInType').textContent = user.hasLocalPassword ? 'Local password' : 'Microsoft Entra ID';
+            document.getElementById('drawerActiveSessions').textContent = String(user.activeSessionCount || 0);
             document.getElementById('userRoleSelect').value = user.roleCode;
             document.getElementById('statusActive').checked = user.enabled;
             document.getElementById('statusInactive').checked = !user.enabled;
+            selectedUserStatus = user.accountStatus;
+
+            const pending = user.accountStatus === 'PENDING';
+            document.getElementById('statusActive').disabled = pending;
+            document.getElementById('statusInactive').disabled = pending;
+            document.getElementById('approveUserBtn').classList.toggle('hidden', !pending);
+            document.getElementById('saveUserBtn').classList.toggle('hidden', pending);
+
+            const canRevoke = Number(user.activeSessionCount || 0) > 0
+                && String(selectedUserId) !== String(currentUserId);
+            document.getElementById('revokeSessionsBtn').classList.toggle('hidden', !canRevoke);
 
             if (activityRes.ok) {
                 renderActivityLog(await activityRes.json());
@@ -565,7 +592,40 @@ Save tab access
         document.getElementById('drawerOverlay').classList.remove('open');
         document.body.style.overflow = '';
         selectedUserId = null;
+        selectedUserStatus = null;
     }
+
+    document.getElementById('approveUserBtn').addEventListener('click', async () => {
+        if (!selectedUserId || selectedUserStatus !== 'PENDING') return;
+        const roleCode = document.getElementById('userRoleSelect').value;
+        try {
+            const res = await fetch(`/api/admin/users/${selectedUserId}/approve`, {
+                method: 'PUT',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ roleCode })
+            });
+            if (!res.ok) throw new Error(await adminApiErrorMessage(res, 'Failed to approve user'));
+            window.location.reload();
+        } catch (e) {
+            alert(e.message || 'Failed to approve user.');
+        }
+    });
+
+    document.getElementById('revokeSessionsBtn').addEventListener('click', async () => {
+        if (!selectedUserId) return;
+        if (!confirm('Force this user to sign in again?')) return;
+        try {
+            const res = await fetch(`/api/admin/users/${selectedUserId}/sessions`, {
+                method: 'DELETE',
+                credentials: 'same-origin'
+            });
+            if (!res.ok) throw new Error(await adminApiErrorMessage(res, 'Failed to revoke session'));
+            window.location.reload();
+        } catch (e) {
+            alert(e.message || 'Failed to revoke session.');
+        }
+    });
 
     document.getElementById('saveUserBtn').addEventListener('click', async () => {
         if (!selectedUserId) return;

@@ -37,6 +37,7 @@ server:
     key-alias: ${SERVER_SSL_KEY_ALIAS:}
   servlet:
     session:
+      timeout: ${OPSCONSOLE_SESSION_TIMEOUT:30m}
       cookie:
         http-only: true
         same-site: lax
@@ -62,13 +63,17 @@ opsconsole:
     otp-table: transaction_details_srcreq_otp
     refresh-seconds: 60
   auth:
-    # Keep form login until Entra/ADID is wired. Switch mode to azure and activate the azure profile.
+    # Form login until SPRING_PROFILES_ACTIVE includes azure (see application-azure.yml).
     mode: ${OPSCONSOLE_AUTH_MODE:dev}
     default-role-code: MONITORING
     seed-dev-users: false
     bootstrap-email: ${OPSCONSOLE_BOOTSTRAP_EMAIL:}
     bootstrap-password: ${OPSCONSOLE_BOOTSTRAP_PASSWORD:}
     bootstrap-display-name: ${OPSCONSOLE_BOOTSTRAP_DISPLAY_NAME:Administrator}
+    azure:
+      client-id: ${AZURE_CLIENT_ID:}
+      client-secret: ${AZURE_CLIENT_SECRET:}
+      tenant-id: ${AZURE_TENANT_ID:}
   health:
     refresh-seconds: 30
     refresh-interval-ms: 30000
@@ -135,25 +140,5 @@ opsconsole:
       command-timeout-ms: 60000
     servers: []
 
----
-# Azure AD login — add the azure profile when Entra is ready:
-# SPRING_PROFILES_ACTIVE=prod,azure
-spring:
-  config:
-    activate:
-      on-profile: azure
-  security:
-    oauth2:
-      client:
-        registration:
-          azure:
-            client-id: ${AZURE_CLIENT_ID}
-            client-secret: ${AZURE_CLIENT_SECRET}
-            scope: openid, profile, email
-        provider:
-          azure:
-            issuer-uri: https://login.microsoftonline.com/${AZURE_TENANT_ID}/v2.0
-
-opsconsole:
-  auth:
-    mode: azure
+# Entra/ADID: set AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_CLIENT_SECRET.
+# That enables Sign in with Microsoft. Add profile azure only to hide password login.

@@ -11,13 +11,19 @@ public record UserDetailResponse(
         String jobTitle,
         String roleCode,
         String roleName,
+        String accountStatus,
         boolean enabled,
         Instant createdAt,
         Instant lastLoginAt,
         String azureAdId,
-        boolean hasLocalPassword
+        boolean hasLocalPassword,
+        int activeSessionCount
 ) {
     public static UserDetailResponse from(AppUser user) {
+        return from(user, 0);
+    }
+
+    public static UserDetailResponse from(AppUser user, int activeSessionCount) {
         return new UserDetailResponse(
                 user.getId(),
                 user.getEmail(),
@@ -25,11 +31,13 @@ public record UserDetailResponse(
                 user.getJobTitle(),
                 user.getRole().getCode(),
                 user.getRole().getName(),
+                user.getAccountStatus().name(),
                 user.isEnabled(),
                 user.getCreatedAt(),
                 user.getLastLoginAt(),
                 user.getAzureAdId(),
-                user.hasLocalPassword()
+                user.hasLocalPassword(),
+                activeSessionCount
         );
     }
 }

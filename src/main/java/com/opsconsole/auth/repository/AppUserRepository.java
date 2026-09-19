@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
+import com.opsconsole.auth.domain.AccountStatus;
 import com.opsconsole.auth.domain.AppUser;
 public interface AppUserRepository extends JpaRepository<AppUser, Long> {
 
@@ -14,4 +15,6 @@ public interface AppUserRepository extends JpaRepository<AppUser, Long> {
     List<AppUser> findAllByOrderByDisplayNameAsc();
 
     long countByRole_Code(String roleCode);
+
+    long countByRole_CodeAndAccountStatus(String roleCode, AccountStatus accountStatus);
 }

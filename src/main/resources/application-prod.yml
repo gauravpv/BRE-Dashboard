@@ -12,6 +12,13 @@ spring:
 
 server:
   port: ${SERVER_PORT:8443}
+  # So OAuth redirect_uri uses https://bflbre-dashboard-prod.bajajfinserv.in when a proxy terminates TLS.
+  forward-headers-strategy: native
+  tomcat:
+    remoteip:
+      protocol-header: X-Forwarded-Proto
+      remote-ip-header: X-Forwarded-For
+      host-header: X-Forwarded-Host
   ssl:
     enabled: ${SERVER_SSL_ENABLED:true}
     key-store: ${SERVER_SSL_KEYSTORE:}

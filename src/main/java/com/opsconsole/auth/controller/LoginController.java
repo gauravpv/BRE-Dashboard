@@ -20,6 +20,9 @@ public class LoginController {
             Model model,
             CsrfToken csrfToken,
             @RequestParam(required = false) String error,
+            @RequestParam(required = false) String pending,
+            @RequestParam(required = false) String inactive,
+            @RequestParam(required = false) String expired,
             @RequestParam(required = false) String logout
     ) {
         if (csrfToken != null) {
@@ -27,7 +30,11 @@ public class LoginController {
         }
         model.addAttribute("azureMode", authProperties.isAzureMode());
         model.addAttribute("devMode", authProperties.isDevMode());
+        model.addAttribute("microsoftLogin", authProperties.isAzureOAuthConfigured());
         model.addAttribute("loginError", error != null);
+        model.addAttribute("accessPending", pending != null);
+        model.addAttribute("accountInactive", inactive != null);
+        model.addAttribute("sessionExpired", expired != null);
         model.addAttribute("logoutSuccess", logout != null);
         return "login";
     }

@@ -4,8 +4,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import com.opsconsole.auth.config.AuthProperties;
+import com.opsconsole.auth.domain.AccountStatus;
 import com.opsconsole.auth.domain.AppRole;
 import com.opsconsole.auth.domain.AppUser;
 import com.opsconsole.auth.repository.AppRoleRepository;
@@ -43,7 +43,9 @@ public class UserProvisioningService {
 
         return userRepository.findByAzureAdId(azureAdId)
                 .map(existing -> updateOnLogin(existing, displayName, email))
-                .orElseGet(() -> createUser(azureAdId, email, displayName));
+                .orElseGet(() -> userRepository.findByEmailIgnoreCase(email)
+                        .map(existing -> linkExistingAccount(existing, azureAdId, displayName, email))
+                        .orElseGet(() -> createUser(azureAdId, email, displayName)));
     }
 
     private AppUser createUser(String azureAdId, String email, String displayName) {
@@ -52,7 +54,7 @@ public class UserProvisioningService {
                         .orElseThrow(() -> new IllegalStateException("Default role not configured")));
 
         AppUser user = new AppUser(azureAdId, email.toLowerCase(), displayName, defaultRole);
-        user.setLastLoginAt(Instant.now());
+        user.setAccountStatus(AccountStatus.PENDING);
         AppUser saved = userRepository.save(user);
         userActivityLogService.recordAzureProvision(saved);
         return saved;
@@ -66,6 +68,16 @@ public class UserProvisioningService {
             }
         }
         return userRepository.save(user);
+    }
+
+    private AppUser linkExistingAccount(
+            AppUser user,
+            String azureAdId,
+            String displayName,
+            String email
+    ) {
+        user.setAzureAdId(azureAdId);
+        return updateOnLogin(user, displayName, email);
     }
 
     private static String requireClaim(OAuth2User user, String... keys) {

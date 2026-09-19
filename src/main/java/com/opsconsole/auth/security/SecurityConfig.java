@@ -10,8 +10,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
@@ -26,17 +29,20 @@ public class SecurityConfig {
     private final AuthProperties authProperties;
     private final OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService;
     private final AuthenticationSuccessHandler loginSuccessHandler;
+    private final AzureLoginFailureHandler azureLoginFailureHandler;
     private final UserDetailsService userDetailsService;
 
     public SecurityConfig(
             AuthProperties authProperties,
             AzureOidcUserService oidcUserService,
             LoginSuccessHandler loginSuccessHandler,
+            AzureLoginFailureHandler azureLoginFailureHandler,
             OpsUserDetailsService userDetailsService
     ) {
         this.authProperties = authProperties;
         this.oidcUserService = oidcUserService;
         this.loginSuccessHandler = loginSuccessHandler;
+        this.azureLoginFailureHandler = azureLoginFailureHandler;
         this.userDetailsService = userDetailsService;
     }
 
@@ -53,7 +59,7 @@ public class SecurityConfig {
                                 "/js/**",
                                 "/favicon.ico"
                         ).permitAll()
-                        .requestMatchers("/oauth2/**").permitAll()
+                        .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers(EndpointRequest.to("health", "info")).permitAll()
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                         .anyRequest().authenticated()
@@ -76,15 +82,24 @@ public class SecurityConfig {
                         .logoutSuccessUrl("/login?logout")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
+                )
+                .sessionManagement(session -> session
+                        .maximumSessions(1)
+                        .maxSessionsPreventsLogin(false)
+                        .expiredUrl("/login?expired")
+                        .sessionRegistry(sessionRegistry())
                 );
 
-        if (authProperties.isAzureMode()) {
+        if (authProperties.isAzureOAuthConfigured()) {
             http.oauth2Login(oauth -> oauth
                     .loginPage("/login")
                     .userInfoEndpoint(userInfo -> userInfo.oidcUserService(oidcUserService))
                     .successHandler(loginSuccessHandler)
+                    .failureHandler(azureLoginFailureHandler)
             );
-        } else {
+        }
+
+        if (authProperties.isDevMode()) {
             http.userDetailsService(userDetailsService);
             http.formLogin(form -> form
                     .loginPage("/login")
@@ -98,5 +113,15 @@ public class SecurityConfig {
         }
 
         return http.build();
+    }
+
+    @Bean
+    public SessionRegistry sessionRegistry() {
+        return new SessionRegistryImpl();
+    }
+
+    @Bean
+    public HttpSessionEventPublisher httpSessionEventPublisher() {
+        return new HttpSessionEventPublisher();
     }
 }

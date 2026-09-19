@@ -8,6 +8,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class OpsUserPrincipal implements OAuth2User, UserDetails {
 
@@ -76,5 +77,24 @@ public class OpsUserPrincipal implements OAuth2User, UserDetails {
     @Override
     public String getName() {
         return user.getAzureAdId();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (other instanceof OpsUserPrincipal principal) {
+            return Objects.equals(getName(), principal.getName());
+        }
+        if (other instanceof OpsOidcUser principal) {
+            return Objects.equals(getName(), principal.getName());
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getName());
     }
 }

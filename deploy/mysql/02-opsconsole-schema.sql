@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS app_users (
     email           VARCHAR(320)  NOT NULL,
     display_name    VARCHAR(200)  NOT NULL,
     job_title       VARCHAR(200),
-    enabled         TINYINT(1)    NOT NULL DEFAULT 1,
+    account_status  VARCHAR(20)   NOT NULL DEFAULT 'ACTIVE',
     role_id         BIGINT        NOT NULL,
     created_at      DATETIME(6)   NOT NULL,
     last_login_at   DATETIME(6),

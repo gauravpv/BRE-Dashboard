@@ -7,6 +7,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 
 public class OpsOidcUser implements OidcUser {
 
@@ -52,5 +53,24 @@ public class OpsOidcUser implements OidcUser {
     @Override
     public String getName() {
         return appUser.getAzureAdId();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (other instanceof OpsOidcUser principal) {
+            return Objects.equals(getName(), principal.getName());
+        }
+        if (other instanceof OpsUserPrincipal principal) {
+            return Objects.equals(getName(), principal.getName());
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getName());
     }
 }

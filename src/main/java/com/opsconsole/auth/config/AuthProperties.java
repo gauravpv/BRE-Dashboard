@@ -18,6 +18,9 @@ public class AuthProperties {
     private String bootstrapPassword = "";
     private String bootstrapDisplayName = "Administrator";
 
+    /** Entra app used by "Sign in with Microsoft" (not Model Hub ROPC). */
+    private final Azure azure = new Azure();
+
     public String getMode() {
         return mode;
     }
@@ -72,5 +75,51 @@ public class AuthProperties {
 
     public void setBootstrapDisplayName(String bootstrapDisplayName) {
         this.bootstrapDisplayName = bootstrapDisplayName;
+    }
+
+    public Azure getAzure() {
+        return azure;
+    }
+
+    public boolean isAzureOAuthConfigured() {
+        return azure.isConfigured();
+    }
+
+    public static class Azure {
+        private String clientId = "";
+        private String clientSecret = "";
+        private String tenantId = "";
+
+        public boolean isConfigured() {
+            return hasText(clientId) && hasText(clientSecret) && hasText(tenantId);
+        }
+
+        public String getClientId() {
+            return clientId;
+        }
+
+        public void setClientId(String clientId) {
+            this.clientId = clientId == null ? "" : clientId.trim();
+        }
+
+        public String getClientSecret() {
+            return clientSecret;
+        }
+
+        public void setClientSecret(String clientSecret) {
+            this.clientSecret = clientSecret == null ? "" : clientSecret.trim();
+        }
+
+        public String getTenantId() {
+            return tenantId;
+        }
+
+        public void setTenantId(String tenantId) {
+            this.tenantId = tenantId == null ? "" : tenantId.trim();
+        }
+
+        private static boolean hasText(String value) {
+            return value != null && !value.isBlank();
+        }
     }
 }

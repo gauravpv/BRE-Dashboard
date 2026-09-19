@@ -29,8 +29,11 @@ public record UserActivityLogView(
             case LOGIN -> "Login";
             case USER_CREATED -> "Account created";
             case USER_DELETED -> "Account deleted";
+            case ACCESS_DENIED -> "Access denied";
+            case ACCESS_APPROVED -> "Access approved";
             case ROLE_CHANGED -> "Role changed";
             case STATUS_CHANGED -> "Status changed";
+            case SESSION_REVOKED -> "Session revoked";
             case PROFILE_UPDATED -> "Profile updated";
         };
     }

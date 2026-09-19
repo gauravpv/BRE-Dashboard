@@ -2,6 +2,8 @@ package com.opsconsole.auth.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -32,8 +34,9 @@ public class AppUser {
     @Column(length = 200)
     private String jobTitle;
 
-    @Column(nullable = false)
-    private boolean enabled = true;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "account_status", nullable = false, length = 20)
+    private AccountStatus accountStatus = AccountStatus.ACTIVE;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "role_id", nullable = false)
@@ -73,6 +76,10 @@ public class AppUser {
         return azureAdId;
     }
 
+    public void setAzureAdId(String azureAdId) {
+        this.azureAdId = azureAdId;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -94,11 +101,19 @@ public class AppUser {
     }
 
     public boolean isEnabled() {
-        return enabled;
+        return accountStatus == AccountStatus.ACTIVE;
     }
 
     public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+        this.accountStatus = enabled ? AccountStatus.ACTIVE : AccountStatus.INACTIVE;
+    }
+
+    public AccountStatus getAccountStatus() {
+        return accountStatus;
+    }
+
+    public void setAccountStatus(AccountStatus accountStatus) {
+        this.accountStatus = accountStatus == null ? AccountStatus.PENDING : accountStatus;
     }
 
     public AppRole getRole() {

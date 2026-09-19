@@ -53,7 +53,37 @@ public class UserActivityLogService {
                 user.getId(),
                 user.getDisplayName(),
                 UserActivityAction.USER_CREATED,
-                "Auto-provisioned from Microsoft Entra ID (ID: " + user.getAzureAdId() + ")"
+                "Microsoft Entra ID access request created with Pending status"
+        );
+    }
+
+    @Transactional
+    public void recordAccessDenied(AppUser user, String reason) {
+        if (user == null || user.getId() == null) {
+            return;
+        }
+        save(user.getId(), user.getId(), user.getDisplayName(), UserActivityAction.ACCESS_DENIED, reason);
+    }
+
+    @Transactional
+    public void recordApproved(AppUser actor, AppUser target) {
+        save(
+                target.getId(),
+                actor != null ? actor.getId() : null,
+                actorLabel(actor),
+                UserActivityAction.ACCESS_APPROVED,
+                "Access approved with role " + target.getRole().getName()
+        );
+    }
+
+    @Transactional
+    public void recordSessionRevoked(AppUser actor, AppUser target, String reason) {
+        save(
+                target.getId(),
+                actor != null ? actor.getId() : null,
+                actorLabel(actor),
+                UserActivityAction.SESSION_REVOKED,
+                reason
         );
     }
 

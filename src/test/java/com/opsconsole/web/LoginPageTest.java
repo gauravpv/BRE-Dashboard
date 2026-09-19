@@ -43,4 +43,13 @@ class LoginPageTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("name=\"_csrf\"")));
     }
+
+    @Test
+    void loginPage_explainsPendingAdministratorApproval() throws Exception {
+        mockMvc.perform(get("/login").param("pending", ""))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(
+                        "administrator must assign your role and approve the account"
+                )));
+    }
 }

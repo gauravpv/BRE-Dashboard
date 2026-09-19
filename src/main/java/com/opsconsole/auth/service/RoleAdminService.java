@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import com.opsconsole.auth.domain.AccountStatus;
 import com.opsconsole.auth.domain.AppRole;
 import com.opsconsole.auth.domain.AppTab;
 import com.opsconsole.auth.domain.AppUser;
@@ -27,6 +28,7 @@ public class RoleAdminService {
     private final PasswordEncoder passwordEncoder;
     private final ActivityFeedService activityFeedService;
     private final UserActivityLogService userActivityLogService;
+    private final UserSessionService userSessionService;
 
     public RoleAdminService(
             AppRoleRepository roleRepository,
@@ -34,7 +36,8 @@ public class RoleAdminService {
             AppUserRepository userRepository,
             PasswordEncoder passwordEncoder,
             ActivityFeedService activityFeedService,
-            UserActivityLogService userActivityLogService
+            UserActivityLogService userActivityLogService,
+            UserSessionService userSessionService
     ) {
         this.roleRepository = roleRepository;
         this.tabAccessRepository = tabAccessRepository;
@@ -42,6 +45,7 @@ public class RoleAdminService {
         this.passwordEncoder = passwordEncoder;
         this.activityFeedService = activityFeedService;
         this.userActivityLogService = userActivityLogService;
+        this.userSessionService = userSessionService;
     }
 
     @Transactional(readOnly = true)
@@ -93,8 +97,12 @@ public class RoleAdminService {
         String previousRoleName = user.getRole().getName();
         AppRole role = roleRepository.findByCode(roleCode)
                 .orElseThrow(() -> new IllegalArgumentException("Role not found"));
+        if (user.getRole().getId().equals(role.getId())) {
+            return;
+        }
         user.setRole(role);
         userRepository.save(user);
+        userSessionService.revokeAll(userId);
         activityFeedService.recordUserRoleChanged(actor, user, previousRoleName, role.getName());
         userActivityLogService.recordRoleChanged(actor, user, previousRoleName, role.getName());
     }
@@ -136,13 +144,56 @@ public class RoleAdminService {
     public void updateUserEnabled(Long userId, boolean enabled, AppUser actor) {
         AppUser user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        if (enabled && user.getAccountStatus() == AccountStatus.PENDING) {
+            throw new IllegalArgumentException("Pending accounts must be approved with a role");
+        }
+        if (!enabled && userId.equals(actor.getId())) {
+            throw new IllegalArgumentException("You cannot deactivate your own account");
+        }
+        if (!enabled && isLastActiveAdministrator(user)) {
+            throw new IllegalArgumentException("Cannot deactivate the last active Administrator");
+        }
         boolean wasEnabled = user.isEnabled();
         user.setEnabled(enabled);
         userRepository.save(user);
         if (wasEnabled != enabled) {
+            if (!enabled) {
+                userSessionService.revokeAll(userId);
+            }
             activityFeedService.recordUserStatusChanged(actor, user, enabled);
             userActivityLogService.recordStatusChanged(actor, user, enabled);
         }
+    }
+
+    @Transactional
+    public void approveUser(Long userId, String roleCode, AppUser actor) {
+        AppUser user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        if (user.getAccountStatus() != AccountStatus.PENDING) {
+            throw new IllegalArgumentException("Only pending accounts can be approved");
+        }
+        AppRole role = roleRepository.findByCode(roleCode)
+                .orElseThrow(() -> new IllegalArgumentException("Role not found"));
+        user.setRole(role);
+        user.setAccountStatus(AccountStatus.ACTIVE);
+        userRepository.save(user);
+        userActivityLogService.recordApproved(actor, user);
+    }
+
+    @Transactional
+    public int revokeUserSessions(Long userId, AppUser actor) {
+        AppUser user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        if (userId.equals(actor.getId())) {
+            throw new IllegalArgumentException("Use Sign out to end your own session");
+        }
+        int revoked = userSessionService.revokeAll(userId);
+        userActivityLogService.recordSessionRevoked(
+                actor,
+                user,
+                revoked > 0 ? "Administrator revoked " + revoked + " active session(s)" : "No active session to revoke"
+        );
+        return revoked;
     }
 
     @Transactional
@@ -197,8 +248,12 @@ public class RoleAdminService {
         AppUser user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        if (AuthDataInitializer.CODE_ADMINISTRATOR.equals(user.getRole().getCode())) {
-            long adminCount = userRepository.countByRole_Code(AuthDataInitializer.CODE_ADMINISTRATOR);
+        if (AuthDataInitializer.CODE_ADMINISTRATOR.equals(user.getRole().getCode())
+                && user.getAccountStatus() == AccountStatus.ACTIVE) {
+            long adminCount = userRepository.countByRole_CodeAndAccountStatus(
+                    AuthDataInitializer.CODE_ADMINISTRATOR,
+                    AccountStatus.ACTIVE
+            );
             if (adminCount <= 1) {
                 throw new IllegalArgumentException("Cannot delete the last Administrator account");
             }
@@ -271,6 +326,9 @@ public class RoleAdminService {
     public record UserStatusUpdateRequest(boolean enabled) {
     }
 
+    public record UserApprovalRequest(String roleCode) {
+    }
+
     public record UpdateUserProfileRequest(String displayName, String jobTitle) {
     }
 
@@ -297,5 +355,14 @@ public class RoleAdminService {
             return azureAdId.trim();
         }
         return "local-" + UUID.randomUUID();
+    }
+
+    private boolean isLastActiveAdministrator(AppUser user) {
+        return AuthDataInitializer.CODE_ADMINISTRATOR.equals(user.getRole().getCode())
+                && user.getAccountStatus() == AccountStatus.ACTIVE
+                && userRepository.countByRole_CodeAndAccountStatus(
+                        AuthDataInitializer.CODE_ADMINISTRATOR,
+                        AccountStatus.ACTIVE
+                ) <= 1;
     }
 }

@@ -4,6 +4,7 @@ import com.opsconsole.auth.dto.UserActivityLogView;
 import com.opsconsole.auth.dto.UserDetailResponse;
 import com.opsconsole.auth.service.RoleAdminService;
 import com.opsconsole.auth.service.UserActivityLogService;
+import com.opsconsole.auth.service.UserSessionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,21 +31,27 @@ public class RoleAdminApiController {
     private final RoleAdminService roleAdminService;
     private final NavAccessService navAccessService;
     private final UserActivityLogService userActivityLogService;
+    private final UserSessionService userSessionService;
 
     public RoleAdminApiController(
             RoleAdminService roleAdminService,
             NavAccessService navAccessService,
-            UserActivityLogService userActivityLogService
+            UserActivityLogService userActivityLogService,
+            UserSessionService userSessionService
     ) {
         this.roleAdminService = roleAdminService;
         this.navAccessService = navAccessService;
         this.userActivityLogService = userActivityLogService;
+        this.userSessionService = userSessionService;
     }
 
     @GetMapping("/users/{userId}")
     public UserDetailResponse getUser(@PathVariable Long userId) {
         requireUserAdminAccess();
-        return UserDetailResponse.from(roleAdminService.getUser(userId));
+        return UserDetailResponse.from(
+                roleAdminService.getUser(userId),
+                userSessionService.activeSessionCount(userId)
+        );
     }
 
     @GetMapping("/users/{userId}/activity")
@@ -100,6 +107,23 @@ public class RoleAdminApiController {
         roleAdminService.updateUserEnabled(userId, body.enabled(), CurrentUser.requireUser());
     }
 
+    @PutMapping("/users/{userId}/approve")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void approveUser(
+            @PathVariable Long userId,
+            @RequestBody RoleAdminService.UserApprovalRequest body
+    ) {
+        requireUserAdminAccess();
+        roleAdminService.approveUser(userId, body.roleCode(), CurrentUser.requireUser());
+    }
+
+    @DeleteMapping("/users/{userId}/sessions")
+    public SessionRevocationResponse revokeSessions(@PathVariable Long userId) {
+        requireUserAdminAccess();
+        int revoked = roleAdminService.revokeUserSessions(userId, CurrentUser.requireUser());
+        return new SessionRevocationResponse(revoked);
+    }
+
     @PutMapping("/users/{userId}/password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateUserPassword(
@@ -128,5 +152,8 @@ public class RoleAdminApiController {
     }
 
     public record CreatedUserResponse(Long id, String email, String displayName) {
+    }
+
+    public record SessionRevocationResponse(int revokedSessions) {
     }
 }

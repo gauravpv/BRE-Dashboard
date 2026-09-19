@@ -42,7 +42,19 @@
 
         <div th:if="${loginError}" class="mb-unit-lg flex items-center gap-2 p-3 rounded-lg bg-error/10 border border-error/30 text-error text-body-sm">
             <span class="material-symbols-outlined text-[20px]">error</span>
-            <span>Invalid email or password. Please try again.</span>
+            <span>Sign-in failed. Please try again.</span>
+        </div>
+        <div th:if="${accessPending}" class="mb-unit-lg flex items-start gap-2 p-3 rounded-lg bg-secondary-container/10 border border-secondary-container/30 text-on-surface text-body-sm">
+            <span class="material-symbols-outlined text-[20px] text-secondary-fixed-dim">hourglass_top</span>
+            <span>Your access request has been recorded. An administrator must assign your role and approve the account before you can sign in.</span>
+        </div>
+        <div th:if="${accountInactive}" class="mb-unit-lg flex items-start gap-2 p-3 rounded-lg bg-error/10 border border-error/30 text-error text-body-sm">
+            <span class="material-symbols-outlined text-[20px]">block</span>
+            <span>Your account is inactive. Contact an OpsConsole administrator.</span>
+        </div>
+        <div th:if="${sessionExpired}" class="mb-unit-lg flex items-start gap-2 p-3 rounded-lg bg-secondary-container/10 border border-secondary-container/30 text-on-surface text-body-sm">
+            <span class="material-symbols-outlined text-[20px] text-secondary-fixed-dim">devices</span>
+            <span>This session ended because your account signed in elsewhere or an administrator revoked it.</span>
         </div>
         <div th:if="${logoutSuccess}" class="mb-unit-lg flex items-center gap-2 p-3 rounded-lg bg-secondary-container/10 border border-secondary-container/30 text-on-surface text-body-sm">
             <span class="material-symbols-outlined text-[20px] text-secondary-fixed-dim">check_circle</span>
@@ -82,8 +94,12 @@
             </button>
         </form>
 
-        <!-- Azure AD primary sign-in -->
-        <div th:if="${azureMode}" class="space-y-unit-lg">
+        <!-- Microsoft Entra — starts Spring OAuth2 at /oauth2/authorization/azure -->
+        <div th:if="${microsoftLogin}" class="space-y-unit-lg" th:classappend="${devMode} ? 'mt-unit-xl' : ''">
+            <div th:if="${devMode}" class="relative flex items-center justify-center mb-unit-lg">
+                <div class="w-full border-t border-outline-variant/30"></div>
+                <span class="absolute bg-surface-container-lowest px-4 text-label-sm font-label-sm text-outline uppercase tracking-wider">Or continue with</span>
+            </div>
             <a th:href="@{/oauth2/authorization/azure}"
                class="w-full py-3 bg-[#2F2F2F] hover:bg-[#1a1a1a] text-white rounded-lg font-title-md flex items-center justify-center gap-3 transition-all active:scale-95">
                 <svg class="w-5 h-5 shrink-0" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -97,13 +113,13 @@
             <p class="text-body-sm text-on-surface-variant text-center">New users are provisioned automatically on first sign-in.</p>
         </div>
 
-        <div th:if="${devMode}" class="mt-unit-xl">
+        <div th:if="${devMode and !microsoftLogin}" class="mt-unit-xl">
             <div class="relative flex items-center justify-center mb-unit-lg">
                 <div class="w-full border-t border-outline-variant/30"></div>
                 <span class="absolute bg-surface-container-lowest px-4 text-label-sm font-label-sm text-outline uppercase tracking-wider">Or continue with</span>
             </div>
             <div class="grid grid-cols-1 gap-unit-md">
-                <button type="button" disabled class="flex items-center justify-center gap-2 py-2.5 border border-outline-variant rounded-lg opacity-50 cursor-not-allowed" title="Enable opsconsole.auth.mode=azure">
+                <button type="button" disabled class="flex items-center justify-center gap-2 py-2.5 border border-outline-variant rounded-lg opacity-50 cursor-not-allowed" title="Set AZURE_CLIENT_ID, AZURE_TENANT_ID, and AZURE_CLIENT_SECRET">
                     <svg class="w-4 h-4 shrink-0" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                         <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
                         <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
@@ -114,7 +130,7 @@
                 </button>
             </div>
             <p class="mt-unit-md text-center text-label-sm font-label-sm text-outline leading-relaxed">
-                Local password sign-in is temporary until Microsoft Entra ID is enabled.
+                Set AZURE_CLIENT_ID, AZURE_TENANT_ID, and AZURE_CLIENT_SECRET to enable Microsoft sign-in.
             </p>
         </div>
 

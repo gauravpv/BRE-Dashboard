@@ -16,11 +16,20 @@ mysql -u root -p < deploy/mysql/05-verification.sql
 
 `03-transaction-schema.sql` creates `bre_underwriting.transaction_details`, `transaction_details_srcreq_otp`, and the two festival summary views. If those objects already exist in the reporting database, skip that script and only grant `SELECT`.
 
+For an existing OpsConsole database created before account approval was added, run this once before deploying the new build:
+
+```bash
+mysql -u root -p < deploy/mysql/06-add-user-approval-status.sql
+```
+
 ## 2. Environment variables
 
 | Variable | Purpose |
 |----------|---------|
-| `SPRING_PROFILES_ACTIVE` | `uat` or `prod` |
+| `SPRING_PROFILES_ACTIVE` | `uat` or `prod`. Add `,azure` to enable Microsoft Entra login |
+| `AZURE_CLIENT_ID` | Entra app (web) client id — dashboard login only, not Model Hub |
+| `AZURE_TENANT_ID` | Entra tenant id |
+| `AZURE_CLIENT_SECRET` | Entra app client secret |
 | `OPSCONSOLE_DB_URL` | `jdbc:mysql://HOST:3306/opsconsole?useSSL=true&allowPublicKeyRetrieval=true&serverTimezone=UTC` |
 | `OPSCONSOLE_DB_USERNAME` | `opsconsole` |
 | `OPSCONSOLE_DB_PASSWORD` | application schema password |
@@ -37,6 +46,7 @@ mysql -u root -p < deploy/mysql/05-verification.sql
 | `OPS_SSH_KEY_PATH` | private key for live SSH admin |
 | `BAJAJ_UAT_*` / `BAJAJ_PROD_*` | encryption keys, IV, Authorization, source, tokens |
 | `OPSCONSOLE_SESSION_SECURE` | `true` behind HTTPS (prod profile already sets the cookie Secure flag) |
+| `OPSCONSOLE_SESSION_TIMEOUT` | inactivity timeout; defaults to `30m` |
 
 ## 3. Dashboard certificate
 
@@ -55,17 +65,51 @@ Fill `opsconsole.health.model-hub.oauth.username` and `password` in `application
 ## 4. Start the app
 
 ```bash
-# UAT
+# UAT (password login)
 set SPRING_PROFILES_ACTIVE=uat
 mvn spring-boot:run
 
-# PROD
+# PROD (password login)
 set SPRING_PROFILES_ACTIVE=prod
+java -jar target/opsconsole-0.0.1-SNAPSHOT.jar
+
+# PROD with Microsoft sign-in (password login still available)
+set SPRING_PROFILES_ACTIVE=prod
+set AZURE_CLIENT_ID=...
+set AZURE_TENANT_ID=...
+set AZURE_CLIENT_SECRET=...
+java -jar target/opsconsole-0.0.1-SNAPSHOT.jar
+
+# PROD Microsoft-only (hides email/password)
+set SPRING_PROFILES_ACTIVE=prod,azure
 java -jar target/opsconsole-0.0.1-SNAPSHOT.jar
 ```
 
-Change the bootstrap password immediately at `/account/password`.
+Change the bootstrap password immediately at `/account/password` if you are still on form login.
 
-## 5. Later: Microsoft Entra / ADID
+## 5. Microsoft Entra / ADID
 
-Set `SPRING_PROFILES_ACTIVE=prod,azure` and `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, `AZURE_TENANT_ID`. Register the production redirect URI. Existing users keep their roles; new Entra users get `MONITORING` until an administrator updates them.
+This is dashboard sign-in. It is separate from Model Hub `opsconsole.health.model-hub.oauth` credentials.
+
+1. In Azure, register a **Web** app. Redirect URI must be exactly:
+
+   `https://bflbre-dashboard-prod.bajajfinserv.in/login/oauth2/code/azure`
+
+   Not `/login/oauth2/code/` (the `azure` suffix is required). If the site is reached on port 8443 with no TLS proxy, include `:8443`.
+
+2. Enable **ID tokens** on the Web platform. Grant delegated Microsoft Graph permissions **openid**, **profile**, and **email**.
+
+3. Set `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_CLIENT_SECRET`. The login page **Sign in with Microsoft** button then calls `/oauth2/authorization/azure`. You do not need the `azure` Spring profile for that. Add `,azure` only if you want to turn off email/password.
+
+4. Existing users keep their roles; new Entra users remain Pending until an administrator assigns a role and approves them.
+
+If the callback is `http://…` or an internal hostname, the load balancer must send `X-Forwarded-Proto` and `X-Forwarded-Host`. `uat`/`prod` already set `server.forward-headers-strategy: native`.
+
+### First-time Entra access approval
+
+1. A first Microsoft sign-in stores the Entra object id, email, and full name with status **Pending**.
+2. The login is denied and no application session is created.
+3. An Administrator opens **User Admin**, selects a role, and clicks **Approve & Activate**.
+4. On the next sign-in, the user sees only the tabs enabled for that role under **Roles & Tab Access**.
+
+OpsConsole allows one active session per user. A newer login expires the previous session. Disabling a user, changing their role, or using **Force logout** revokes active sessions.
