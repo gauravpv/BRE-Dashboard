@@ -10,6 +10,22 @@ public record OperationListResponseDto(
         String listEncryptionKey,
         String listEncryptionIv,
         String responseEncryptionKey,
-        List<OperationEntryDto> operations
+        List<OperationEntryDto> operations,
+        TokenStatusDto tokenStatus
 ) {
+
+    /** Returns a copy carrying the token state fetched immediately after this list. */
+    public OperationListResponseDto withTokenStatus(TokenStatusDto status) {
+        return new OperationListResponseDto(
+                environment,
+                baseUrl,
+                description,
+                statusCode,
+                listEncryptionKey,
+                listEncryptionIv,
+                responseEncryptionKey,
+                operations,
+                status
+        );
+    }
 }

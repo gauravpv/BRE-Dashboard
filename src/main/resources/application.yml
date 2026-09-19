@@ -103,6 +103,10 @@ opsconsole:
     uat:
       base-url: https://sauat.bajajfinserv.in/apis
       operation-list-path: operationallist
+      token-path: oauth-token
+      token-ttl-seconds: ${BAJAJ_UAT_TOKEN_TTL_SECONDS:600}
+      # Per-API calls post the ciphertext wrapped in quotes; the list/token calls do not.
+      quote-encrypted-body: true
       encryption-key: ${BAJAJ_UAT_ENCRYPTION_KEY:}
       encryption-iv: ${BAJAJ_UAT_ENCRYPTION_IV:}
       headers:
@@ -113,13 +117,26 @@ opsconsole:
         additionalinfo5: cbc
         additionalinfo1: ${BAJAJ_UAT_ADDITIONALINFO1:}
         subscriptionid: ${BAJAJ_UAT_SUBSCRIPTION_ID:}
+      # Overrides applied to the token call and every API invoke (not the operation list).
+      api-headers:
+        connection-from: rest
       request-body:
         channel: ${BAJAJ_UAT_CHANNEL:}
         appversion: ${BAJAJ_UAT_APPVERSION:}
         deviceId: ${BAJAJ_UAT_DEVICE_ID:}
+      token-request-body:
+        grant_type: password
+        deviceId: ${BAJAJ_UAT_DEVICE_ID:}
+        channelId: ${BAJAJ_UAT_TOKEN_CHANNEL_ID:740}
+        username: ${BAJAJ_UAT_TOKEN_USERNAME:}
+        passwordType: password
+        password: ${BAJAJ_UAT_TOKEN_PASSWORD:}
     prod:
       base-url: https://superapp.bajajfinserv.in/apis
       operation-list-path: operationallist
+      token-path: oauth-token
+      token-ttl-seconds: ${BAJAJ_PROD_TOKEN_TTL_SECONDS:600}
+      quote-encrypted-body: true
       encryption-key: ${BAJAJ_PROD_ENCRYPTION_KEY:}
       encryption-iv: ${BAJAJ_PROD_ENCRYPTION_IV:}
       headers:
@@ -130,10 +147,19 @@ opsconsole:
         additionalinfo5: cbc
         additionalinfo1: ${BAJAJ_PROD_ADDITIONALINFO1:}
         subscriptionid: ${BAJAJ_PROD_SUBSCRIPTION_ID:}
+      api-headers:
+        connection-from: rest
       request-body:
         channel: ${BAJAJ_PROD_CHANNEL:}
         appversion: ${BAJAJ_PROD_APPVERSION:}
         deviceId: ${BAJAJ_PROD_DEVICE_ID:}
+      token-request-body:
+        grant_type: password
+        deviceId: ${BAJAJ_PROD_DEVICE_ID:}
+        channelId: ${BAJAJ_PROD_TOKEN_CHANNEL_ID:740}
+        username: ${BAJAJ_PROD_TOKEN_USERNAME:}
+        passwordType: password
+        password: ${BAJAJ_PROD_TOKEN_PASSWORD:}
   admin:
     mode: live
     ssh:

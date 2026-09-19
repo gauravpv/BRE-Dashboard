@@ -20,6 +20,8 @@
   const statusEl = document.getElementById('btStatus');
   const modeBadge = document.getElementById('btModeBadge');
   const apiCountEl = document.getElementById('btApiCount');
+  const tokenBadge = document.getElementById('btTokenBadge');
+  const tokenTextEl = document.getElementById('btTokenText');
   const endpointEl = document.getElementById('btEndpoint');
   const requestBodyEl = document.getElementById('btRequestBody');
   const responseBodyEl = document.getElementById('btResponseBody');
@@ -33,6 +35,7 @@
   let lastResponseText = '';
   let toastTimer = null;
   let apiDropdownOpen = false;
+  let tokenBusy = false;
 
   function escapeHtml(value) {
     return String(value)
@@ -275,6 +278,7 @@
     reloadBtn.disabled = true;
     sendBtn.disabled = true;
     setApiPickerEnabled(false, 'Loading APIs…');
+    setTokenStatus({ loading: true });
 
     try {
       const response = await fetch(`/api/tester/operations?environment=${encodeURIComponent(environment)}`, {
@@ -294,6 +298,10 @@
       modeBadge.classList.add('live');
       apiCountEl.textContent = `${operations.length} API${operations.length === 1 ? '' : 's'}`;
 
+      // The server fetches oauth-token right after the list, so the header token is
+      // already warm before any API is selected.
+      setTokenStatus(payload.tokenStatus);
+
       setStatus(
         `${payload.description || 'Loaded'} — ${operations.length} endpoints · ${payload.baseUrl}`
       );
@@ -303,10 +311,79 @@
       renderApiSelect();
       clearSelection();
       apiCountEl.textContent = '0 APIs';
+      setTokenStatus({ ready: false, error: 'Operation list failed, so no token was fetched' });
       setStatus(err.message || 'Failed to load operation list', true);
     } finally {
       reloadBtn.disabled = false;
       updateSendState();
+    }
+  }
+
+  function formatDuration(seconds) {
+    if (seconds == null) return '';
+    const total = Number(seconds);
+    if (!Number.isFinite(total) || total <= 0) return '';
+    const hours = Math.floor(total / 3600);
+    const minutes = Math.floor((total % 3600) / 60);
+    if (hours > 0) return `${hours}h ${minutes}m`;
+    if (minutes > 0) return `${minutes}m`;
+    return `${Math.floor(total)}s`;
+  }
+
+  /** Reflects the pre-fetched oauth-token state in the header badge. */
+  function setTokenStatus(status) {
+    tokenBadge.classList.remove('is-ready', 'is-error', 'is-loading');
+
+    if (!status) {
+      tokenBadge.classList.add('is-error');
+      tokenTextEl.textContent = 'Token —';
+      tokenBadge.title = 'No token available';
+      return;
+    }
+
+    if (status.loading) {
+      tokenBadge.classList.add('is-loading');
+      tokenTextEl.textContent = 'Token…';
+      tokenBadge.title = 'Fetching oauth-token…';
+      return;
+    }
+
+    if (status.ready) {
+      tokenBadge.classList.add('is-ready');
+      const remaining = formatDuration(status.expiresInSeconds);
+      tokenTextEl.textContent = remaining ? `Token ready · ${remaining}` : 'Token ready';
+      tokenBadge.title =
+        `Token ${status.preview} is set as the "token" header on every request.`
+        + (remaining ? ` Valid for about ${remaining}.` : '')
+        + ' Click to force a refresh.';
+      return;
+    }
+
+    tokenBadge.classList.add('is-error');
+    tokenTextEl.textContent = 'Token failed';
+    tokenBadge.title = (status.error || 'Token unavailable') + ' — click to retry.';
+  }
+
+  async function refreshToken() {
+    if (tokenBusy) return;
+    tokenBusy = true;
+    setTokenStatus({ loading: true });
+    try {
+      const response = await fetch(
+        `/api/tester/token/refresh?environment=${encodeURIComponent(environmentSelect.value)}`,
+        { method: 'POST', headers: { Accept: 'application/json' } }
+      );
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload.message || `Token refresh failed (${response.status})`);
+      }
+      setTokenStatus(payload);
+      showToast('Token refreshed', 'success');
+    } catch (err) {
+      setTokenStatus({ ready: false, error: err.message });
+      showToast(err.message || 'Token refresh failed', 'error');
+    } finally {
+      tokenBusy = false;
     }
   }
 
@@ -414,6 +491,7 @@
   formatBtn.addEventListener('click', formatRequest);
   clearReqBtn.addEventListener('click', clearRequest);
   copyBtn.addEventListener('click', copyResponse);
+  tokenBadge.addEventListener('click', refreshToken);
   requestBodyEl.addEventListener('input', updateSendState);
 
   apiTrigger.addEventListener('click', (event) => {

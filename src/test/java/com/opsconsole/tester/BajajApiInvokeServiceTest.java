@@ -5,15 +5,31 @@ import com.opsconsole.tester.config.BajajTesterProperties;
 import com.opsconsole.tester.dto.BajajInvokeRequest;
 import com.opsconsole.tester.exception.BajajTesterException;
 import com.opsconsole.tester.service.BajajApiInvokeService;
+import com.opsconsole.tester.service.BajajOperationListService;
+import com.opsconsole.tester.service.BajajTokenService;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class BajajApiInvokeServiceTest {
 
+    /**
+     * Validation fails before any token/network call, so the collaborators are never exercised.
+     */
+    private static BajajApiInvokeService newService() {
+        BajajTesterProperties properties = new BajajTesterProperties();
+        ObjectMapper objectMapper = new ObjectMapper();
+        BajajTokenService tokenService = new BajajTokenService(
+                properties,
+                new BajajOperationListService(properties, objectMapper),
+                objectMapper
+        );
+        return new BajajApiInvokeService(properties, tokenService, objectMapper);
+    }
+
     @Test
     void invoke_rejectsMissingEncryptionMaterial() {
-        BajajApiInvokeService service = new BajajApiInvokeService(new BajajTesterProperties(), new ObjectMapper());
+        BajajApiInvokeService service = newService();
 
         BajajInvokeRequest request = new BajajInvokeRequest(
                 "UAT",
@@ -30,7 +46,7 @@ class BajajApiInvokeServiceTest {
 
     @Test
     void invoke_rejectsInvalidJson() {
-        BajajApiInvokeService service = new BajajApiInvokeService(new BajajTesterProperties(), new ObjectMapper());
+        BajajApiInvokeService service = newService();
 
         BajajInvokeRequest request = new BajajInvokeRequest(
                 "UAT",

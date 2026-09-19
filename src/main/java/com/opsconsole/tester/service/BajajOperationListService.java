@@ -39,6 +39,42 @@ public class BajajOperationListService {
         return parseOperationList(plainJson, environment, config);
     }
 
+    /**
+     * Resolves a single operation (by publicurl or slug, case-insensitive) from the live
+     * operation list. Used to obtain the per-API hashcode/salt, e.g. for {@code oauth-token}.
+     */
+    public OperationEntryDto findOperation(BajajEnvironment environment, String publicUrlOrSlug) {
+        // Validate before fetching so a bad name fails fast instead of costing a round-trip.
+        requireOperationName(publicUrlOrSlug);
+        return findOperation(fetchOperations(environment).operations(), publicUrlOrSlug, environment);
+    }
+
+    /**
+     * Same lookup against an already-fetched list, so callers that just loaded the operation
+     * list do not trigger a second round-trip.
+     */
+    public static OperationEntryDto findOperation(
+            List<OperationEntryDto> operations,
+            String publicUrlOrSlug,
+            BajajEnvironment environment
+    ) {
+        requireOperationName(publicUrlOrSlug);
+        String wanted = normalizePath(publicUrlOrSlug);
+        for (OperationEntryDto entry : operations) {
+            if (wanted.equals(normalizePath(entry.publicUrl())) || wanted.equals(normalizePath(entry.slug()))) {
+                return entry;
+            }
+        }
+        throw new BajajTesterException(
+                "Operation '" + publicUrlOrSlug + "' not found in the " + environment + " operation list");
+    }
+
+    private static void requireOperationName(String publicUrlOrSlug) {
+        if (publicUrlOrSlug == null || publicUrlOrSlug.isBlank()) {
+            throw new BajajTesterException("Operation name is required");
+        }
+    }
+
     private BajajTesterProperties.EnvironmentConfig configFor(BajajEnvironment environment) {
         return environment == BajajEnvironment.PROD ? properties.getProd() : properties.getUat();
     }
@@ -132,7 +168,8 @@ public class BajajOperationListService {
                     config.getEncryptionKey(),
                     config.getEncryptionIv(),
                     text(root, "encryptionkey"),
-                    operations
+                    operations,
+                    null
             );
         } catch (BajajTesterException ex) {
             throw ex;
@@ -154,5 +191,16 @@ public class BajajOperationListService {
             return value;
         }
         return value.substring(0, max) + "…";
+    }
+
+    private static String normalizePath(String value) {
+        if (value == null) {
+            return "";
+        }
+        String trimmed = value.trim();
+        while (trimmed.startsWith("/")) {
+            trimmed = trimmed.substring(1);
+        }
+        return trimmed.toLowerCase();
     }
 }

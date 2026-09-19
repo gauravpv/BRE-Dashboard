@@ -11,6 +11,10 @@
     <th:block th:fragment="headerLeading">
         <span id="btApiCount" class="bt-count-badge">0 APIs</span>
         <span id="btModeBadge" class="bt-mode-badge">Loading…</span>
+        <button type="button" id="btTokenBadge" class="bt-token-badge" title="Token used in the request header — click to force a refresh">
+            <span class="material-symbols-outlined bt-token-icon">key</span>
+            <span id="btTokenText">Token —</span>
+        </button>
     </th:block>
 </th:block>
 

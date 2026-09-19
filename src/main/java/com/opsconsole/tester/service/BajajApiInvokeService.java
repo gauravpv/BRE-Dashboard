@@ -23,11 +23,17 @@ import java.util.Map;
 public class BajajApiInvokeService {
 
     private final BajajTesterProperties properties;
+    private final BajajTokenService tokenService;
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient;
 
-    public BajajApiInvokeService(BajajTesterProperties properties, ObjectMapper objectMapper) {
+    public BajajApiInvokeService(
+            BajajTesterProperties properties,
+            BajajTokenService tokenService,
+            ObjectMapper objectMapper
+    ) {
         this.properties = properties;
+        this.tokenService = tokenService;
         this.objectMapper = objectMapper;
         this.httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(20)).build();
     }
@@ -46,24 +52,22 @@ public class BajajApiInvokeService {
                     request.encryptionIv()
             );
 
-            HttpRequest.Builder builder = HttpRequest.newBuilder()
-                    .uri(URI.create(requestUrl))
-                    .timeout(Duration.ofSeconds(60))
-                    .header("Content-Type", "application/json")
-                    .header("Accept", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(encryptedBody, StandardCharsets.UTF_8));
+            // The per-API Postman script posts the ciphertext wrapped in JSON quotes.
+            String payload = config.isQuoteEncryptedBody()
+                    ? "\"" + encryptedBody + "\""
+                    : encryptedBody;
 
-            for (Map.Entry<String, String> header : config.getHeaders().entrySet()) {
-                if (header.getKey() != null && !header.getKey().isBlank()
-                        && StringUtils.hasText(header.getValue())) {
-                    builder.header(header.getKey(), header.getValue());
-                }
+            // Step 1: obtain the rotating token header (cached per environment).
+            String token = tokenService.currentToken(environment);
+            HttpResponse<String> response = execute(config, requestUrl, payload, token);
+
+            // A rejected token is indistinguishable from a normal 401/403, so retry once
+            // with a freshly minted token before surfacing the failure.
+            if (response.statusCode() == 401 || response.statusCode() == 403) {
+                tokenService.invalidate(environment);
+                token = tokenService.refreshToken(environment);
+                response = execute(config, requestUrl, payload, token);
             }
-
-            HttpResponse<String> response = httpClient.send(
-                    builder.build(),
-                    HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)
-            );
 
             long durationMs = (System.nanoTime() - start) / 1_000_000;
             String body = response.body() == null ? "" : response.body();
@@ -106,6 +110,41 @@ public class BajajApiInvokeService {
                     ex.getMessage() != null ? ex.getMessage() : ex.getClass().getSimpleName()
             );
         }
+    }
+
+    private HttpResponse<String> execute(
+            BajajTesterProperties.EnvironmentConfig config,
+            String requestUrl,
+            String encryptedBody,
+            String token
+    ) throws Exception {
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
+                .uri(URI.create(requestUrl))
+                .timeout(Duration.ofSeconds(60))
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(encryptedBody, StandardCharsets.UTF_8));
+
+        for (Map.Entry<String, String> header : config.effectiveApiHeaders().entrySet()) {
+            String name = header.getKey();
+            if (name == null || name.isBlank() || !StringUtils.hasText(header.getValue())) {
+                continue;
+            }
+            // The live token always wins over any statically configured value.
+            if ("token".equalsIgnoreCase(name)) {
+                continue;
+            }
+            builder.header(name, header.getValue());
+        }
+
+        if (StringUtils.hasText(token)) {
+            builder.header("token", token);
+        }
+
+        return httpClient.send(
+                builder.build(),
+                HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)
+        );
     }
 
     private void validateRequest(BajajInvokeRequest request) {
