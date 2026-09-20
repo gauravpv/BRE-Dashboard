@@ -125,7 +125,7 @@ public class HealthHistoryService {
             return "M0 100 L100 100";
         }
         StringBuilder sb = new StringBuilder();
-        ChartPoint first = points.getFirst();
+        ChartPoint first = points.get(0);
         sb.append(String.format("M %.2f %.2f", first.x(), first.y()));
         for (int i = 1; i < points.size(); i++) {
             ChartPoint p = points.get(i);
@@ -139,13 +139,13 @@ public class HealthHistoryService {
             return "M0 100 L100 100 Z";
         }
         StringBuilder sb = new StringBuilder();
-        ChartPoint first = points.getFirst();
+        ChartPoint first = points.get(0);
         sb.append(String.format("M %.2f 100 L %.2f %.2f", first.x(), first.x(), first.y()));
         for (int i = 1; i < points.size(); i++) {
             ChartPoint p = points.get(i);
             sb.append(String.format(" L %.2f %.2f", p.x(), p.y()));
         }
-        ChartPoint last = points.getLast();
+        ChartPoint last = points.get(points.size() - 1);
         sb.append(String.format(" L %.2f 100 Z", last.x()));
         return sb.toString();
     }

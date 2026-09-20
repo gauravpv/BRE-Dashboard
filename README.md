@@ -15,7 +15,7 @@ Enterprise DevOps operations dashboard built with Spring Boot 3, Thymeleaf, and 
 
 ## Requirements
 
-- Java 21
+- Java 17
 - Maven 3.9+
 - MySQL 8 for UAT/PROD (`opsconsole` + `bre_underwriting` schemas)
 

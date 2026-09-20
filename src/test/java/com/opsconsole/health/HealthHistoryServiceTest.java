@@ -49,7 +49,7 @@ class HealthHistoryServiceTest {
         var chart = history.chartLast24Hours(3, 2);
 
         assertThat(chart.points()).hasSizeGreaterThanOrEqualTo(1);
-        assertThat(chart.points().getLast().upCount()).isEqualTo(2);
+        assertThat(chart.points().get(chart.points().size() - 1).upCount()).isEqualTo(2);
         assertThat(chart.xAxisLabels()).hasSize(5);
     }
 
@@ -72,6 +72,6 @@ class HealthHistoryServiceTest {
         var chart = history.responseTimeChartLast24Hours(80);
 
         assertThat(chart.bars()).hasSize(1);
-        assertThat(chart.bars().getFirst().avgMs()).isEqualTo(80);
+        assertThat(chart.bars().get(0).avgMs()).isEqualTo(80);
     }
 }

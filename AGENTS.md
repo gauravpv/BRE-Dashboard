@@ -3,7 +3,7 @@
 This file provides guidance to agents when working with code in this repository.
 
 ## Stack
-- Java 21, Spring Boot 3.4.5, Thymeleaf, Spring Security, Spring Data JPA
+- Java 17, Spring Boot 3.4.5, Thymeleaf, Spring Security, Spring Data JPA
 - H2 embedded file DB (`./data/opsconsole`) in dev; in-memory H2 (`MODE=PostgreSQL`) in tests
 - No external build plugins beyond `spring-boot-maven-plugin`
 

@@ -66,7 +66,7 @@ class PageControllerTest {
     @Test
     void systemAdmin_rendersWithActionLogRows() throws Exception {
         AppUser admin = userRepository.findByAzureAdId("dev-admin").orElseThrow();
-        Long serviceId = managedServiceRepository.findAll().getFirst().getId();
+        Long serviceId = managedServiceRepository.findAll().get(0).getId();
 
         mockMvc.perform(post("/api/admin/services/" + serviceId + "/start")
                         .with(user(OpsUserPrincipal.fromUser(admin)))

@@ -44,7 +44,7 @@ class ServiceAdminApiControllerTest {
     @Test
     void startService_asAdmin_returnsSuccess() throws Exception {
         AppUser admin = userRepository.findByAzureAdId("dev-admin").orElseThrow();
-        Long serviceId = managedServiceRepository.findByEnabledTrueOrderByCategoryAscNameAsc().getFirst().getId();
+        Long serviceId = managedServiceRepository.findByEnabledTrueOrderByCategoryAscNameAsc().get(0).getId();
 
         mockMvc.perform(post("/api/admin/services/" + serviceId + "/start")
                         .with(user(OpsUserPrincipal.fromUser(admin)))
@@ -66,7 +66,7 @@ class ServiceAdminApiControllerTest {
     @Test
     void getProperties_asAdmin_returnsContent() throws Exception {
         AppUser admin = userRepository.findByAzureAdId("dev-admin").orElseThrow();
-        Long serviceId = managedServiceRepository.findByEnabledTrueOrderByCategoryAscNameAsc().getFirst().getId();
+        Long serviceId = managedServiceRepository.findByEnabledTrueOrderByCategoryAscNameAsc().get(0).getId();
 
         mockMvc.perform(get("/api/admin/services/" + serviceId + "/properties")
                         .with(user(OpsUserPrincipal.fromUser(admin)))

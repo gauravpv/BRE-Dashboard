@@ -370,7 +370,7 @@ public class TransactionDashboardService {
                 .filter(bucket -> bucket.transactionCount() > 0 && bucket.cumulativePercentage() >= percentile)
                 .findFirst()
                 .map(ResponseTimeBucket::rangeLabel)
-                .orElse(buckets.getLast().rangeLabel());
+                .orElse(buckets.get(buckets.size() - 1).rangeLabel());
     }
 
     private MinuteChart buildMinuteChart(List<VolumePoint> minutes) {
@@ -401,9 +401,9 @@ public class TransactionDashboardService {
             line.append(i == 0 ? "M " : " L ").append(point.x()).append(' ').append(point.y());
             approved.append(i == 0 ? "M " : " L ").append(point.x()).append(' ').append(point.approvedY());
         }
-        String areaPath = "M %s 100 L".formatted(points.getFirst().x())
+        String areaPath = "M %s 100 L".formatted(points.get(0).x())
                 + line.substring(1)
-                + " L %s 100 Z".formatted(points.getLast().x());
+                + " L %s 100 Z".formatted(points.get(points.size() - 1).x());
         ChartPoint peak = points.stream()
                 .max((a, b) -> Long.compare(a.totalHits(), b.totalHits()))
                 .orElse(null);

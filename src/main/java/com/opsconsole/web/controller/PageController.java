@@ -89,11 +89,11 @@ public class PageController {
         ServiceAdminService.ServerView server = servers.stream()
                 .filter(s -> serverId == null || serverId.equals(s.id()))
                 .findFirst()
-                .orElse(servers.getFirst());
+                .orElse(servers.get(0));
         if (server.services().isEmpty()) {
             return null;
         }
-        return serviceAdminService.getServiceDetail(server.services().getFirst().id());
+        return serviceAdminService.getServiceDetail(server.services().get(0).id());
     }
 
     @GetMapping("/dev-utils")

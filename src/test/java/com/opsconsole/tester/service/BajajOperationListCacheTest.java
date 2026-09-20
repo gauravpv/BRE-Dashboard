@@ -27,7 +27,7 @@ class BajajOperationListCacheTest {
         assertThat(first.fromCache()).isTrue();
         assertThat(second.fromCache()).isTrue();
         assertThat(first.operations()).hasSize(1);
-        assertThat(first.operations().getFirst().publicUrl()).isEqualTo("oauth-token");
+        assertThat(first.operations().get(0).publicUrl()).isEqualTo("oauth-token");
         assertThat(first.listExpiresInSeconds()).isPositive();
     }
 
