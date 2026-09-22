@@ -211,8 +211,6 @@ public class TransactionDashboardService {
                 delta(current, previous, !previousMinutes.isEmpty()),
                 journey(current, eligibilityChecks),
                 marketplaces(current),
-                minuteSeries,
-                hourlySeries,
                 newestFirst(minuteSeries),
                 newestFirst(hourlySeries),
                 latency,

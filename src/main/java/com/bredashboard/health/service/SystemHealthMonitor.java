@@ -4,8 +4,6 @@ import com.bredashboard.activity.service.ActivityFeedService;
 import com.bredashboard.health.config.HealthProperties;
 import com.bredashboard.health.domain.HealthDeploymentTier;
 import com.bredashboard.health.domain.HealthStatus;
-import com.bredashboard.health.domain.MonitoredHost;
-import com.bredashboard.health.domain.MonitoredHostProd;
 import com.bredashboard.health.domain.SystemHealthView;
 import jakarta.annotation.PostConstruct;
 import org.springframework.scheduling.annotation.Scheduled;

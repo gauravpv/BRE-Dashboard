@@ -1,12 +1,12 @@
 package com.bredashboard.health.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.bredashboard.health.config.HealthProperties;
 import com.bredashboard.health.domain.HealthStatus;
 import com.bredashboard.health.domain.MonitoredHost;
 import com.bredashboard.health.domain.MonitoredHostProd;
 import com.bredashboard.health.domain.SystemHealthView;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
@@ -32,10 +32,6 @@ public class ActuatorHealthService {
         requestFactory.setConnectTimeout(healthProperties.getHealth().getConnectTimeoutMs());
         requestFactory.setReadTimeout(healthProperties.getHealth().getReadTimeoutMs());
         this.restClient = RestClient.builder().requestFactory(requestFactory).build();
-    }
-
-    public SystemHealthView check(MonitoredHost host) {
-        return check(host, "UAT");
     }
 
     public SystemHealthView check(MonitoredHost host, String deploymentTier) {
@@ -133,10 +129,6 @@ public class ActuatorHealthService {
             }
         }
         throw new RestClientException("No status field in actuator response");
-    }
-
-    HealthStatus parseStatus(MonitoredHost host, String body) throws Exception {
-        return parseStatus(host != null ? host.baseUrl() : null, body);
     }
 
     private static String toProbePath(String baseUrl, String href) {
