@@ -11,10 +11,10 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.opsconsole</groupId>
-    <artifactId>opsconsole</artifactId>
+    <groupId>com.bredashboard</groupId>
+    <artifactId>bre-dashboard</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>opsconsole</name>
+    <name>bre-dashboard</name>
     <description>Enterprise DevOps Operations Dashboard</description>
 
     <properties>

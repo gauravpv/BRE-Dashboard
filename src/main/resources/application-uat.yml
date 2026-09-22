@@ -18,9 +18,9 @@ server:
   servlet:
     session:
       cookie:
-        secure: ${OPSCONSOLE_SESSION_SECURE:true}
+        secure: ${BRE_DASHBOARD_SESSION_SECURE:true}
 
-opsconsole:
+bredashboard:
   health:
     model-hub:
       enabled: true

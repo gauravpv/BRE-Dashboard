@@ -1,4 +1,4 @@
-# OpsConsole
+# BRE Dashboard
 
 Enterprise DevOps operations dashboard built with Spring Boot 3, Thymeleaf, and MySQL.
 
@@ -17,7 +17,7 @@ Enterprise DevOps operations dashboard built with Spring Boot 3, Thymeleaf, and 
 
 - Java 17
 - Maven 3.9+
-- MySQL 8 for UAT/PROD (`opsconsole` + `bre_underwriting` schemas)
+- MySQL 8 for UAT/PROD: BRE Dashboard database (`bre_dashboard`). Transaction Analytics uses a separate existing reporting MySQL (`TXN_DB_*`), not created by this project.
 
 ## Run locally (H2)
 
@@ -27,22 +27,22 @@ mvn spring-boot:run -Dspring-boot.run.profiles=local
 
 Open http://localhost:8080
 
-Local profile still seeds `admin@opsconsole.local` / `Admin@123` for developers only. Do not use that profile in UAT or PROD.
+Local profile still seeds `admin@bredashboard.local` / `Admin@123` for developers only. Do not use that profile in UAT or PROD.
 
 ## Run UAT / PROD
 
 See [deploy/README.md](deploy/README.md) for SQL scripts and environment variables.
 
 ```bash
-# After creating MySQL schemas
+# After creating the BRE Dashboard MySQL database
 SPRING_PROFILES_ACTIVE=uat
 # or
 SPRING_PROFILES_ACTIVE=prod
 ```
 
-Set `OPSCONSOLE_BOOTSTRAP_EMAIL` and `OPSCONSOLE_BOOTSTRAP_PASSWORD` on first boot, then change the password in the UI.
+Set `BRE_DASHBOARD_BOOTSTRAP_EMAIL` and `BRE_DASHBOARD_BOOTSTRAP_PASSWORD` on first boot, then change the password in the UI.
 
-Live SSH: `opsconsole.admin.mode=live` (default) and `OPS_SSH_KEY_PATH`.
+Live SSH: `bredashboard.admin.mode=live` (default) and `BRE_DASHBOARD_SSH_KEY_PATH`.
 
 ## Tests
 

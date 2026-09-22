@@ -4,7 +4,7 @@
 <th:block th:replace="~{fragments/head :: head(pageTitle='Operations Dashboard')}"/>
 <style>
     .dashboard-shell {
-        margin-left: var(--oc-sidebar-width, 240px);
+        margin-left: var(--bre-sidebar-width, 240px);
         padding-top: 4rem;
         min-height: 100vh;
         display: flex;
@@ -24,8 +24,8 @@
         height: calc(100vh - 4rem);
         display: flex;
         flex-direction: column;
-        background: var(--oc-panel, #fff);
-        border-left: 1px solid var(--oc-border, #e0e0e0);
+        background: var(--bre-panel, #fff);
+        border-left: 1px solid var(--bre-border, #e0e0e0);
     }
     .kpi-card {
         display: flex;
@@ -60,7 +60,7 @@
     }
 </style>
 </head>
-<body class="opsconsole-app dashboard-page bg-background font-body-md text-on-background antialiased selection:bg-secondary-fixed-dim">
+<body class="bre-dashboard-app dashboard-page bg-background font-body-md text-on-background antialiased selection:bg-secondary-fixed-dim">
 <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
 <th:block th:replace="~{fragments/page-shell :: page-header(title='System Dashboard', searchPlaceholder='Search services, logs, or metrics...', searchId='dash-search', showSearch=true, fixed=true, showNotifications=true, showSettings=true, showUser=false)}"/>
 <div class="dashboard-shell">

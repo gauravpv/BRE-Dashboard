@@ -506,7 +506,7 @@
   function renderHtmlViewer(wrap) {
     workspaceShell(TOOL_CATALOG.find(t => t.id === 'html-viewer'), (body) => {
       const input = textarea('Paste or type HTML here…');
-      input.value = '<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: system-ui; padding: 2rem; background: #f6faff; color: #051125; }\n  </style>\n</head>\n<body>\n  <h1>Hello OpsConsole</h1>\n  <p>Edit the HTML in the left panel.</p>\n</body>\n</html>';
+      input.value = '<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: system-ui; padding: 2rem; background: #f6faff; color: #051125; }\n  </style>\n</head>\n<body>\n  <h1>Hello BRE Dashboard</h1>\n  <p>Edit the HTML in the left panel.</p>\n</body>\n</html>';
       const previewWrap = el('div', 'du-preview-panel');
       const iframe = el('iframe', 'du-preview-frame');
       iframe.sandbox = 'allow-same-origin';

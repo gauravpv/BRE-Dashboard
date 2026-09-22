@@ -19,11 +19,11 @@
     }
 </style>
 </head>
-<body class="h-full flex flex-col login-canvas opsconsole-app font-body-md">
+<body class="h-full flex flex-col login-canvas bre-dashboard-app font-body-md">
 <header class="bg-primary text-on-primary docked full-width top-0 border-b border-outline-variant/20 flex justify-between items-center w-full px-gutter h-16 z-50 shrink-0">
     <div class="flex items-center gap-unit-sm">
         <span class="material-symbols-outlined text-secondary-fixed">shield_lock</span>
-        <span class="text-title-lg font-title-lg font-bold text-on-primary">OpsConsole</span>
+        <span class="text-title-lg font-title-lg font-bold text-on-primary">BRE Dashboard</span>
     </div>
     <div class="flex items-center gap-unit-md">
         <span class="text-label-md font-label-md text-on-primary-container">v4.2.0-stable</span>
@@ -33,7 +33,7 @@
 <main class="flex-grow flex items-center justify-center px-4 py-12 pb-28">
     <div class="w-full max-w-[440px] bg-surface-container-lowest border border-outline-variant/30 rounded-lg p-unit-xl shadow-sm">
         <div class="mb-unit-xl text-center">
-            <h1 class="text-headline-md font-headline-md text-on-surface mb-unit-xs">Sign in to OpsConsole</h1>
+            <h1 class="text-headline-md font-headline-md text-on-surface mb-unit-xs">Sign in to BRE Dashboard</h1>
             <p class="text-body-md font-body-md text-on-surface-variant"
                th:text="${azureMode} ? 'Use your organization Microsoft account' : 'Enter your credentials to access the infrastructure dashboard'">
                 Enter your credentials
@@ -50,7 +50,7 @@
         </div>
         <div th:if="${accountInactive}" class="mb-unit-lg flex items-start gap-2 p-3 rounded-lg bg-error/10 border border-error/30 text-error text-body-sm">
             <span class="material-symbols-outlined text-[20px]">block</span>
-            <span>Your account is inactive. Contact an OpsConsole administrator.</span>
+            <span>Your account is inactive. Contact an BRE Dashboard administrator.</span>
         </div>
         <div th:if="${sessionExpired}" class="mb-unit-lg flex items-start gap-2 p-3 rounded-lg bg-secondary-container/10 border border-secondary-container/30 text-on-surface text-body-sm">
             <span class="material-symbols-outlined text-[20px] text-secondary-fixed-dim">devices</span>
@@ -146,9 +146,9 @@
 
 <footer class="bg-surface-container-lowest text-on-surface-variant fixed bottom-0 w-full border-t border-outline-variant/30 flex flex-col md:flex-row justify-between items-center px-gutter py-unit-md z-50">
     <div class="flex items-center gap-unit-sm mb-2 md:mb-0">
-        <span class="text-label-md font-label-md font-semibold text-primary">OpsConsole Infrastructure</span>
+        <span class="text-label-md font-label-md font-semibold text-primary">BRE Dashboard Infrastructure</span>
         <span class="text-label-sm font-label-sm opacity-50">|</span>
-        <span class="text-label-sm font-label-sm text-on-surface-variant">© 2024 OpsConsole Infrastructure. Internal Use Only.</span>
+        <span class="text-label-sm font-label-sm text-on-surface-variant">© 2024 BRE Dashboard Infrastructure. Internal Use Only.</span>
     </div>
     <div class="flex gap-unit-lg">
         <span class="text-label-sm font-label-sm text-on-surface-variant opacity-70">Security Policy</span>

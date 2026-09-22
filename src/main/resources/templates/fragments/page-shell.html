@@ -4,44 +4,44 @@
 
 <!-- Unified app page header (matches System Dashboard / System Health) -->
 <header th:fragment="page-header (title, searchPlaceholder, searchId, showSearch, fixed, showNotifications, showSettings, showUser)"
-        class="opsconsole-header oc-page-header h-16 bg-surface border-b border-outline-variant flex items-center px-unit-xl z-40"
-        th:classappend="${fixed} ? ' oc-page-header--fixed' : ' shrink-0 w-full'">
-    <div class="oc-page-header__start flex items-center gap-unit-lg min-w-0">
-        <h2 class="oc-page-title font-headline-sm text-headline-sm font-bold text-primary shrink-0" th:text="${title}">Page</h2>
+        class="bre-dashboard-header bre-page-header h-16 bg-surface border-b border-outline-variant flex items-center px-unit-xl z-40"
+        th:classappend="${fixed} ? ' bre-page-header--fixed' : ' shrink-0 w-full'">
+    <div class="bre-page-header__start flex items-center gap-unit-lg min-w-0">
+        <h2 class="bre-page-title font-headline-sm text-headline-sm font-bold text-primary shrink-0" th:text="${title}">Page</h2>
         <div th:if="${showSearch and searchPlaceholder != null}"
-             class="oc-page-header__search relative max-w-md ml-unit-xl">
+             class="bre-page-header__search relative max-w-md ml-unit-xl">
             <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg pointer-events-none">search</span>
             <input type="search"
-                   class="oc-page-header__search-input w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 pl-10 pr-4 text-body-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all"
+                   class="bre-page-header__search-input w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 pl-10 pr-4 text-body-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all"
                    th:id="${searchId}"
                    th:placeholder="${searchPlaceholder}"
                    autocomplete="off"/>
         </div>
     </div>
-    <div class="oc-page-header__actions flex items-center gap-unit-md shrink-0">
+    <div class="bre-page-header__actions flex items-center gap-unit-md shrink-0">
         <th:block th:insert="~{::headerLeading} ?: ~{::empty}"/>
         <th:block th:replace="~{fragments/stitch-theme :: theme-toggle}"/>
         <th:block th:insert="~{::headerExtra} ?: ~{::empty}"/>
         <th:block th:if="${showNotifications}">
-            <div class="oc-header-divider h-8 w-[1px] bg-outline-variant mx-unit-sm"></div>
-            <button type="button" class="oc-header-icon-btn p-2 hover:bg-surface-container-low rounded-full transition-all text-on-surface-variant" title="Notifications">
+            <div class="bre-header-divider h-8 w-[1px] bg-outline-variant mx-unit-sm"></div>
+            <button type="button" class="bre-header-icon-btn p-2 hover:bg-surface-container-low rounded-full transition-all text-on-surface-variant" title="Notifications">
                 <span class="material-symbols-outlined">notifications</span>
             </button>
         </th:block>
         <th:block th:if="${showSettings and currentUser != null}">
-            <div class="oc-account-menu relative" data-oc-account-menu>
+            <div class="bre-account-menu relative" data-bre-account-menu>
                 <button type="button"
-                        class="oc-account-menu__trigger flex items-center gap-1.5 pl-1 pr-2 py-1 rounded-full hover:bg-surface-container-low transition-all text-on-surface-variant border border-transparent hover:border-outline-variant/60"
-                        data-oc-account-trigger
+                        class="bre-account-menu__trigger flex items-center gap-1.5 pl-1 pr-2 py-1 rounded-full hover:bg-surface-container-low transition-all text-on-surface-variant border border-transparent hover:border-outline-variant/60"
+                        data-bre-account-trigger
                         aria-haspopup="menu"
                         aria-expanded="false"
                         title="Account menu">
-                    <span class="oc-account-menu__avatar w-8 h-8 rounded-full bg-secondary/15 text-secondary font-semibold text-sm flex items-center justify-center shrink-0 border border-outline-variant/40"
+                    <span class="bre-account-menu__avatar w-8 h-8 rounded-full bg-secondary/15 text-secondary font-semibold text-sm flex items-center justify-center shrink-0 border border-outline-variant/40"
                           th:text="${#strings.toUpperCase(#strings.substring(currentUser.displayName, 0, 1))}">U</span>
                     <span class="material-symbols-outlined text-[18px] hidden sm:inline">expand_more</span>
                 </button>
-                <div class="oc-account-menu__panel hidden absolute right-0 top-[calc(100%+0.5rem)] w-64 rounded-xl border border-outline-variant bg-surface shadow-lg z-50 overflow-hidden"
-                     data-oc-account-panel
+                <div class="bre-account-menu__panel hidden absolute right-0 top-[calc(100%+0.5rem)] w-64 rounded-xl border border-outline-variant bg-surface shadow-lg z-50 overflow-hidden"
+                     data-bre-account-panel
                      role="menu"
                      aria-label="Account menu">
                     <div class="px-4 py-3 border-b border-outline-variant bg-surface-container-low/50">
@@ -56,14 +56,14 @@
                     </div>
                     <div class="py-1">
                         <a th:href="@{/account/password}"
-                           class="oc-account-menu__item flex items-center gap-2 px-4 py-2.5 text-body-sm text-on-surface hover:bg-surface-container-low transition-colors"
+                           class="bre-account-menu__item flex items-center gap-2 px-4 py-2.5 text-body-sm text-on-surface hover:bg-surface-container-low transition-colors"
                            role="menuitem">
                             <span class="material-symbols-outlined text-[18px] text-on-surface-variant">lock_reset</span>
                             Change password
                         </a>
                         <a th:if="${navAccess == null or navAccess['users'] == true}"
                            th:href="@{/users}"
-                           class="oc-account-menu__item flex items-center gap-2 px-4 py-2.5 text-body-sm text-on-surface hover:bg-surface-container-low transition-colors"
+                           class="bre-account-menu__item flex items-center gap-2 px-4 py-2.5 text-body-sm text-on-surface hover:bg-surface-container-low transition-colors"
                            role="menuitem">
                             <span class="material-symbols-outlined text-[18px] text-on-surface-variant">group</span>
                             User Administration
@@ -73,7 +73,7 @@
                         <form th:action="@{/logout}" method="post" role="none">
                             <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                             <button type="submit"
-                                    class="oc-account-menu__item w-full flex items-center gap-2 px-4 py-2.5 text-body-sm text-error hover:bg-error/5 transition-colors text-left"
+                                    class="bre-account-menu__item w-full flex items-center gap-2 px-4 py-2.5 text-body-sm text-error hover:bg-error/5 transition-colors text-left"
                                     role="menuitem">
                                 <span class="material-symbols-outlined text-[18px]">logout</span>
                                 Sign out
@@ -90,13 +90,13 @@
 
 <!-- Unified app page footer -->
 <footer th:fragment="page-footer (hint)"
-        class="oc-page-footer shrink-0 flex items-center justify-between gap-unit-md px-unit-xl py-unit-sm bg-surface border-t border-outline-variant text-body-sm text-on-surface-variant">
-    <div class="oc-page-footer__start flex items-center gap-unit-sm min-w-0">
-        <span class="font-semibold text-on-surface">OpsConsole</span>
+        class="bre-page-footer shrink-0 flex items-center justify-between gap-unit-md px-unit-xl py-unit-sm bg-surface border-t border-outline-variant text-body-sm text-on-surface-variant">
+    <div class="bre-page-footer__start flex items-center gap-unit-sm min-w-0">
+        <span class="font-semibold text-on-surface">BRE Dashboard</span>
         <span class="opacity-40" aria-hidden="true">·</span>
         <span class="truncate" th:text="${hint}">Internal operations workspace</span>
     </div>
-    <div class="oc-page-footer__end flex items-center gap-unit-md shrink-0">
+    <div class="bre-page-footer__end flex items-center gap-unit-md shrink-0">
         <th:block th:insert="~{::footerExtra} ?: ~{::empty}"/>
     </div>
 </footer>

@@ -1,6 +1,6 @@
-/* Developer Utils — OpsConsole themed workspace */
+/* Developer Utils — BRE Dashboard themed workspace */
 
-html.light .opsconsole-app {
+html.light .bre-dashboard-app {
   --du-accent: #0059bb;
   --du-accent-hover: #004a9e;
   --du-accent-bright: #0070ea;
@@ -10,7 +10,7 @@ html.light .opsconsole-app {
   --du-input-focus-ring: rgba(0, 89, 187, 0.12);
   --du-card-shadow: 0 1px 3px rgba(5, 17, 37, 0.06);
   --du-toast-shadow: 0 4px 16px rgba(5, 17, 37, 0.15);
-  --du-preview-chrome-bg: var(--oc-panel, #fff);
+  --du-preview-chrome-bg: var(--bre-panel, #fff);
   --du-success: #1e7e34;
   --du-error: #ba1a1a;
   --du-success-bg: rgba(40, 167, 69, 0.12);
@@ -23,7 +23,7 @@ html.light .opsconsole-app {
   --du-diff-removed-bg: rgba(186, 26, 26, 0.12);
 }
 
-html.dark .opsconsole-app {
+html.dark .bre-dashboard-app {
   --du-accent: #adc7ff;
   --du-accent-hover: #c5d4ff;
   --du-accent-bright: #adc7ff;
@@ -33,7 +33,7 @@ html.dark .opsconsole-app {
   --du-input-focus-ring: rgba(173, 199, 255, 0.2);
   --du-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
   --du-toast-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
-  --du-preview-chrome-bg: var(--oc-panel);
+  --du-preview-chrome-bg: var(--bre-panel);
   --du-success: #4ade80;
   --du-error: #ff8a80;
   --du-success-bg: rgba(74, 222, 128, 0.12);
@@ -51,8 +51,8 @@ html.dark .opsconsole-app {
   align-items: center;
   gap: 0.375rem;
   width: 100%;
-  background: var(--oc-panel-muted, #ecf5fe);
-  border: 1px solid var(--oc-border, #c5c6cd);
+  background: var(--bre-panel-muted, #ecf5fe);
+  border: 1px solid var(--bre-border, #c5c6cd);
   border-radius: 0.5rem;
   padding: 0 0.625rem 0 0.75rem;
   box-sizing: border-box;
@@ -69,7 +69,7 @@ html.dark .opsconsole-app {
   font-size: 18px;
   line-height: 1;
   width: 1.125rem;
-  color: var(--oc-text-muted, #45474d);
+  color: var(--bre-text-muted, #45474d);
   pointer-events: none;
   user-select: none;
 }
@@ -86,7 +86,7 @@ html.dark .opsconsole-app {
   box-sizing: border-box;
   outline: none;
   box-shadow: none;
-  color: var(--oc-text, #141d23);
+  color: var(--bre-text, #141d23);
 }
 
 .du-sidebar-search::-webkit-search-decoration,
@@ -106,7 +106,7 @@ html.dark .opsconsole-app {
 }
 
 .du-sidebar-search,
-.opsconsole-app .du-sidebar-search {
+.bre-dashboard-app .du-sidebar-search {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
@@ -118,7 +118,7 @@ html.dark .opsconsole-app {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--oc-text-muted, #45474d);
+  color: var(--bre-text-muted, #45474d);
   padding: 0.75rem 0.75rem 0.35rem;
 }
 
@@ -133,13 +133,13 @@ html.dark .opsconsole-app {
   font-size: 0.8125rem;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
   border-left: 2px solid transparent;
-  color: var(--oc-text-muted, #45474d);
+  color: var(--bre-text-muted, #45474d);
 }
 .du-tool-btn:hover {
-  background: var(--oc-panel-muted, #ecf5fe);
+  background: var(--bre-panel-muted, #ecf5fe);
 }
 html.dark .du-tool-btn:hover {
-  background: var(--oc-panel-subtle, #172030);
+  background: var(--bre-panel-subtle, #172030);
 }
 .du-tool-btn.du-tool-active {
   background: var(--du-accent-muted-bg, rgba(0, 89, 187, 0.1));
@@ -158,8 +158,8 @@ html.dark .du-tool-btn:hover {
 }
 
 .du-workspace-card {
-  background: var(--oc-panel, #fff);
-  border: 1px solid var(--oc-border, #c5c6cd);
+  background: var(--bre-panel, #fff);
+  border: 1px solid var(--bre-border, #c5c6cd);
   border-radius: 0.75rem;
   box-shadow: var(--du-card-shadow, 0 1px 3px rgba(5, 17, 37, 0.06));
   display: flex;
@@ -171,8 +171,8 @@ html.dark .du-tool-btn:hover {
 
 .du-workspace-header {
   padding: 0.4375rem 1rem;
-  border-bottom: 1px solid var(--oc-border, #c5c6cd);
-  background: linear-gradient(180deg, var(--oc-panel, #fff) 0%, var(--oc-panel-muted, #ecf5fe) 100%);
+  border-bottom: 1px solid var(--bre-border, #c5c6cd);
+  background: linear-gradient(180deg, var(--bre-panel, #fff) 0%, var(--bre-panel-muted, #ecf5fe) 100%);
   flex-shrink: 0;
 }
 
@@ -188,7 +188,7 @@ html.dark .du-tool-btn:hover {
   font-size: 0.9375rem;
   font-weight: 700;
   line-height: 1.25;
-  color: var(--oc-text, #141d23);
+  color: var(--bre-text, #141d23);
   margin: 0;
 }
 
@@ -261,23 +261,23 @@ html.dark .du-btn-primary {
   color: #051125;
 }
 .du-btn-secondary {
-  background: var(--oc-panel, #fff);
-  border-color: var(--oc-border, #c5c6cd);
-  color: var(--oc-text, #141d23);
+  background: var(--bre-panel, #fff);
+  border-color: var(--bre-border, #c5c6cd);
+  color: var(--bre-text, #141d23);
 }
-.du-btn-secondary:hover { background: var(--oc-panel-muted, #ecf5fe); }
+.du-btn-secondary:hover { background: var(--bre-panel-muted, #ecf5fe); }
 html.dark .du-btn-secondary:hover {
-  background: var(--oc-panel-subtle, #172030);
+  background: var(--bre-panel-subtle, #172030);
 }
 .du-btn-ghost {
   background: transparent;
-  color: var(--oc-text-muted, #45474d);
+  color: var(--bre-text-muted, #45474d);
   padding: 0.375rem 0.625rem;
 }
-.du-btn-ghost:hover { background: var(--oc-panel-muted, #ecf5fe); color: var(--oc-text); }
+.du-btn-ghost:hover { background: var(--bre-panel-muted, #ecf5fe); color: var(--bre-text); }
 html.dark .du-btn-ghost:hover {
-  background: var(--oc-panel-subtle, #172030);
-  color: var(--oc-text);
+  background: var(--bre-panel-subtle, #172030);
+  color: var(--bre-text);
 }
 
 .du-field-group {
@@ -335,7 +335,7 @@ html.dark .du-btn-ghost:hover {
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--oc-text-muted, #45474d);
+  color: var(--bre-text-muted, #45474d);
 }
 .du-field-label-actions {
   display: flex;
@@ -362,14 +362,14 @@ html.dark .du-btn-ghost:hover {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 13px;
   line-height: 1.6;
-  background: var(--oc-panel, #fff);
-  border: 1px solid var(--oc-border, #c5c6cd);
+  background: var(--bre-panel, #fff);
+  border: 1px solid var(--bre-border, #c5c6cd);
   border-radius: 0.5rem;
   padding: 0.625rem 0.875rem;
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
   width: 100%;
-  color: var(--oc-text, #141d23);
+  color: var(--bre-text, #141d23);
 }
 .du-textarea {
   resize: vertical;
@@ -384,12 +384,12 @@ html.dark .du-btn-ghost:hover {
 }
 .du-input-sm { padding: 0.4375rem 0.625rem; font-size: 12px; min-height: auto; }
 .du-input-readonly {
-  background: var(--oc-panel-muted, #ecf5fe);
-  color: var(--oc-text-muted, #45474d);
+  background: var(--bre-panel-muted, #ecf5fe);
+  color: var(--bre-text-muted, #45474d);
 }
 html.dark .du-input-readonly {
-  background: var(--oc-panel-subtle, #172030);
-  color: var(--oc-text-muted);
+  background: var(--bre-panel-subtle, #172030);
+  color: var(--bre-text-muted);
 }
 
 .du-split {
@@ -422,10 +422,10 @@ html.dark .du-input-readonly {
   display: flex;
   flex: 1;
   min-height: 0;
-  border: 1px solid var(--oc-border, #c5c6cd);
+  border: 1px solid var(--bre-border, #c5c6cd);
   border-radius: 0.5rem;
   overflow: hidden;
-  background: var(--oc-panel, #fff);
+  background: var(--bre-panel, #fff);
 }
 
 .du-line-numbers {
@@ -435,10 +435,10 @@ html.dark .du-input-readonly {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 13px;
   line-height: 1.6;
-  color: var(--oc-text-muted, #45474d);
+  color: var(--bre-text-muted, #45474d);
   opacity: 0.65;
-  background: var(--oc-panel-muted, #ecf5fe);
-  border-right: 1px solid var(--oc-border, #c5c6cd);
+  background: var(--bre-panel-muted, #ecf5fe);
+  border-right: 1px solid var(--bre-border, #c5c6cd);
   overflow-y: auto;
   overflow-x: hidden;
   user-select: none;
@@ -462,7 +462,7 @@ html.dark .du-input-readonly {
 
 html.dark .du-code-editor .du-textarea {
   background-color: transparent !important;
-  color: var(--oc-text);
+  color: var(--bre-text);
 }
 
 .du-panel-col .du-textarea {
@@ -475,10 +475,10 @@ html.dark .du-code-editor .du-textarea {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--oc-border, #c5c6cd);
+  border: 1px solid var(--bre-border, #c5c6cd);
   border-radius: 0.5rem;
   overflow: hidden;
-  background: var(--du-preview-chrome-bg, var(--oc-panel, #fff));
+  background: var(--du-preview-chrome-bg, var(--bre-panel, #fff));
 }
 
 .du-crypto-grid {
@@ -496,9 +496,9 @@ html.dark .du-code-editor .du-textarea {
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background: var(--oc-panel-muted, #ecf5fe);
+  background: var(--bre-panel-muted, #ecf5fe);
   border-radius: 0.5rem;
-  border: 1px solid var(--oc-border, #c5c6cd);
+  border: 1px solid var(--bre-border, #c5c6cd);
 }
 
 .du-mode-row .du-encoding-wrap {
@@ -507,7 +507,7 @@ html.dark .du-code-editor .du-textarea {
   gap: 0.5rem;
   margin-left: auto;
   font-size: 12px;
-  color: var(--oc-text-muted, #45474d);
+  color: var(--bre-text-muted, #45474d);
 }
 
 .du-mode-row .du-encoding-wrap select {
@@ -519,7 +519,7 @@ html.dark .du-code-editor .du-textarea {
   padding: 1.5rem 1rem;
   text-align: center;
   font-size: 0.8125rem;
-  color: var(--oc-text-muted, #45474d);
+  color: var(--bre-text-muted, #45474d);
 }
 
 .du-toast {
@@ -554,9 +554,9 @@ html.dark .du-code-editor .du-textarea {
 }
 
 .du-toast-info {
-  background: var(--oc-panel, #fff);
-  color: var(--oc-text, #141d23);
-  border: 1px solid var(--oc-border, #c5c6cd);
+  background: var(--bre-panel, #fff);
+  color: var(--bre-text, #141d23);
+  border: 1px solid var(--bre-border, #c5c6cd);
 }
 
 .du-status-bar {
@@ -596,26 +596,26 @@ html.dark .du-code-editor .du-textarea {
   font-weight: 600;
   padding: 0.2rem 0.5rem;
   border-radius: 999px;
-  background: var(--oc-panel-muted, #ecf5fe);
-  border: 1px solid var(--oc-border, #c5c6cd);
-  color: var(--oc-text-muted, #45474d);
+  background: var(--bre-panel-muted, #ecf5fe);
+  border: 1px solid var(--bre-border, #c5c6cd);
+  color: var(--bre-text-muted, #45474d);
 }
 
 .du-diff-table {
   width: 100%;
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 12px;
-  border: 1px solid var(--oc-border, #c5c6cd);
+  border: 1px solid var(--bre-border, #c5c6cd);
   border-radius: 0.5rem;
   overflow: hidden;
-  background: var(--oc-panel, #fff);
+  background: var(--bre-panel, #fff);
 }
 .du-diff-table td {
   padding: 0.25rem 0.625rem;
   vertical-align: top;
   word-break: break-all;
   white-space: pre-wrap;
-  background: var(--oc-panel, #fff);
+  background: var(--bre-panel, #fff);
 }
 .du-diff-added {
   background: var(--du-diff-added-bg, rgba(40, 167, 69, 0.15)) !important;
@@ -625,7 +625,7 @@ html.dark .du-code-editor .du-textarea {
   background: var(--du-diff-removed-bg, rgba(186, 26, 26, 0.12)) !important;
   color: var(--du-error, #ba1a1a);
 }
-.du-diff-same { color: var(--oc-text-muted); }
+.du-diff-same { color: var(--bre-text-muted); }
 
 .du-preview-frame {
   width: 100%;
@@ -641,16 +641,16 @@ html.dark .du-code-editor .du-textarea {
   gap: 1rem;
   align-items: center;
   padding: 0.625rem 0.875rem;
-  background: var(--oc-panel-muted, #ecf5fe);
+  background: var(--bre-panel-muted, #ecf5fe);
   border-radius: 0.5rem;
-  border: 1px solid var(--oc-border, #c5c6cd);
+  border: 1px solid var(--bre-border, #c5c6cd);
 }
 .du-options-row label {
   display: flex;
   align-items: center;
   gap: 0.375rem;
   font-size: 12px;
-  color: var(--oc-text-muted);
+  color: var(--bre-text-muted);
   cursor: pointer;
 }
 

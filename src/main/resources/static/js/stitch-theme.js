@@ -2,7 +2,7 @@
  * Stitch theme toggle — switches <html class="light"> / <html class="dark"> (darkMode: "class").
  */
 (function () {
-    const STORAGE_KEY = 'opsconsole-theme';
+    const STORAGE_KEY = 'bre-dashboard-theme';
 
     function resolveTheme() {
         const stored = localStorage.getItem(STORAGE_KEY);

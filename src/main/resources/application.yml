@@ -1,10 +1,10 @@
 spring:
   application:
-    name: opsconsole
+    name: bre-dashboard
   datasource:
-    url: ${OPSCONSOLE_DB_URL:}
-    username: ${OPSCONSOLE_DB_USERNAME:}
-    password: ${OPSCONSOLE_DB_PASSWORD:}
+    url: ${BRE_DASHBOARD_DB_URL:}
+    username: ${BRE_DASHBOARD_DB_USERNAME:}
+    password: ${BRE_DASHBOARD_DB_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 10
@@ -39,11 +39,11 @@ server:
     key-alias: ${SERVER_SSL_KEY_ALIAS:}
   servlet:
     session:
-      timeout: ${OPSCONSOLE_SESSION_TIMEOUT:30m}
+      timeout: ${BRE_DASHBOARD_SESSION_TIMEOUT:30m}
       cookie:
         http-only: true
         same-site: lax
-        secure: ${OPSCONSOLE_SESSION_SECURE:false}
+        secure: ${BRE_DASHBOARD_SESSION_SECURE:false}
 
 management:
   endpoints:
@@ -54,7 +54,7 @@ management:
     db:
       enabled: true
 
-opsconsole:
+bredashboard:
   transaction-dashboard:
     jdbc-url: ${TXN_DB_URL:}
     username: ${TXN_DB_USERNAME:}
@@ -66,12 +66,12 @@ opsconsole:
     refresh-seconds: 60
   auth:
     # Form login until SPRING_PROFILES_ACTIVE includes azure (see application-azure.yml).
-    mode: ${OPSCONSOLE_AUTH_MODE:dev}
+    mode: ${BRE_DASHBOARD_AUTH_MODE:dev}
     default-role-code: MONITORING
     seed-dev-users: false
-    bootstrap-email: ${OPSCONSOLE_BOOTSTRAP_EMAIL:}
-    bootstrap-password: ${OPSCONSOLE_BOOTSTRAP_PASSWORD:}
-    bootstrap-display-name: ${OPSCONSOLE_BOOTSTRAP_DISPLAY_NAME:Administrator}
+    bootstrap-email: ${BRE_DASHBOARD_BOOTSTRAP_EMAIL:}
+    bootstrap-password: ${BRE_DASHBOARD_BOOTSTRAP_PASSWORD:}
+    bootstrap-display-name: ${BRE_DASHBOARD_BOOTSTRAP_DISPLAY_NAME:Administrator}
     azure:
       client-id: ${AZURE_CLIENT_ID:}
       client-secret: ${AZURE_CLIENT_SECRET:}
@@ -166,7 +166,7 @@ opsconsole:
   admin:
     mode: live
     ssh:
-      private-key-path: ${OPS_SSH_KEY_PATH:}
+      private-key-path: ${BRE_DASHBOARD_SSH_KEY_PATH:}
       connect-timeout-ms: 10000
       command-timeout-ms: 60000
     servers: []

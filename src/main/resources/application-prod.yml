@@ -32,7 +32,7 @@ server:
         same-site: lax
         http-only: true
 
-opsconsole:
+bredashboard:
   auth:
     seed-dev-users: false
   health:

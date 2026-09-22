@@ -2,7 +2,7 @@
 # SPRING_PROFILES_ACTIVE=prod,azure
 # Entra credentials still come from AZURE_CLIENT_ID / AZURE_TENANT_ID / AZURE_CLIENT_SECRET.
 
-opsconsole:
+bredashboard:
   auth:
     mode: azure
     seed-dev-users: false

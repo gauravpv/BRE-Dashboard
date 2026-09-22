@@ -16,7 +16,7 @@
         refreshButton.addEventListener('click', refresh);
     }
 
-    const seconds = Number(window.opsconsoleTransactionRefreshSeconds) || 60;
+    const seconds = Number(window.breDashboardTransactionRefreshSeconds) || 60;
     refreshTimer = window.setTimeout(refresh, Math.max(15, seconds) * 1000);
 
     document.addEventListener('visibilitychange', () => {

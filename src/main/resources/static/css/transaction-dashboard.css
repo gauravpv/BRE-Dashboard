@@ -4,7 +4,7 @@
 }
 
 .txn-shell {
-    margin-left: var(--oc-sidebar-width, 240px);
+    margin-left: var(--bre-sidebar-width, 240px);
     height: 100vh;
     padding: calc(4rem + .7rem) .8rem .8rem;
     display: grid;
@@ -15,7 +15,7 @@
         "strip strip  strip"
         "side  chart  aside"
         "side  tables aside";
-    background: var(--oc-shell);
+    background: var(--bre-shell);
 }
 
 /* ══ Top strip ══ */
@@ -25,15 +25,15 @@
     align-items: stretch;
     gap: 1rem;
     padding: .7rem .95rem;
-    background: var(--oc-panel);
-    border: 1px solid var(--oc-border);
+    background: var(--bre-panel);
+    border: 1px solid var(--bre-border);
     border-radius: .7rem;
     box-shadow: 0 1px 2px rgb(15 23 42 / 5%);
 }
 
 .txn-strip > * {
     padding-right: 1rem;
-    border-right: 1px solid var(--oc-border);
+    border-right: 1px solid var(--bre-border);
 }
 
 .txn-strip > *:last-child {
@@ -53,14 +53,14 @@
     display: flex;
     align-items: center;
     gap: .5rem;
-    color: var(--oc-text);
+    color: var(--bre-text);
     font-size: .86rem;
     font-weight: 750;
     letter-spacing: -.015em;
 }
 
 .txn-strip-window p {
-    color: var(--oc-text-muted);
+    color: var(--bre-text-muted);
     font-size: .66rem;
 }
 
@@ -102,10 +102,10 @@
     gap: .3rem;
     align-self: flex-start;
     margin-top: .1rem;
-    border: 1px solid var(--oc-border);
+    border: 1px solid var(--bre-border);
     border-radius: .45rem;
-    background: var(--oc-panel-muted);
-    color: var(--oc-text);
+    background: var(--bre-panel-muted);
+    color: var(--bre-text);
     cursor: pointer;
     font-size: .69rem;
     font-weight: 650;
@@ -123,7 +123,7 @@
 }
 
 .txn-refresh em {
-    color: var(--oc-text-muted);
+    color: var(--bre-text-muted);
     font-size: .64rem;
     font-style: normal;
 }
@@ -143,7 +143,7 @@
 
 .txn-eyebrow {
     display: block;
-    color: var(--oc-text-muted);
+    color: var(--bre-text-muted);
     font-size: .62rem;
     font-weight: 700;
     letter-spacing: .07em;
@@ -159,7 +159,7 @@
 }
 
 .txn-strip-hero > strong {
-    color: var(--oc-text);
+    color: var(--bre-text);
     font-size: 2rem;
     font-variant-numeric: tabular-nums;
     font-weight: 780;
@@ -172,7 +172,7 @@
     align-items: center;
     gap: .35rem;
     flex-wrap: wrap;
-    color: var(--oc-text-muted);
+    color: var(--bre-text-muted);
     font-size: .64rem;
 }
 
@@ -215,7 +215,7 @@
 }
 
 .txn-ring-track {
-    stroke: var(--oc-panel-subtle);
+    stroke: var(--bre-panel-subtle);
 }
 
 .txn-ring-value {
@@ -226,14 +226,14 @@
 }
 
 .txn-ring-text {
-    fill: var(--oc-text);
+    fill: var(--bre-text);
     font-size: 11px;
     font-weight: 750;
     text-anchor: middle;
 }
 
 .txn-ring-sub {
-    fill: var(--oc-text-muted);
+    fill: var(--bre-text-muted);
     font-size: 5.5px;
     letter-spacing: .08em;
     text-anchor: middle;
@@ -241,7 +241,7 @@
 }
 
 .txn-strip-approval p {
-    color: var(--oc-text);
+    color: var(--bre-text);
     font-size: .72rem;
     margin: .2rem 0 .3rem;
 }
@@ -258,7 +258,7 @@
 
 .txn-strip-stats span {
     display: block;
-    color: var(--oc-text-muted);
+    color: var(--bre-text-muted);
     font-size: .6rem;
     font-weight: 650;
     letter-spacing: .05em;
@@ -267,7 +267,7 @@
 
 .txn-strip-stats strong {
     display: block;
-    color: var(--oc-text);
+    color: var(--bre-text);
     font-size: 1.15rem;
     font-variant-numeric: tabular-nums;
     font-weight: 750;
@@ -294,8 +294,8 @@
     min-height: 0;
     min-width: 0;
     overflow: hidden;
-    background: var(--oc-panel);
-    border: 1px solid var(--oc-border);
+    background: var(--bre-panel);
+    border: 1px solid var(--bre-border);
     border-radius: .7rem;
     box-shadow: 0 1px 2px rgb(15 23 42 / 5%);
 }
@@ -311,18 +311,18 @@
     justify-content: space-between;
     gap: .8rem;
     padding: .55rem .85rem;
-    border-bottom: 1px solid var(--oc-border);
+    border-bottom: 1px solid var(--bre-border);
 }
 
 .txn-panel-header h2 {
-    color: var(--oc-text);
+    color: var(--bre-text);
     font-size: .82rem;
     font-weight: 700;
     letter-spacing: -.015em;
 }
 
 .txn-panel-header p {
-    color: var(--oc-text-muted);
+    color: var(--bre-text-muted);
     font-size: .66rem;
     margin-top: .1rem;
 }
@@ -350,12 +350,12 @@
 .txn-alert > span { color: #dc2626; }
 
 .txn-alert strong {
-    color: var(--oc-text);
+    color: var(--bre-text);
     font-size: .86rem;
 }
 
 .txn-alert p {
-    color: var(--oc-text-muted);
+    color: var(--bre-text-muted);
     font-size: .78rem;
     margin-top: .2rem;
 }
@@ -386,7 +386,7 @@
 .txn-funnel-label {
     flex: 1;
     min-width: 0;
-    color: var(--oc-text);
+    color: var(--bre-text);
     font-size: .69rem;
     font-weight: 650;
     overflow: hidden;
@@ -395,7 +395,7 @@
 }
 
 .txn-funnel-top b {
-    color: var(--oc-text);
+    color: var(--bre-text);
     font-size: .78rem;
     font-variant-numeric: tabular-nums;
     font-weight: 750;
@@ -404,7 +404,7 @@
 .txn-funnel-bar {
     height: .45rem;
     border-radius: .15rem;
-    background: var(--oc-panel-subtle);
+    background: var(--bre-panel-subtle);
     overflow: hidden;
     margin-top: .28rem;
 }
@@ -425,7 +425,7 @@
     align-items: baseline;
     gap: .25rem;
     margin-top: .22rem;
-    color: var(--oc-text-muted);
+    color: var(--bre-text-muted);
     font-size: .63rem;
 }
 
@@ -459,7 +459,7 @@
 }
 
 .txn-latency-head span {
-    color: var(--oc-text-muted);
+    color: var(--bre-text-muted);
     font-size: .65rem;
 }
 
@@ -476,7 +476,7 @@
 .txn-health--good { background: rgb(22 163 74 / 12%); color: #15803d; }
 .txn-health--warn { background: rgb(217 119 6 / 14%); color: #b45309; }
 .txn-health--bad { background: rgb(220 38 38 / 12%); color: #b91c1c; }
-.txn-health--neutral { background: var(--oc-panel-subtle); color: var(--oc-text-muted); }
+.txn-health--neutral { background: var(--bre-panel-subtle); color: var(--bre-text-muted); }
 
 .txn-defs {
     display: flex;
@@ -484,7 +484,7 @@
     gap: .25rem;
     margin-top: .55rem;
     padding-top: .5rem;
-    border-top: 1px dashed var(--oc-border);
+    border-top: 1px dashed var(--bre-border);
 }
 
 .txn-defs > div {
@@ -495,12 +495,12 @@
 }
 
 .txn-defs dt {
-    color: var(--oc-text-muted);
+    color: var(--bre-text-muted);
     font-size: .65rem;
 }
 
 .txn-defs dd {
-    color: var(--oc-text);
+    color: var(--bre-text);
     font-size: .7rem;
     font-variant-numeric: tabular-nums;
     font-weight: 700;
@@ -512,7 +512,7 @@
     align-items: center;
     gap: .8rem;
     flex-wrap: wrap;
-    color: var(--oc-text-muted);
+    color: var(--bre-text-muted);
     font-size: .66rem;
 }
 
@@ -532,7 +532,7 @@
 .txn-swatch--approved { background: #16a34a; }
 
 .txn-legend-peak b {
-    color: var(--oc-text);
+    color: var(--bre-text);
     font-weight: 700;
 }
 
@@ -551,7 +551,7 @@
     justify-content: space-between;
     align-items: flex-end;
     padding-right: .5rem;
-    color: var(--oc-text-muted);
+    color: var(--bre-text-muted);
     font-size: .6rem;
     font-variant-numeric: tabular-nums;
 }
@@ -559,8 +559,8 @@
 .txn-plot {
     position: relative;
     min-height: 0;
-    border-left: 1px solid var(--oc-border);
-    border-bottom: 1px solid var(--oc-border);
+    border-left: 1px solid var(--bre-border);
+    border-bottom: 1px solid var(--bre-border);
 }
 
 .txn-gridlines {
@@ -595,7 +595,7 @@
     margin: -.24rem 0 0 -.24rem;
     border-radius: 999px;
     background: #0059bb;
-    border: 1.5px solid var(--oc-panel);
+    border: 1.5px solid var(--bre-panel);
     cursor: help;
     transition: transform .12s ease;
 }
@@ -609,7 +609,7 @@
     display: flex;
     justify-content: space-between;
     padding-top: .4rem;
-    color: var(--oc-text-muted);
+    color: var(--bre-text-muted);
     font-size: .58rem;
     font-variant-numeric: tabular-nums;
 }
@@ -629,14 +629,14 @@
     display: inline-flex;
     gap: .2rem;
     padding: .15rem;
-    border: 1px solid var(--oc-border);
+    border: 1px solid var(--bre-border);
     border-radius: .5rem;
-    background: var(--oc-panel-muted);
+    background: var(--bre-panel-muted);
 }
 
 .txn-tabs label {
     border-radius: .38rem;
-    color: var(--oc-text-muted);
+    color: var(--bre-text-muted);
     cursor: pointer;
     font-size: .68rem;
     font-weight: 650;
@@ -646,12 +646,12 @@
 }
 
 .txn-tabs label:hover {
-    color: var(--oc-text);
+    color: var(--bre-text);
 }
 
 #txnTabMinute:checked ~ .txn-panel-header label[for="txnTabMinute"],
 #txnTabHour:checked ~ .txn-panel-header label[for="txnTabHour"] {
-    background: var(--oc-panel);
+    background: var(--bre-panel);
     color: #0059bb;
     box-shadow: 0 1px 2px rgb(15 23 42 / 8%);
 }
@@ -682,7 +682,7 @@
 .txn-market {
     --txn-accent: #0059bb;
     padding-bottom: .7rem;
-    border-bottom: 1px solid var(--oc-border);
+    border-bottom: 1px solid var(--bre-border);
 }
 
 .txn-market:last-child {
@@ -711,7 +711,7 @@
 .txn-market-head strong {
     flex: 1;
     min-width: 0;
-    color: var(--oc-text);
+    color: var(--bre-text);
     font-size: .82rem;
     font-weight: 700;
     overflow: hidden;
@@ -720,7 +720,7 @@
 }
 
 .txn-market-head b {
-    color: var(--oc-text);
+    color: var(--bre-text);
     font-size: .88rem;
     font-variant-numeric: tabular-nums;
     font-weight: 750;
@@ -731,7 +731,7 @@
     flex-wrap: wrap;
     gap: .1rem .6rem;
     margin: .3rem 0 .35rem;
-    color: var(--oc-text-muted);
+    color: var(--bre-text-muted);
     font-size: .65rem;
     font-variant-numeric: tabular-nums;
 }
@@ -739,7 +739,7 @@
 .txn-meter {
     height: .3rem;
     border-radius: 999px;
-    background: var(--oc-panel-subtle);
+    background: var(--bre-panel-subtle);
     overflow: hidden;
 }
 
@@ -777,13 +777,13 @@
 
 .txn-histogram-pct,
 .txn-histogram-label {
-    color: var(--oc-text-muted);
+    color: var(--bre-text-muted);
     font-size: .6rem;
     font-variant-numeric: tabular-nums;
 }
 
 .txn-histogram-pct {
-    color: var(--oc-text);
+    color: var(--bre-text);
     font-weight: 700;
 }
 
@@ -793,7 +793,7 @@
     min-height: 0;
     width: 100%;
     border-radius: .28rem .28rem 0 0;
-    background: linear-gradient(180deg, transparent, var(--oc-panel-subtle));
+    background: linear-gradient(180deg, transparent, var(--bre-panel-subtle));
 }
 
 .txn-histogram-track span {
@@ -819,8 +819,8 @@
     position: sticky;
     top: 0;
     z-index: 1;
-    background: var(--oc-panel-muted);
-    color: var(--oc-text-muted);
+    background: var(--bre-panel-muted);
+    color: var(--bre-text-muted);
     font-size: .6rem;
     font-weight: 750;
     letter-spacing: .05em;
@@ -830,8 +830,8 @@
 }
 
 .txn-table td {
-    border-top: 1px solid var(--oc-border);
-    color: var(--oc-text);
+    border-top: 1px solid var(--bre-border);
+    color: var(--bre-text);
     font-size: .72rem;
     font-variant-numeric: tabular-nums;
     padding: .4rem .7rem;
@@ -848,7 +848,7 @@
 }
 
 .txn-table tbody tr:hover {
-    background: var(--oc-panel-muted);
+    background: var(--bre-panel-muted);
 }
 
 .txn-col-volume {
@@ -867,7 +867,7 @@
     height: .32rem;
     min-width: 2.5rem;
     border-radius: 999px;
-    background: var(--oc-panel-subtle);
+    background: var(--bre-panel-subtle);
     overflow: hidden;
 }
 
@@ -894,11 +894,11 @@
 }
 
 .txn-muted {
-    color: var(--oc-text-muted);
+    color: var(--bre-text-muted);
 }
 
 .txn-empty {
-    color: var(--oc-text-muted);
+    color: var(--bre-text-muted);
     font-size: .74rem;
     padding: 1.5rem;
     text-align: center;

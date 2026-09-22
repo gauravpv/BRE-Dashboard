@@ -4,7 +4,7 @@
 <th:block th:replace="~{fragments/head :: head(pageTitle='Tester')}"/>
 <link rel="stylesheet" th:href="@{/css/tester.css}"/>
 </head>
-<body class="opsconsole-app bg-background text-on-background font-body-md overflow-hidden h-screen flex">
+<body class="bre-dashboard-app bg-background text-on-background font-body-md overflow-hidden h-screen flex">
 <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
 <main class="flex-1 ml-[240px] flex flex-col h-screen bt-main">
 <th:block th:insert="~{fragments/page-shell :: page-header(title='Bajaj API Tester', searchPlaceholder='', searchId='', showSearch=false, fixed=false, showNotifications=true, showSettings=true, showUser=false)}">
@@ -114,7 +114,7 @@ Decrypted response
 
 <footer th:insert="~{fragments/page-shell :: page-footer(hint='Encrypted Bajaj API testing')}">
     <th:block th:fragment="footerExtra">
-        <span class="oc-page-footer__shortcut"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> Send</span>
+        <span class="bre-page-footer__shortcut"><kbd>Ctrl</kbd>+<kbd>Enter</kbd> Send</span>
     </th:block>
 </footer>
 </main>

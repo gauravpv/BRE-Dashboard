@@ -4,7 +4,7 @@
 <th:block th:replace="~{fragments/head :: head(pageTitle='Transaction Analytics')}"/>
 <link rel="stylesheet" th:href="@{/css/transaction-dashboard.css}"/>
 </head>
-<body class="opsconsole-app txn-body bg-background text-on-background font-body-md">
+<body class="bre-dashboard-app txn-body bg-background text-on-background font-body-md">
 <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
 <th:block th:replace="~{fragments/page-shell :: page-header(title='Transaction Analytics', searchPlaceholder='', searchId='', showSearch=false, fixed=true, showNotifications=true, showSettings=true, showUser=false)}"/>
 
@@ -388,7 +388,7 @@
 </div>
 
 <script th:inline="javascript">
-    window.opsconsoleTransactionRefreshSeconds = /*[[${refreshSeconds}]]*/ 60;
+    window.breDashboardTransactionRefreshSeconds = /*[[${refreshSeconds}]]*/ 60;
 </script>
 <script th:src="@{/js/transaction-dashboard.js}"></script>
 </body>

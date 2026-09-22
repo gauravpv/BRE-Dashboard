@@ -6,9 +6,9 @@
 
 <aside th:fragment="sidebar"
 
-       class="opsconsole-sidebar w-[240px] h-screen fixed left-0 top-0 bg-primary border-r border-outline-variant flex flex-col py-unit-lg z-50">
+       class="bre-dashboard-sidebar w-[240px] h-screen fixed left-0 top-0 bg-primary border-r border-outline-variant flex flex-col py-unit-lg z-50">
 
-    <div class="px-unit-lg mb-unit-xl oc-sidebar-header">
+    <div class="px-unit-lg mb-unit-xl bre-sidebar-header">
 
         <div class="flex items-center gap-unit-sm">
 
@@ -18,15 +18,15 @@
 
             </div>
 
-            <div class="oc-sidebar-brand-text flex-1 min-w-0">
+            <div class="bre-sidebar-brand-text flex-1 min-w-0">
 
-                <h1 class="font-headline-sm text-headline-sm font-bold text-on-primary leading-none">OpsConsole</h1>
+                <h1 class="font-headline-sm text-headline-sm font-bold text-on-primary leading-none">BRE Dashboard</h1>
 
                 <p class="text-[10px] text-on-primary-container uppercase tracking-widest mt-1">DevOps Platform</p>
 
             </div>
 
-            <button type="button" id="ocSidebarToggle" class="oc-sidebar-toggle" aria-expanded="true" title="Collapse sidebar" aria-label="Collapse sidebar">
+            <button type="button" id="breSidebarToggle" class="bre-sidebar-toggle" aria-expanded="true" title="Collapse sidebar" aria-label="Collapse sidebar">
 
                 <span class="material-symbols-outlined text-[20px]">chevron_left</span>
 
@@ -48,7 +48,7 @@
 
             <span class="material-symbols-outlined">dashboard</span>
 
-            <span class="font-body-md text-body-md oc-sidebar-label">Dashboard</span>
+            <span class="font-body-md text-body-md bre-sidebar-label">Dashboard</span>
 
         </a>
 
@@ -62,7 +62,7 @@
 
             <span class="material-symbols-outlined">monitor_heart</span>
 
-            <span class="font-body-md text-body-md oc-sidebar-label">System Health</span>
+            <span class="font-body-md text-body-md bre-sidebar-label">System Health</span>
 
         </a>
 
@@ -76,7 +76,7 @@
 
             <span class="material-symbols-outlined">credit_card</span>
 
-            <span class="font-body-md text-body-md oc-sidebar-label">Transaction Analytics</span>
+            <span class="font-body-md text-body-md bre-sidebar-label">Transaction Analytics</span>
 
         </a>
 
@@ -90,7 +90,7 @@
 
             <span class="material-symbols-outlined">science</span>
 
-            <span class="font-body-md text-body-md oc-sidebar-label">Tester</span>
+            <span class="font-body-md text-body-md bre-sidebar-label">Tester</span>
 
         </a>
 
@@ -104,7 +104,7 @@
 
             <span class="material-symbols-outlined">build</span>
 
-            <span class="font-body-md text-body-md oc-sidebar-label">Developer Utils</span>
+            <span class="font-body-md text-body-md bre-sidebar-label">Developer Utils</span>
 
         </a>
 
@@ -118,7 +118,7 @@
 
             <span class="material-symbols-outlined">admin_panel_settings</span>
 
-            <span class="font-body-md text-body-md oc-sidebar-label">System Admin</span>
+            <span class="font-body-md text-body-md bre-sidebar-label">System Admin</span>
 
         </a>
 
@@ -132,15 +132,15 @@
 
             <span class="material-symbols-outlined">group</span>
 
-            <span class="font-body-md text-body-md oc-sidebar-label">User Admin</span>
+            <span class="font-body-md text-body-md bre-sidebar-label">User Admin</span>
 
         </a>
 
     </nav>
 
-    <div class="px-unit-lg mt-auto pt-unit-lg space-y-unit-sm oc-sidebar-footer">
+    <div class="px-unit-lg mt-auto pt-unit-lg space-y-unit-sm bre-sidebar-footer">
 
-        <div th:if="${currentUser != null}" class="p-unit-sm bg-primary-container rounded-lg border border-outline-variant/20 oc-sidebar-user-card">
+        <div th:if="${currentUser != null}" class="p-unit-sm bg-primary-container rounded-lg border border-outline-variant/20 bre-sidebar-user-card">
 
             <p class="text-[11px] font-label-sm text-on-primary-container truncate" th:text="${currentUser.displayName}">User</p>
 
@@ -155,7 +155,7 @@
 
                 <span class="material-symbols-outlined text-[18px]">logout</span>
 
-                <span class="oc-sidebar-signout-text">Sign out</span>
+                <span class="bre-sidebar-signout-text">Sign out</span>
 
             </button>
 

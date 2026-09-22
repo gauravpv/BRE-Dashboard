@@ -2,7 +2,7 @@
 
 spring:
   datasource:
-    url: jdbc:h2:file:./data/opsconsole;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=10000
+    url: jdbc:h2:file:./data/bre-dashboard;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=10000
     driver-class-name: org.h2.Driver
     username: sa
     password:
@@ -17,7 +17,7 @@ spring:
   thymeleaf:
     cache: false
 
-opsconsole:
+bredashboard:
   auth:
     seed-dev-users: true
   health:

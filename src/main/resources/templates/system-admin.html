@@ -7,7 +7,7 @@
 .config-drawer { transition: transform 0.3s ease, opacity 0.3s ease; }
 </style>
 </head>
-<body class="opsconsole-app bg-background text-on-background font-body-md overflow-hidden">
+<body class="bre-dashboard-app bg-background text-on-background font-body-md overflow-hidden">
 <div class="flex h-screen w-full">
 <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
 <main class="ml-[240px] flex-1 flex flex-col h-screen overflow-hidden bg-background">
@@ -36,7 +36,7 @@
 </div>
 </div>
 <div class="rounded-xl border border-outline-variant bg-surface-container-low p-unit-lg text-on-surface-variant font-body-md" th:if="${#lists.isEmpty(servers)}">
-No managed servers configured. Add entries under <code class="text-secondary-fixed-dim">opsconsole.admin.servers</code> in application.yml.
+No managed servers configured. Add entries under <code class="text-secondary-fixed-dim">bredashboard.admin.servers</code> in application.yml.
 </div>
 <div class="grid grid-cols-12 gap-unit-lg" id="servicePanel" th:if="${selectedService != null}">
 <div class="col-span-12 lg:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-lg flex flex-col gap-unit-lg overflow-hidden relative">
@@ -131,7 +131,7 @@ No managed servers configured. Add entries under <code class="text-secondary-fix
 <span class="font-body-md text-body-md text-on-surface" th:text="${log.actorDisplayName}">operator</span>
 </td>
 <td class="px-unit-lg py-3">
-<span class="font-body-md text-body-md font-medium text-on-surface" th:text="${T(com.opsconsole.admin.util.AdminActionLabels).label(log.action)}">Action</span>
+<span class="font-body-md text-body-md font-medium text-on-surface" th:text="${T(com.bredashboard.admin.util.AdminActionLabels).label(log.action)}">Action</span>
 </td>
 <td class="px-unit-lg py-3">
 <span class="font-body-sm text-body-sm text-on-surface-variant" th:text="${log.serviceName}">service</span>

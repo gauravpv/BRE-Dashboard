@@ -9,7 +9,7 @@
     #drawerOverlay.open { pointer-events: auto; opacity: 1; }
 </style>
 </head>
-<body class="opsconsole-app bg-background text-on-background font-body-md overflow-hidden">
+<body class="bre-dashboard-app bg-background text-on-background font-body-md overflow-hidden">
 <div class="flex h-screen overflow-hidden">
 <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
 <main class="flex-1 flex flex-col ml-[240px] h-screen overflow-hidden bg-background">
@@ -73,12 +73,12 @@ Add user
 <span class="font-body-md text-body-md text-on-surface truncate block" th:text="${u.email}">email</span>
 </td>
 <td class="px-4 py-3 align-middle">
-<span th:class="${u.role.code == 'ADMIN' or u.role.name == 'Administrator'} ? 'inline-block px-2.5 py-0.5 rounded-full oc-badge-admin font-label-md text-label-md whitespace-nowrap' : 'inline-block px-2.5 py-0.5 rounded-full bg-surface-container-low text-on-surface-variant border border-outline-variant font-label-md text-label-md whitespace-nowrap'"
+<span th:class="${u.role.code == 'ADMIN' or u.role.name == 'Administrator'} ? 'inline-block px-2.5 py-0.5 rounded-full bre-badge-admin font-label-md text-label-md whitespace-nowrap' : 'inline-block px-2.5 py-0.5 rounded-full bg-surface-container-low text-on-surface-variant border border-outline-variant font-label-md text-label-md whitespace-nowrap'"
       th:text="${u.role.name}">Role</span>
 </td>
 <td class="px-4 py-3 align-middle">
 <div class="flex items-center gap-2 whitespace-nowrap">
-<span th:class="${u.accountStatus.name() == 'ACTIVE' ? 'w-2 h-2 rounded-full oc-status-dot-active shrink-0' : (u.accountStatus.name() == 'PENDING' ? 'w-2 h-2 rounded-full bg-tertiary shrink-0' : 'w-2 h-2 rounded-full bg-error shrink-0')}"></span>
+<span th:class="${u.accountStatus.name() == 'ACTIVE' ? 'w-2 h-2 rounded-full bre-status-dot-active shrink-0' : (u.accountStatus.name() == 'PENDING' ? 'w-2 h-2 rounded-full bg-tertiary shrink-0' : 'w-2 h-2 rounded-full bg-error shrink-0')}"></span>
 <span class="font-body-sm text-body-sm text-on-surface" th:text="${#strings.capitalize(#strings.toLowerCase(u.accountStatus.name()))}">Active</span>
 </div>
 </td>

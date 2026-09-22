@@ -4,7 +4,7 @@ This file provides guidance to agents when working with code in this repository.
 
 ## Stack
 - Java 17, Spring Boot 3.4.5, Thymeleaf, Spring Security, Spring Data JPA
-- H2 embedded file DB (`./data/opsconsole`) in dev; in-memory H2 (`MODE=PostgreSQL`) in tests
+- H2 embedded file DB (`./data/bre-dashboard`) in dev; in-memory H2 (`MODE=PostgreSQL`) in tests
 - No external build plugins beyond `spring-boot-maven-plugin`
 
 ## Commands
@@ -37,7 +37,7 @@ H2 persists `@Enumerated` columns as ENUM types. When `AppTab` gains a new const
 These are parallel classes, not a hierarchy. Services have separate `evaluateUatWatchlist` / `evaluateProdWatchlist` / `check` / `checkProd` pairs. Always keep both in sync when changing host-related logic.
 
 ### Auth modes
-`opsconsole.auth.mode` is `dev` (email/password) or `azure` (Microsoft-only). Set `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_CLIENT_SECRET` to enable `/oauth2/authorization/azure`. Redirect URI is `{baseUrl}/login/oauth2/code/azure`.
+`bredashboard.auth.mode` is `dev` (email/password) or `azure` (Microsoft-only). Set `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_CLIENT_SECRET` to enable `/oauth2/authorization/azure`. Redirect URI is `{baseUrl}/login/oauth2/code/azure`.
 
 ### Navigation access control
 `NavAccessInterceptor` enforces tab access by matching request paths to `AppTab` enum values. Adding a new page requires adding a corresponding `AppTab` constant — access is denied for any tab not present in the enum.
@@ -50,11 +50,11 @@ These are parallel classes, not a hierarchy. Services have separate `evaluateUat
 - Integration/controller tests use `@SpringBootTest` + `@AutoConfigureMockMvc` / `@DataJpaTest`
 - `src/test/resources/application.yml` overrides: disables model-hub, uses in-memory H2 with `create-drop` DDL
 - Parser tests for Model Hub JSON live under `src/test/resources/modelhub/`
-- Test classes live in the same sub-package as the source class (e.g., `com.opsconsole.health`) not in a mirrored path
+- Test classes live in the same sub-package as the source class (e.g., `com.bredashboard.health`) not in a mirrored path
 
 ## Module layout
 ```
-com.opsconsole.
+com.bredashboard.
   activity/      — system activity feed (events, log)
   admin/         — SSH-based service admin (start/stop/restart, properties edit)
   auth/          — login, Entra OIDC, roles, user admin, sessions
