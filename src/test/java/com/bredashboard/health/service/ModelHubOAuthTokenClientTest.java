@@ -81,7 +81,7 @@ class ModelHubOAuthTokenClientTest {
     void getAccessToken_failsWhenCredentialsMissing() {
         assertThatThrownBy(client::getAccessToken)
                 .isInstanceOf(ModelHubOAuthTokenClient.ModelHubOAuthException.class)
-                .hasMessageContaining("bredashboard.health.model-hub.oauth");
+                .hasMessageContaining("MODELHUB_OAUTH_USERNAME");
     }
 
     @Test
@@ -90,6 +90,6 @@ class ModelHubOAuthTokenClientTest {
 
         assertThatThrownBy(client::getAccessToken)
                 .isInstanceOf(ModelHubOAuthTokenClient.ModelHubOAuthException.class)
-                .hasMessageContaining("bredashboard.health.model-hub.oauth");
+                .hasMessageContaining("MODELHUB_OAUTH_USERNAME");
     }
 }

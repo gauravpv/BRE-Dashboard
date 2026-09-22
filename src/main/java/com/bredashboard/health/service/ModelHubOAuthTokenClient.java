@@ -57,8 +57,9 @@ public class ModelHubOAuthTokenClient {
         HealthProperties.OAuth oauth = oauthConfig();
         if (!StringUtils.hasText(oauth.getUsername()) || !StringUtils.hasText(oauth.getPassword())) {
             throw new ModelHubOAuthException(
-                    "Model Hub OAuth username and password must be set in "
-                            + "bredashboard.health.model-hub.oauth");
+                    "Model Hub OAuth username and password must be set via "
+                            + "MODELHUB_OAUTH_USERNAME / MODELHUB_OAUTH_PASSWORD "
+                            + "(bredashboard.health.model-hub.oauth)");
         }
     }
 

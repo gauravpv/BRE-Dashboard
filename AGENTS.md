@@ -37,7 +37,7 @@ H2 persists `@Enumerated` columns as ENUM types. When `AppTab` gains a new const
 These are parallel classes, not a hierarchy. Services have separate `evaluateUatWatchlist` / `evaluateProdWatchlist` / `check` / `checkProd` pairs. Always keep both in sync when changing host-related logic.
 
 ### Auth modes
-`bredashboard.auth.mode` is `dev` (email/password) or `azure` (Microsoft-only). Set `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_CLIENT_SECRET` to enable `/oauth2/authorization/azure`. Redirect URI is `{baseUrl}/login/oauth2/code/azure`.
+`bredashboard.auth.mode` is `dev` (email/password) or `azure` (Microsoft-only). Entra app properties (`AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_CLIENT_SECRET`) are bound only in `application-prod.yml`. Use `SPRING_PROFILES_ACTIVE=prod` and optionally `BRE_DASHBOARD_AUTH_MODE=azure`. Redirect URI is `{baseUrl}/login/oauth2/code/azure`.
 
 ### Navigation access control
 `NavAccessInterceptor` enforces tab access by matching request paths to `AppTab` enum values. Adding a new page requires adding a corresponding `AppTab` constant — access is denied for any tab not present in the enum.

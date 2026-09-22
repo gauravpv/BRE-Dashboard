@@ -35,12 +35,15 @@ server:
 bredashboard:
   auth:
     seed-dev-users: false
+    # Entra app registration is production-only. Password login stays until BRE_DASHBOARD_AUTH_MODE=azure.
+    mode: ${BRE_DASHBOARD_AUTH_MODE:dev}
+    azure:
+      client-id: ${AZURE_CLIENT_ID:}
+      client-secret: ${AZURE_CLIENT_SECRET:}
+      tenant-id: ${AZURE_TENANT_ID:}
   health:
     model-hub:
       enabled: true
-      oauth:
-        username: ""
-        password: ""
       uat:
         base-url: https://emicardbre.bajajfinserv.in
         base-urls:

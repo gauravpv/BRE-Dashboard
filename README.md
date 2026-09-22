@@ -31,7 +31,7 @@ Local profile still seeds `admin@bredashboard.local` / `Admin@123` for developer
 
 ## Run UAT / PROD
 
-See [deploy/README.md](deploy/README.md) for SQL scripts and environment variables.
+See [deploy/README.md](deploy/README.md) for SQL scripts and environment variables. The JAR already contains the YAML; do not copy `application*.yml` onto the server. Set `MODELHUB_OAUTH_USERNAME` and `MODELHUB_OAUTH_PASSWORD` for Model Hub.
 
 ```bash
 # After creating the BRE Dashboard MySQL database

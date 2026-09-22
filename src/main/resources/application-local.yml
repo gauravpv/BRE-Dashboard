@@ -23,8 +23,5 @@ bredashboard:
   health:
     model-hub:
       enabled: true
-      oauth:
-        username: ""
-        password: ""
   admin:
     mode: live

@@ -65,17 +65,13 @@ bredashboard:
     otp-table: transaction_details_srcreq_otp
     refresh-seconds: 60
   auth:
-    # Form login until SPRING_PROFILES_ACTIVE includes azure (see application-azure.yml).
+    # Form login by default. Production sets Entra in application-prod.yml only.
     mode: ${BRE_DASHBOARD_AUTH_MODE:dev}
     default-role-code: MONITORING
     seed-dev-users: false
     bootstrap-email: ${BRE_DASHBOARD_BOOTSTRAP_EMAIL:}
     bootstrap-password: ${BRE_DASHBOARD_BOOTSTRAP_PASSWORD:}
     bootstrap-display-name: ${BRE_DASHBOARD_BOOTSTRAP_DISPLAY_NAME:Administrator}
-    azure:
-      client-id: ${AZURE_CLIENT_ID:}
-      client-secret: ${AZURE_CLIENT_SECRET:}
-      tenant-id: ${AZURE_TENANT_ID:}
   health:
     refresh-seconds: 30
     refresh-interval-ms: 30000
@@ -88,8 +84,8 @@ bredashboard:
         token-url: https://login.microsoftonline.com/710de1d3-2901-4647-89e7-3b01f1c2806d/oauth2/v2.0/token
         client-id: ${MODELHUB_OAUTH_CLIENT_ID:91becc5d-213e-4d9b-b0dc-e481c31fde4c}
         grant-type: password
-        username: ""
-        password: ""
+        username: ${MODELHUB_OAUTH_USERNAME:}
+        password: ${MODELHUB_OAUTH_PASSWORD:}
         scope: ${MODELHUB_OAUTH_SCOPE:email openid profile offline_access api://91becc5d-213e-4d9b-b0dc-e481c31fde4c/default}
       uat:
         base-url: https://emicardbre.bajajfinserv.in
@@ -171,5 +167,4 @@ bredashboard:
       command-timeout-ms: 60000
     servers: []
 
-# Entra/ADID: set AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_CLIENT_SECRET.
-# That enables Sign in with Microsoft. Add profile azure only to hide password login.
+# Entra/ADID lives on the prod profile only (application-prod.yml + AZURE_* env vars).

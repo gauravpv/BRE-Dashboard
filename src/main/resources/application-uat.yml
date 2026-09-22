@@ -24,9 +24,6 @@ bredashboard:
   health:
     model-hub:
       enabled: true
-      oauth:
-        username: ""
-        password: ""
       uat:
         base-url: https://emicardbre.bajajfinserv.in
         base-urls:

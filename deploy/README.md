@@ -65,10 +65,11 @@ The app never writes to that database. If `TXN_DB_URL` is unset, the page shows 
 
 | Variable | Purpose |
 |----------|---------|
-| `SPRING_PROFILES_ACTIVE` | `uat` or `prod`. Add `,azure` to enable Microsoft Entra login |
-| `AZURE_CLIENT_ID` | Entra app (web) client id — dashboard login only, not Model Hub |
-| `AZURE_TENANT_ID` | Entra tenant id |
-| `AZURE_CLIENT_SECRET` | Entra app client secret |
+| `SPRING_PROFILES_ACTIVE` | `uat` or `prod`. Entra login is wired only on `prod` |
+| `AZURE_CLIENT_ID` | Entra app (web) client id — **prod only**, not Model Hub |
+| `AZURE_TENANT_ID` | Entra tenant id (**prod only**) |
+| `AZURE_CLIENT_SECRET` | Entra app client secret (**prod only**) |
+| `BRE_DASHBOARD_AUTH_MODE` | `dev` (password login, default) or `azure` (Microsoft-only). Used on prod after Entra is live |
 | `BRE_DASHBOARD_DB_URL` | `jdbc:mysql://HOST:3306/bre_dashboard?useSSL=true&allowPublicKeyRetrieval=true&serverTimezone=UTC` |
 | `BRE_DASHBOARD_DB_USERNAME` | `bre_dashboard` |
 | `BRE_DASHBOARD_DB_PASSWORD` | BRE Dashboard application schema password |
@@ -84,9 +85,13 @@ The app never writes to that database. If `TXN_DB_URL` is unset, the page shows 
 | `BRE_DASHBOARD_BOOTSTRAP_EMAIL` | first Administrator email (created only if no admin exists) |
 | `BRE_DASHBOARD_BOOTSTRAP_PASSWORD` | first Administrator password (min 8 chars) |
 | `BRE_DASHBOARD_SSH_KEY_PATH` | private key for live SSH admin |
+| `MODELHUB_OAUTH_USERNAME` | Azure AD account used to obtain the Model Hub bearer token |
+| `MODELHUB_OAUTH_PASSWORD` | password for that Model Hub OAuth account |
 | `BAJAJ_UAT_*` / `BAJAJ_PROD_*` | encryption keys, IV, Authorization, source, tokens |
 | `BRE_DASHBOARD_SESSION_SECURE` | `true` behind HTTPS (prod profile already sets the cookie Secure flag) |
 | `BRE_DASHBOARD_SESSION_TIMEOUT` | inactivity timeout; defaults to `30m` |
+
+YAML files are already inside the JAR. Copy **no** `application*.yml` onto the server unless you want a thin overlay for secrets. Do not copy `application-local.yml`. Optional extra files beside the JAR: `dashboard.p12` (if Tomcat terminates TLS) and the SSH private key (if live SSH admin is used).
 
 ## 4. Dashboard certificate
 
@@ -100,29 +105,24 @@ Check the certificate the app will present:
 keytool -list -v -keystore /path/dashboard.p12 -storetype PKCS12
 ```
 
-Fill `bredashboard.health.model-hub.oauth.username` and `password` in `application-uat.yml` or `application-prod.yml` (Azure AD account used to get the Model Hub bearer token).
-
 ## 5. Start the app
 
 ```bash
-# UAT (password login)
+# UAT (password login; Entra is not configured on this profile)
 set SPRING_PROFILES_ACTIVE=uat
-mvn spring-boot:run
+java -jar bre-dashboard-0.0.1-SNAPSHOT.jar
 
-# PROD (password login)
-set SPRING_PROFILES_ACTIVE=prod
-java -jar target/bre-dashboard-0.0.1-SNAPSHOT.jar
-
-# PROD with Microsoft sign-in (password login still available)
+# PROD (password login + Sign in with Microsoft when AZURE_* is set)
 set SPRING_PROFILES_ACTIVE=prod
 set AZURE_CLIENT_ID=...
 set AZURE_TENANT_ID=...
 set AZURE_CLIENT_SECRET=...
-java -jar target/bre-dashboard-0.0.1-SNAPSHOT.jar
+java -jar bre-dashboard-0.0.1-SNAPSHOT.jar
 
 # PROD Microsoft-only (hides email/password)
-set SPRING_PROFILES_ACTIVE=prod,azure
-java -jar target/bre-dashboard-0.0.1-SNAPSHOT.jar
+set SPRING_PROFILES_ACTIVE=prod
+set BRE_DASHBOARD_AUTH_MODE=azure
+java -jar bre-dashboard-0.0.1-SNAPSHOT.jar
 ```
 
 Change the bootstrap password immediately at `/account/password` if you are still on form login.
@@ -139,7 +139,7 @@ This is dashboard sign-in. It is separate from Model Hub `bredashboard.health.mo
 
 2. Enable **ID tokens** on the Web platform. Grant delegated Microsoft Graph permissions **openid**, **profile**, and **email**.
 
-3. Set `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_CLIENT_SECRET`. The login page **Sign in with Microsoft** button then calls `/oauth2/authorization/azure`. You do not need the `azure` Spring profile for that. Add `,azure` only if you want to turn off email/password.
+3. On the **prod** server only, set `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_CLIENT_SECRET`. `SPRING_PROFILES_ACTIVE=prod` is enough; there is no separate `azure` profile. The login page **Sign in with Microsoft** button then calls `/oauth2/authorization/azure`. Set `BRE_DASHBOARD_AUTH_MODE=azure` when you want to turn off email/password. UAT stays on password login.
 
 4. Existing users keep their roles; new Entra users remain Pending until an administrator assigns a role and approves them.
 
