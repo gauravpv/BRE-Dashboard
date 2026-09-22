@@ -31,18 +31,16 @@ Local profile still seeds `admin@bredashboard.local` / `Admin@123` for developer
 
 ## Run UAT / PROD
 
-See [deploy/README.md](deploy/README.md) for SQL scripts and environment variables. The JAR already contains the YAML; do not copy `application*.yml` onto the server. Set `MODELHUB_OAUTH_USERNAME` and `MODELHUB_OAUTH_PASSWORD` for Model Hub.
+See [deploy/README.md](deploy/README.md) for SQL scripts. For UAT/PROD, copy [deploy/server/application.yml](deploy/server/application.yml) (or the UAT template) next to the JAR, fill the values, and run `java -jar` from that folder. No environment variables.
 
 ```bash
-# After creating the BRE Dashboard MySQL database
-SPRING_PROFILES_ACTIVE=uat
-# or
-SPRING_PROFILES_ACTIVE=prod
+# After creating the BRE Dashboard MySQL database, on the server:
+java -jar bre-dashboard-0.0.1-SNAPSHOT.jar
 ```
 
-Set `BRE_DASHBOARD_BOOTSTRAP_EMAIL` and `BRE_DASHBOARD_BOOTSTRAP_PASSWORD` on first boot, then change the password in the UI.
+Fill `bredashboard.auth.bootstrap-email` and `bootstrap-password` in that YAML on first boot, then change the password in the UI.
 
-Live SSH: `bredashboard.admin.mode=live` (default) and `BRE_DASHBOARD_SSH_KEY_PATH`.
+Live SSH: set `bredashboard.admin.ssh.private-key-path` in the same YAML.
 
 ## Tests
 

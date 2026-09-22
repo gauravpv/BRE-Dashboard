@@ -167,4 +167,4 @@ bredashboard:
       command-timeout-ms: 60000
     servers: []
 
-# Entra/ADID lives on the prod profile only (application-prod.yml + AZURE_* env vars).
+# Entra/ADID on prod: fill bredashboard.auth.azure in the YAML next to the JAR (deploy/server/application.yml).

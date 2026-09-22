@@ -1,0 +1,88 @@
+# Copy this file NEXT TO the JAR and fill every CHANGE_ME value.
+# Directory layout:
+#   bre-dashboard-0.0.1-SNAPSHOT.jar
+#   application.yml          (this file, filled in)
+#   dashboard.p12            (only if ssl.enabled is true)
+#   ssh-key                  (only if you use live SSH admin)
+#
+# Start from that directory (no environment variables):
+#   java -jar bre-dashboard-0.0.1-SNAPSHOT.jar
+#
+# Do not commit a filled copy. Do not copy application-local.yml.
+
+spring:
+  profiles:
+    active: prod
+  datasource:
+    url: jdbc:mysql://CHANGE_ME_DB_HOST:3306/bre_dashboard?useSSL=true&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: bre_dashboard
+    password: CHANGE_ME_BRE_DASHBOARD_PASSWORD
+
+server:
+  port: 8443
+  ssl:
+    enabled: true
+    key-store: dashboard.p12
+    key-store-password: CHANGE_ME_P12_PASSWORD
+    key-store-type: PKCS12
+    key-alias: CHANGE_ME_P12_ALIAS
+
+bredashboard:
+  transaction-dashboard:
+    jdbc-url: jdbc:mysql://CHANGE_ME_TXN_HOST:3306/bre_underwriting?useSSL=true&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: CHANGE_ME_TXN_USERNAME
+    password: CHANGE_ME_TXN_PASSWORD
+    schema: bre_underwriting
+  auth:
+    # dev = password login (needed for first Administrator). azure = Microsoft-only.
+    mode: dev
+    bootstrap-email: CHANGE_ME_ADMIN@company.com
+    bootstrap-password: CHANGE_ME_MIN_8_CHARS
+    bootstrap-display-name: Administrator
+    azure:
+      client-id: CHANGE_ME_AZURE_CLIENT_ID
+      client-secret: CHANGE_ME_AZURE_CLIENT_SECRET
+      tenant-id: CHANGE_ME_AZURE_TENANT_ID
+  health:
+    model-hub:
+      oauth:
+        username: CHANGE_ME_MODELHUB_USERNAME
+        password: CHANGE_ME_MODELHUB_PASSWORD
+  bajaj-tester:
+    uat:
+      encryption-key: CHANGE_ME
+      encryption-iv: CHANGE_ME
+      headers:
+        Authorization: CHANGE_ME
+        source: CHANGE_ME
+        token: CHANGE_ME
+        additionalinfo1: CHANGE_ME
+        subscriptionid: CHANGE_ME
+      request-body:
+        channel: CHANGE_ME
+        appversion: CHANGE_ME
+        deviceId: CHANGE_ME
+      token-request-body:
+        deviceId: CHANGE_ME
+        username: CHANGE_ME
+        password: CHANGE_ME
+    prod:
+      encryption-key: CHANGE_ME
+      encryption-iv: CHANGE_ME
+      headers:
+        Authorization: CHANGE_ME
+        source: CHANGE_ME
+        token: CHANGE_ME
+        additionalinfo1: CHANGE_ME
+        subscriptionid: CHANGE_ME
+      request-body:
+        channel: CHANGE_ME
+        appversion: CHANGE_ME
+        deviceId: CHANGE_ME
+      token-request-body:
+        deviceId: CHANGE_ME
+        username: CHANGE_ME
+        password: CHANGE_ME
+  admin:
+    ssh:
+      private-key-path: ssh-key
