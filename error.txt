@@ -1,239 +1,67 @@
-The last packet sent successfully to the server was 0 milliseconds ago. The driver has not received any packets from the server.] [n/a]
-        at org.hibernate.exception.internal.SQLStateConversionDelegate.convert(SQLStateConversionDelegate.java:100) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.exception.internal.StandardSQLExceptionConverter.convert(StandardSQLExceptionConverter.java:58) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.engine.jdbc.spi.SqlExceptionHelper.convert(SqlExceptionHelper.java:108) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.engine.jdbc.spi.SqlExceptionHelper.convert(SqlExceptionHelper.java:94) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.resource.transaction.backend.jdbc.internal.JdbcIsolationDelegate.delegateWork(JdbcIsolationDelegate.java:116) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.getJdbcEnvironmentUsingJdbcMetadata(JdbcEnvironmentInitiator.java:320) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.initiateService(JdbcEnvironmentInitiator.java:129) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.initiateService(JdbcEnvironmentInitiator.java:81) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.boot.registry.internal.StandardServiceRegistryImpl.initiateService(StandardServiceRegistryImpl.java:130) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.service.internal.AbstractServiceRegistryImpl.createService(AbstractServiceRegistryImpl.java:263) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.service.internal.AbstractServiceRegistryImpl.initializeService(AbstractServiceRegistryImpl.java:238) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.service.internal.AbstractServiceRegistryImpl.getService(AbstractServiceRegistryImpl.java:215) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.boot.model.relational.Database.<init>(Database.java:45) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.boot.internal.InFlightMetadataCollectorImpl.getDatabase(InFlightMetadataCollectorImpl.java:226) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.boot.internal.InFlightMetadataCollectorImpl.<init>(InFlightMetadataCollectorImpl.java:194) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.boot.model.process.spi.MetadataBuildingProcess.complete(MetadataBuildingProcess.java:171) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.metadata(EntityManagerFactoryBuilderImpl.java:1442) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1513) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:66) ~[spring-orm-6.2.6.jar!/:6.2.6]
-        at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:390) ~[spring-orm-6.2.6.jar!/:6.2.6]
-        at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:419) ~[spring-orm-6.2.6.jar!/:6.2.6]
-        at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:400) ~[spring-orm-6.2.6.jar!/:6.2.6]
-        at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:366) ~[spring-orm-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1865) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1814) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:607) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.BeanDefinitionValueResolver.resolveReference(BeanDefinitionValueResolver.java:365) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.BeanDefinitionValueResolver.resolveValueIfNecessary(BeanDefinitionValueResolver.java:135) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.ConstructorResolver.resolveConstructorArguments(ConstructorResolver.java:691) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.ConstructorResolver.instantiateUsingFactoryMethod(ConstructorResolver.java:513) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateUsingFactoryMethod(AbstractAutowireCapableBeanFactory.java:1367) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1197) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:569) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.BeanDefinitionValueResolver.resolveReference(BeanDefinitionValueResolver.java:365) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.BeanDefinitionValueResolver.resolveValueIfNecessary(BeanDefinitionValueResolver.java:135) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.applyPropertyValues(AbstractAutowireCapableBeanFactory.java:1717) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1466) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:606) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:254) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1739) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1627) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:913) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:791) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:240) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1387) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1224) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:569) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:254) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1739) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1627) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:913) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:791) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:240) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1387) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1224) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:569) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:254) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1739) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1627) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:913) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:791) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:240) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1387) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1224) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:569) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.ConstructorResolver.instantiateUsingFactoryMethod(ConstructorResolver.java:413) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateUsingFactoryMethod(AbstractAutowireCapableBeanFactory.java:1367) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1197) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:569) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:207) ~[spring-beans-6.2.6.jar!/:6.2.6]
-        at org.springframework.boot.web.servlet.ServletContextInitializerBeans.getOrderedBeansOfType(ServletContextInitializerBeans.java:211) ~[spring-boot-3.4.5.jar!/:3.4.5]
-        at org.springframework.boot.web.servlet.ServletContextInitializerBeans.addAsRegistrationBean(ServletContextInitializerBeans.java:174) ~[spring-boot-3.4.5.jar!/:3.4.5]
-        at org.springframework.boot.web.servlet.ServletContextInitializerBeans.addAdaptableBeans(ServletContextInitializerBeans.java:156) ~[spring-boot-3.4.5.jar!/:3.4.5]
-        at org.springframework.boot.web.servlet.ServletContextInitializerBeans.<init>(ServletContextInitializerBeans.java:87) ~[spring-boot-3.4.5.jar!/:3.4.5]
-        at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.getServletContextInitializerBeans(ServletWebServerApplicationContext.java:271) ~[spring-boot-3.4.5.jar!/:3.4.5]
-        at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.selfInitialize(ServletWebServerApplicationContext.java:245) ~[spring-boot-3.4.5.jar!/:3.4.5]
-        at org.springframework.boot.web.embedded.tomcat.TomcatStarter.onStartup(TomcatStarter.java:52) ~[spring-boot-3.4.5.jar!/:3.4.5]
-        at org.apache.catalina.core.StandardContext.startInternal(StandardContext.java:4464) ~[tomcat-embed-core-10.1.40.jar!/:na]
-        at org.apache.catalina.util.LifecycleBase.start(LifecycleBase.java:164) ~[tomcat-embed-core-10.1.40.jar!/:na]
-        at org.apache.catalina.core.ContainerBase$StartChild.call(ContainerBase.java:1203) ~[tomcat-embed-core-10.1.40.jar!/:na]
-        at org.apache.catalina.core.ContainerBase$StartChild.call(ContainerBase.java:1193) ~[tomcat-embed-core-10.1.40.jar!/:na]
-        at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264) ~[na:na]
-        at org.apache.tomcat.util.threads.InlineExecutorService.execute(InlineExecutorService.java:75) ~[tomcat-embed-core-10.1.40.jar!/:na]
-        at java.base/java.util.concurrent.AbstractExecutorService.submit(AbstractExecutorService.java:145) ~[na:na]
-        at org.apache.catalina.core.ContainerBase.startInternal(ContainerBase.java:749) ~[tomcat-embed-core-10.1.40.jar!/:na]
-        at org.apache.catalina.core.StandardHost.startInternal(StandardHost.java:772) ~[tomcat-embed-core-10.1.40.jar!/:na]
-        at org.apache.catalina.util.LifecycleBase.start(LifecycleBase.java:164) ~[tomcat-embed-core-10.1.40.jar!/:na]
-        at org.apache.catalina.core.ContainerBase$StartChild.call(ContainerBase.java:1203) ~[tomcat-embed-core-10.1.40.jar!/:na]
-        at org.apache.catalina.core.ContainerBase$StartChild.call(ContainerBase.java:1193) ~[tomcat-embed-core-10.1.40.jar!/:na]
-        at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264) ~[na:na]
-        at org.apache.tomcat.util.threads.InlineExecutorService.execute(InlineExecutorService.java:75) ~[tomcat-embed-core-10.1.40.jar!/:na]
-        at java.base/java.util.concurrent.AbstractExecutorService.submit(AbstractExecutorService.java:145) ~[na:na]
-        at org.apache.catalina.core.ContainerBase.startInternal(ContainerBase.java:749) ~[tomcat-embed-core-10.1.40.jar!/:na]
-        at org.apache.catalina.core.StandardEngine.startInternal(StandardEngine.java:203) ~[tomcat-embed-core-10.1.40.jar!/:na]
-        at org.apache.catalina.util.LifecycleBase.start(LifecycleBase.java:164) ~[tomcat-embed-core-10.1.40.jar!/:na]
-        at org.apache.catalina.core.StandardService.startInternal(StandardService.java:412) ~[tomcat-embed-core-10.1.40.jar!/:na]
-        at org.apache.catalina.util.LifecycleBase.start(LifecycleBase.java:164) ~[tomcat-embed-core-10.1.40.jar!/:na]
-        at org.apache.catalina.core.StandardServer.startInternal(StandardServer.java:870) ~[tomcat-embed-core-10.1.40.jar!/:na]
-        at org.apache.catalina.util.LifecycleBase.start(LifecycleBase.java:164) ~[tomcat-embed-core-10.1.40.jar!/:na]
-        at org.apache.catalina.startup.Tomcat.start(Tomcat.java:438) ~[tomcat-embed-core-10.1.40.jar!/:na]
-        at org.springframework.boot.web.embedded.tomcat.TomcatWebServer.initialize(TomcatWebServer.java:128) ~[spring-boot-3.4.5.jar!/:3.4.5]
-        at org.springframework.boot.web.embedded.tomcat.TomcatWebServer.<init>(TomcatWebServer.java:107) ~[spring-boot-3.4.5.jar!/:3.4.5]
-        at org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory.getTomcatWebServer(TomcatServletWebServerFactory.java:517) ~[spring-boot-3.4.5.jar!/:3.4.5]
-        at org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory.getWebServer(TomcatServletWebServerFactory.java:219) ~[spring-boot-3.4.5.jar!/:3.4.5]
-        at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.createWebServer(ServletWebServerApplicationContext.java:193) ~[spring-boot-3.4.5.jar!/:3.4.5]
-        at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.onRefresh(ServletWebServerApplicationContext.java:167) ~[spring-boot-3.4.5.jar!/:3.4.5]
-        at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621) ~[spring-context-6.2.6.jar!/:6.2.6]
-        at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.4.5.jar!/:3.4.5]
-        at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:753) ~[spring-boot-3.4.5.jar!/:3.4.5]
-        at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439) ~[spring-boot-3.4.5.jar!/:3.4.5]
-        at org.springframework.boot.SpringApplication.run(SpringApplication.java:318) ~[spring-boot-3.4.5.jar!/:3.4.5]
-        at org.springframework.boot.SpringApplication.run(SpringApplication.java:1362) ~[spring-boot-3.4.5.jar!/:3.4.5]
-        at org.springframework.boot.SpringApplication.run(SpringApplication.java:1351) ~[spring-boot-3.4.5.jar!/:3.4.5]
-        at com.bredashboard.BreDashboardApplication.main(BreDashboardApplication.java:25) ~[!/:0.0.1-SNAPSHOT]
-        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:na]
-        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[na:na]
-        at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:na]
-        at java.base/java.lang.reflect.Method.invoke(Method.java:568) ~[na:na]
-        at org.springframework.boot.loader.launch.Launcher.launch(Launcher.java:102) ~[bre-dashboard-0.0.1-SNAPSHOT.jar:0.0.1-SNAPSHOT]
-        at org.springframework.boot.loader.launch.Launcher.launch(Launcher.java:64) ~[bre-dashboard-0.0.1-SNAPSHOT.jar:0.0.1-SNAPSHOT]
-        at org.springframework.boot.loader.launch.JarLauncher.main(JarLauncher.java:40) ~[bre-dashboard-0.0.1-SNAPSHOT.jar:0.0.1-SNAPSHOT]
-Caused by: com.mysql.cj.jdbc.exceptions.CommunicationsException: Communications link failure
-
-The last packet sent successfully to the server was 0 milliseconds ago. The driver has not received any packets from the server.
-        at com.mysql.cj.jdbc.exceptions.SQLError.createCommunicationsException(SQLError.java:165) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:55) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.mysql.cj.jdbc.ConnectionImpl.createNewIO(ConnectionImpl.java:837) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.mysql.cj.jdbc.ConnectionImpl.<init>(ConnectionImpl.java:420) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.mysql.cj.jdbc.ConnectionImpl.getInstance(ConnectionImpl.java:238) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.mysql.cj.jdbc.NonRegisteringDriver.connect(NonRegisteringDriver.java:180) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:137) ~[HikariCP-5.1.0.jar!/:na]
-        at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:360) ~[HikariCP-5.1.0.jar!/:na]
-        at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:202) ~[HikariCP-5.1.0.jar!/:na]
-        at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:461) ~[HikariCP-5.1.0.jar!/:na]
-        at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:550) ~[HikariCP-5.1.0.jar!/:na]
-        at com.zaxxer.hikari.pool.HikariPool.<init>(HikariPool.java:98) ~[HikariCP-5.1.0.jar!/:na]
-        at com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:111) ~[HikariCP-5.1.0.jar!/:na]
-        at org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl.getConnection(DatasourceConnectionProviderImpl.java:126) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator$ConnectionProviderJdbcConnectionAccess.obtainConnection(JdbcEnvironmentInitiator.java:467) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.resource.transaction.backend.jdbc.internal.JdbcIsolationDelegate.delegateWork(JdbcIsolationDelegate.java:61) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        ... 150 common frames omitted
-Caused by: com.mysql.cj.exceptions.CJCommunicationsException: Communications link failure
-
-The last packet sent successfully to the server was 0 milliseconds ago. The driver has not received any packets from the server.
-        at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method) ~[na:na]
-        at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77) ~[na:na]
-        at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45) ~[na:na]
-        at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499) ~[na:na]
-        at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:480) ~[na:na]
-        at com.mysql.cj.exceptions.ExceptionFactory.createException(ExceptionFactory.java:52) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.mysql.cj.exceptions.ExceptionFactory.createException(ExceptionFactory.java:95) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.mysql.cj.exceptions.ExceptionFactory.createException(ExceptionFactory.java:140) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.mysql.cj.exceptions.ExceptionFactory.createCommunicationsException(ExceptionFactory.java:156) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.mysql.cj.protocol.a.NativeSocketConnection.connect(NativeSocketConnection.java:79) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.mysql.cj.NativeSession.connect(NativeSession.java:142) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.mysql.cj.jdbc.ConnectionImpl.connectOneTryOnly(ConnectionImpl.java:961) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.mysql.cj.jdbc.ConnectionImpl.createNewIO(ConnectionImpl.java:825) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        ... 163 common frames omitted
-Caused by: java.net.SocketTimeoutException: Connect timed out
-        at java.base/sun.nio.ch.NioSocketImpl.timedFinishConnect(NioSocketImpl.java:551) ~[na:na]
-        at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:602) ~[na:na]
-        at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:327) ~[na:na]
-        at java.base/java.net.Socket.connect(Socket.java:633) ~[na:na]
-        at com.mysql.cj.protocol.StandardSocketFactory.connect(StandardSocketFactory.java:144) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.mysql.cj.protocol.a.NativeSocketConnection.connect(NativeSocketConnection.java:53) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        ... 166 common frames omitted
-
-2026-09-23T00:35:48.008+05:30  WARN 2124549 --- [bre-dashboard] [           main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2026-09-23T00:35:48.025+05:30  INFO 2124549 --- [bre-dashboard] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
-        Database JDBC URL [Connecting through datasource 'HikariDataSource (null)']
+2026-09-23T00:39:24.603+05:30  INFO 2125402 --- [bre-dashboard] [           main] c.bredashboard.BreDashboardApplication   : Starting BreDashboardApplication v0.0.1-SNAPSHOT using Java 17.0.20 with PID 2125402 (/prod/BRE_Dashboard/bre-dashboard-0.0.1-SNAPSHOT.jar started by root in /prod/BRE_Dashboard)
+2026-09-23T00:39:24.606+05:30  INFO 2125402 --- [bre-dashboard] [           main] c.bredashboard.BreDashboardApplication   : No active profile set, falling back to 1 default profile: "default"
+2026-09-23T00:39:26.019+05:30  INFO 2125402 --- [bre-dashboard] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-09-23T00:39:26.110+05:30  INFO 2125402 --- [bre-dashboard] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 79 ms. Found 11 JPA repository interfaces.
+2026-09-23T00:39:27.038+05:30  INFO 2125402 --- [bre-dashboard] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 443 (https)
+2026-09-23T00:39:27.067+05:30  INFO 2125402 --- [bre-dashboard] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-23T00:39:27.067+05:30  INFO 2125402 --- [bre-dashboard] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.40]
+2026-09-23T00:39:27.115+05:30  INFO 2125402 --- [bre-dashboard] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-09-23T00:39:27.117+05:30  INFO 2125402 --- [bre-dashboard] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2422 ms
+2026-09-23T00:39:27.548+05:30  INFO 2125402 --- [bre-dashboard] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-09-23T00:39:27.621+05:30  INFO 2125402 --- [bre-dashboard] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.13.Final
+2026-09-23T00:39:27.665+05:30  INFO 2125402 --- [bre-dashboard] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-09-23T00:39:27.999+05:30  INFO 2125402 --- [bre-dashboard] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-09-23T00:39:28.038+05:30  INFO 2125402 --- [bre-dashboard] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-09-23T00:39:28.373+05:30  INFO 2125402 --- [bre-dashboard] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@66a99584
+2026-09-23T00:39:28.375+05:30  INFO 2125402 --- [bre-dashboard] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-09-23T00:39:28.433+05:30  WARN 2125402 --- [bre-dashboard] [           main] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-09-23T00:39:28.456+05:30  INFO 2125402 --- [bre-dashboard] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+        Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
         Database driver: undefined/unknown
-        Database version: 8.0
+        Database version: 8.4.8
         Autocommit mode: undefined/unknown
         Isolation level: undefined/unknown
         Minimum pool size: undefined/unknown
         Maximum pool size: undefined/unknown
-2026-09-23T00:35:48.281+05:30  WARN 2124549 --- [bre-dashboard] [           main] org.hibernate.orm.incubating             : HHH90006001: Encountered incubating setting [hibernate.type.preferred_boolean_jdbc_type].  See javadoc on corresponding `org.hibernate.cfg.AvailableSettings` constant for details.
-2026-09-23T00:35:48.283+05:30  WARN 2124549 --- [bre-dashboard] [           main] org.hibernate.orm.incubating             : HHH90006001: Encountered incubating setting [hibernate.type.preferred_boolean_jdbc_type].  See javadoc on corresponding `org.hibernate.cfg.AvailableSettings` constant for details.
-2026-09-23T00:35:48.284+05:30  WARN 2124549 --- [bre-dashboard] [           main] org.hibernate.orm.incubating             : HHH90006001: Encountered incubating setting [hibernate.type.preferred_boolean_jdbc_type].  See javadoc on corresponding `org.hibernate.cfg.AvailableSettings` constant for details.
-2026-09-23T00:35:48.285+05:30  WARN 2124549 --- [bre-dashboard] [           main] org.hibernate.orm.incubating             : HHH90006001: Encountered incubating setting [hibernate.type.preferred_boolean_jdbc_type].  See javadoc on corresponding `org.hibernate.cfg.AvailableSettings` constant for details.
-2026-09-23T00:35:48.286+05:30  WARN 2124549 --- [bre-dashboard] [           main] org.hibernate.orm.incubating             : HHH90006001: Encountered incubating setting [hibernate.type.preferred_boolean_jdbc_type].  See javadoc on corresponding `org.hibernate.cfg.AvailableSettings` constant for details.
-2026-09-23T00:35:48.286+05:30  WARN 2124549 --- [bre-dashboard] [           main] org.hibernate.orm.incubating             : HHH90006001: Encountered incubating setting [hibernate.type.preferred_boolean_jdbc_type].  See javadoc on corresponding `org.hibernate.cfg.AvailableSettings` constant for details.
-2026-09-23T00:35:48.313+05:30  WARN 2124549 --- [bre-dashboard] [           main] org.hibernate.orm.incubating             : HHH90006001: Encountered incubating setting [hibernate.type.preferred_boolean_jdbc_type].  See javadoc on corresponding `org.hibernate.cfg.AvailableSettings` constant for details.
-2026-09-23T00:35:48.446+05:30  WARN 2124549 --- [bre-dashboard] [           main] org.hibernate.orm.incubating             : HHH90006001: Encountered incubating setting [hibernate.type.preferred_boolean_jdbc_type].  See javadoc on corresponding `org.hibernate.cfg.AvailableSettings` constant for details.
-2026-09-23T00:35:49.183+05:30  WARN 2124549 --- [bre-dashboard] [           main] org.hibernate.orm.incubating             : HHH90006001: Encountered incubating setting [hibernate.type.preferred_boolean_jdbc_type].  See javadoc on corresponding `org.hibernate.cfg.AvailableSettings` constant for details.
-2026-09-23T00:35:49.205+05:30  INFO 2124549 --- [bre-dashboard] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-09-23T00:35:49.225+05:30  INFO 2124549 --- [bre-dashboard] [           main] com.zaxxer.hikari.HikariDataSource       : txn-reporting - Starting...
-2026-09-23T00:36:00.229+05:30  WARN 2124549 --- [bre-dashboard] [           main] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 08S01
-2026-09-23T00:36:00.229+05:30 ERROR 2124549 --- [bre-dashboard] [           main] o.h.engine.jdbc.spi.SqlExceptionHelper   : Communications link failure
-
-The last packet sent successfully to the server was 0 milliseconds ago. The driver has not received any packets from the server.
-2026-09-23T00:36:00.236+05:30 ERROR 2124549 --- [bre-dashboard] [           main] j.LocalContainerEntityManagerFactoryBean : Failed to initialize JPA EntityManagerFactory: [PersistenceUnit: default] Unable to build Hibernate SessionFactory; nested exception is org.hibernate.exception.JDBCConnectionException: Unable to open JDBC Connection for DDL execution [Communications link failure
-
-The last packet sent successfully to the server was 0 milliseconds ago. The driver has not received any packets from the server.] [n/a]
-2026-09-23T00:36:00.237+05:30 ERROR 2124549 --- [bre-dashboard] [           main] o.s.b.web.embedded.tomcat.TomcatStarter  : Error starting Tomcat context. Exception: org.springframework.beans.factory.UnsatisfiedDependencyException. Message: Error creating bean with name 'securityConfig' defined in URL [jar:nested:/prod/BRE_Dashboard/bre-dashboard-0.0.1-SNAPSHOT.jar/!BOOT-INF/classes/!/com/bredashboard/auth/security/SecurityConfig.class]: Unsatisfied dependency expressed through constructor parameter 1: Error creating bean with name 'azureOidcUserService' defined in URL [jar:nested:/prod/BRE_Dashboard/bre-dashboard-0.0.1-SNAPSHOT.jar/!BOOT-INF/classes/!/com/bredashboard/auth/service/AzureOidcUserService.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'userProvisioningService' defined in URL [jar:nested:/prod/BRE_Dashboard/bre-dashboard-0.0.1-SNAPSHOT.jar/!BOOT-INF/classes/!/com/bredashboard/auth/service/UserProvisioningService.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'appUserRepository' defined in com.bredashboard.auth.repository.AppUserRepository defined in @EnableJpaRepositories declared on JpaRepositoriesRegistrar.EnableJpaRepositoriesConfiguration: Cannot resolve reference to bean 'jpaSharedEM_entityManagerFactory' while setting bean property 'entityManager'
-2026-09-23T00:36:00.263+05:30  INFO 2124549 --- [bre-dashboard] [           main] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
-2026-09-23T00:36:00.267+05:30  WARN 2124549 --- [bre-dashboard] [           main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Unable to start web server
-2026-09-23T00:36:00.287+05:30  INFO 2124549 --- [bre-dashboard] [           main] .s.b.a.l.ConditionEvaluationReportLogger :
+2026-09-23T00:39:28.732+05:30  WARN 2125402 --- [bre-dashboard] [           main] org.hibernate.orm.incubating             : HHH90006001: Encountered incubating setting [hibernate.type.preferred_boolean_jdbc_type].  See javadoc on corresponding `org.hibernate.cfg.AvailableSettings` constant for details.
+2026-09-23T00:39:28.734+05:30  WARN 2125402 --- [bre-dashboard] [           main] org.hibernate.orm.incubating             : HHH90006001: Encountered incubating setting [hibernate.type.preferred_boolean_jdbc_type].  See javadoc on corresponding `org.hibernate.cfg.AvailableSettings` constant for details.
+2026-09-23T00:39:28.735+05:30  WARN 2125402 --- [bre-dashboard] [           main] org.hibernate.orm.incubating             : HHH90006001: Encountered incubating setting [hibernate.type.preferred_boolean_jdbc_type].  See javadoc on corresponding `org.hibernate.cfg.AvailableSettings` constant for details.
+2026-09-23T00:39:28.736+05:30  WARN 2125402 --- [bre-dashboard] [           main] org.hibernate.orm.incubating             : HHH90006001: Encountered incubating setting [hibernate.type.preferred_boolean_jdbc_type].  See javadoc on corresponding `org.hibernate.cfg.AvailableSettings` constant for details.
+2026-09-23T00:39:28.737+05:30  WARN 2125402 --- [bre-dashboard] [           main] org.hibernate.orm.incubating             : HHH90006001: Encountered incubating setting [hibernate.type.preferred_boolean_jdbc_type].  See javadoc on corresponding `org.hibernate.cfg.AvailableSettings` constant for details.
+2026-09-23T00:39:28.738+05:30  WARN 2125402 --- [bre-dashboard] [           main] org.hibernate.orm.incubating             : HHH90006001: Encountered incubating setting [hibernate.type.preferred_boolean_jdbc_type].  See javadoc on corresponding `org.hibernate.cfg.AvailableSettings` constant for details.
+2026-09-23T00:39:28.766+05:30  WARN 2125402 --- [bre-dashboard] [           main] org.hibernate.orm.incubating             : HHH90006001: Encountered incubating setting [hibernate.type.preferred_boolean_jdbc_type].  See javadoc on corresponding `org.hibernate.cfg.AvailableSettings` constant for details.
+2026-09-23T00:39:28.904+05:30  WARN 2125402 --- [bre-dashboard] [           main] org.hibernate.orm.incubating             : HHH90006001: Encountered incubating setting [hibernate.type.preferred_boolean_jdbc_type].  See javadoc on corresponding `org.hibernate.cfg.AvailableSettings` constant for details.
+2026-09-23T00:39:29.630+05:30  WARN 2125402 --- [bre-dashboard] [           main] org.hibernate.orm.incubating             : HHH90006001: Encountered incubating setting [hibernate.type.preferred_boolean_jdbc_type].  See javadoc on corresponding `org.hibernate.cfg.AvailableSettings` constant for details.
+2026-09-23T00:39:29.663+05:30  INFO 2125402 --- [bre-dashboard] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-09-23T00:39:29.726+05:30 ERROR 2125402 --- [bre-dashboard] [           main] j.LocalContainerEntityManagerFactoryBean : Failed to initialize JPA EntityManagerFactory: [PersistenceUnit: default] Unable to build Hibernate SessionFactory; nested exception is org.hibernate.tool.schema.spi.SchemaManagementException: Schema-validation: wrong column type encountered in column [system_role] in table [app_roles]; found [bit (Types#BIT)], but expecting [tinyint (Types#TINYINT)]
+2026-09-23T00:39:29.728+05:30 ERROR 2125402 --- [bre-dashboard] [           main] o.s.b.web.embedded.tomcat.TomcatStarter  : Error starting Tomcat context. Exception: org.springframework.beans.factory.UnsatisfiedDependencyException. Message: Error creating bean with name 'securityConfig' defined in URL [jar:nested:/prod/BRE_Dashboard/bre-dashboard-0.0.1-SNAPSHOT.jar/!BOOT-INF/classes/!/com/bredashboard/auth/security/SecurityConfig.class]: Unsatisfied dependency expressed through constructor parameter 1: Error creating bean with name 'azureOidcUserService' defined in URL [jar:nested:/prod/BRE_Dashboard/bre-dashboard-0.0.1-SNAPSHOT.jar/!BOOT-INF/classes/!/com/bredashboard/auth/service/AzureOidcUserService.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'userProvisioningService' defined in URL [jar:nested:/prod/BRE_Dashboard/bre-dashboard-0.0.1-SNAPSHOT.jar/!BOOT-INF/classes/!/com/bredashboard/auth/service/UserProvisioningService.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'appUserRepository' defined in com.bredashboard.auth.repository.AppUserRepository defined in @EnableJpaRepositories declared on JpaRepositoriesRegistrar.EnableJpaRepositoriesConfiguration: Cannot resolve reference to bean 'jpaSharedEM_entityManagerFactory' while setting bean property 'entityManager'
+2026-09-23T00:39:29.755+05:30  INFO 2125402 --- [bre-dashboard] [           main] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2026-09-23T00:39:29.759+05:30  WARN 2125402 --- [bre-dashboard] [           main] o.a.c.loader.WebappClassLoaderBase       : The web application [ROOT] appears to have started a thread named [HikariPool-1 housekeeper] but has failed to stop it. This is very likely to create a memory leak. Stack trace of thread:
+ java.base@17.0.20/jdk.internal.misc.Unsafe.park(Native Method)
+ java.base@17.0.20/java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:252)
+ java.base@17.0.20/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos(AbstractQueuedSynchronizer.java:1672)
+ java.base@17.0.20/java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue.take(ScheduledThreadPoolExecutor.java:1182)
+ java.base@17.0.20/java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue.take(ScheduledThreadPoolExecutor.java:899)
+ java.base@17.0.20/java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1062)
+ java.base@17.0.20/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1122)
+ java.base@17.0.20/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+ java.base@17.0.20/java.lang.Thread.run(Thread.java:842)
+2026-09-23T00:39:29.760+05:30  WARN 2125402 --- [bre-dashboard] [           main] o.a.c.loader.WebappClassLoaderBase       : The web application [ROOT] appears to have started a thread named [HikariPool-1 connection adder] but has failed to stop it. This is very likely to create a memory leak. Stack trace of thread:
+ java.base@17.0.20/jdk.internal.misc.Unsafe.park(Native Method)
+ java.base@17.0.20/java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:252)
+ java.base@17.0.20/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos(AbstractQueuedSynchronizer.java:1672)
+ java.base@17.0.20/java.util.concurrent.LinkedBlockingQueue.poll(LinkedBlockingQueue.java:460)
+ java.base@17.0.20/java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1061)
+ java.base@17.0.20/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1122)
+ java.base@17.0.20/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+ java.base@17.0.20/java.lang.Thread.run(Thread.java:842)
+2026-09-23T00:39:29.763+05:30  WARN 2125402 --- [bre-dashboard] [           main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Unable to start web server
+2026-09-23T00:39:29.763+05:30  INFO 2125402 --- [bre-dashboard] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-09-23T00:39:29.768+05:30  INFO 2125402 --- [bre-dashboard] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-09-23T00:39:29.802+05:30  INFO 2125402 --- [bre-dashboard] [           main] .s.b.a.l.ConditionEvaluationReportLogger :
 
 Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
-2026-09-23T00:36:00.304+05:30 ERROR 2124549 --- [bre-dashboard] [           main] o.s.boot.SpringApplication               : Application run failed
+2026-09-23T00:39:29.820+05:30 ERROR 2125402 --- [bre-dashboard] [           main] o.s.boot.SpringApplication               : Application run failed
 
 org.springframework.context.ApplicationContextException: Unable to start web server
         at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.onRefresh(ServletWebServerApplicationContext.java:170) ~[spring-boot-3.4.5.jar!/:3.4.5]
@@ -378,9 +206,7 @@ Caused by: org.springframework.beans.factory.BeanCreationException: Error creati
         at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202) ~[spring-beans-6.2.6.jar!/:6.2.6]
         at org.springframework.beans.factory.support.BeanDefinitionValueResolver.resolveReference(BeanDefinitionValueResolver.java:365) ~[spring-beans-6.2.6.jar!/:6.2.6]
         ... 111 common frames omitted
-Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: [PersistenceUnit: default] Unable to build Hibernate SessionFactory; nested exception is org.hibernate.exception.JDBCConnectionException: Unable to open JDBC Connection for DDL execution [Communications link failure
-
-The last packet sent successfully to the server was 0 milliseconds ago. The driver has not received any packets from the server.] [n/a]
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: [PersistenceUnit: default] Unable to build Hibernate SessionFactory; nested exception is org.hibernate.tool.schema.spi.SchemaManagementException: Schema-validation: wrong column type encountered in column [system_role] in table [app_roles]; found [bit (Types#BIT)], but expecting [tinyint (Types#TINYINT)]
         at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1818) ~[spring-beans-6.2.6.jar!/:6.2.6]
         at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:607) ~[spring-beans-6.2.6.jar!/:6.2.6]
         at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529) ~[spring-beans-6.2.6.jar!/:6.2.6]
@@ -390,30 +216,17 @@ The last packet sent successfully to the server was 0 milliseconds ago. The driv
         at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202) ~[spring-beans-6.2.6.jar!/:6.2.6]
         at org.springframework.beans.factory.support.BeanDefinitionValueResolver.resolveReference(BeanDefinitionValueResolver.java:365) ~[spring-beans-6.2.6.jar!/:6.2.6]
         ... 123 common frames omitted
-Caused by: jakarta.persistence.PersistenceException: [PersistenceUnit: default] Unable to build Hibernate SessionFactory; nested exception is org.hibernate.exception.JDBCConnectionException: Unable to open JDBC Connection for DDL execution [Communications link failure
-
-The last packet sent successfully to the server was 0 milliseconds ago. The driver has not received any packets from the server.] [n/a]
+Caused by: jakarta.persistence.PersistenceException: [PersistenceUnit: default] Unable to build Hibernate SessionFactory; nested exception is org.hibernate.tool.schema.spi.SchemaManagementException: Schema-validation: wrong column type encountered in column [system_role] in table [app_roles]; found [bit (Types#BIT)], but expecting [tinyint (Types#TINYINT)]
         at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:431) ~[spring-orm-6.2.6.jar!/:6.2.6]
         at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:400) ~[spring-orm-6.2.6.jar!/:6.2.6]
         at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:366) ~[spring-orm-6.2.6.jar!/:6.2.6]
         at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1865) ~[spring-beans-6.2.6.jar!/:6.2.6]
         at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1814) ~[spring-beans-6.2.6.jar!/:6.2.6]
         ... 130 common frames omitted
-Caused by: org.hibernate.exception.JDBCConnectionException: Unable to open JDBC Connection for DDL execution [Communications link failure
-
-The last packet sent successfully to the server was 0 milliseconds ago. The driver has not received any packets from the server.] [n/a]
-        at org.hibernate.exception.internal.SQLStateConversionDelegate.convert(SQLStateConversionDelegate.java:100) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.exception.internal.StandardSQLExceptionConverter.convert(StandardSQLExceptionConverter.java:58) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.engine.jdbc.spi.SqlExceptionHelper.convert(SqlExceptionHelper.java:108) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.engine.jdbc.spi.SqlExceptionHelper.convert(SqlExceptionHelper.java:94) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.resource.transaction.backend.jdbc.internal.DdlTransactionIsolatorNonJtaImpl.getIsolatedConnection(DdlTransactionIsolatorNonJtaImpl.java:74) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.resource.transaction.backend.jdbc.internal.DdlTransactionIsolatorNonJtaImpl.getIsolatedConnection(DdlTransactionIsolatorNonJtaImpl.java:39) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.tool.schema.internal.exec.ImprovedExtractionContextImpl.getJdbcConnection(ImprovedExtractionContextImpl.java:63) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.tool.schema.internal.exec.ImprovedExtractionContextImpl.getJdbcDatabaseMetaData(ImprovedExtractionContextImpl.java:70) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.tool.schema.extract.internal.InformationExtractorJdbcDatabaseMetaDataImpl.processTableResultSet(InformationExtractorJdbcDatabaseMetaDataImpl.java:65) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.tool.schema.extract.internal.AbstractInformationExtractorImpl.getTables(AbstractInformationExtractorImpl.java:570) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.tool.schema.extract.internal.DatabaseInformationImpl.getTablesInformation(DatabaseInformationImpl.java:122) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.tool.schema.internal.GroupedSchemaValidatorImpl.validateTables(GroupedSchemaValidatorImpl.java:41) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
+Caused by: org.hibernate.tool.schema.spi.SchemaManagementException: Schema-validation: wrong column type encountered in column [system_role] in table [app_roles]; found [bit (Types#BIT)], but expecting [tinyint (Types#TINYINT)]
+        at org.hibernate.tool.schema.internal.AbstractSchemaValidator.validateColumnType(AbstractSchemaValidator.java:169) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
+        at org.hibernate.tool.schema.internal.AbstractSchemaValidator.validateTable(AbstractSchemaValidator.java:156) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
+        at org.hibernate.tool.schema.internal.GroupedSchemaValidatorImpl.validateTables(GroupedSchemaValidatorImpl.java:46) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
         at org.hibernate.tool.schema.internal.AbstractSchemaValidator.performValidation(AbstractSchemaValidator.java:99) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
         at org.hibernate.tool.schema.internal.AbstractSchemaValidator.doValidation(AbstractSchemaValidator.java:77) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
         at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.performDatabaseAction(SchemaManagementToolCoordinator.java:289) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
@@ -429,50 +242,3 @@ The last packet sent successfully to the server was 0 milliseconds ago. The driv
         at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:390) ~[spring-orm-6.2.6.jar!/:6.2.6]
         at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:419) ~[spring-orm-6.2.6.jar!/:6.2.6]
         ... 134 common frames omitted
-Caused by: com.mysql.cj.jdbc.exceptions.CommunicationsException: Communications link failure
-
-The last packet sent successfully to the server was 0 milliseconds ago. The driver has not received any packets from the server.
-        at com.mysql.cj.jdbc.exceptions.SQLError.createCommunicationsException(SQLError.java:165) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:55) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.mysql.cj.jdbc.ConnectionImpl.createNewIO(ConnectionImpl.java:837) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.mysql.cj.jdbc.ConnectionImpl.<init>(ConnectionImpl.java:420) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.mysql.cj.jdbc.ConnectionImpl.getInstance(ConnectionImpl.java:238) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.mysql.cj.jdbc.NonRegisteringDriver.connect(NonRegisteringDriver.java:180) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:137) ~[HikariCP-5.1.0.jar!/:na]
-        at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:360) ~[HikariCP-5.1.0.jar!/:na]
-        at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:202) ~[HikariCP-5.1.0.jar!/:na]
-        at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:461) ~[HikariCP-5.1.0.jar!/:na]
-        at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:550) ~[HikariCP-5.1.0.jar!/:na]
-        at com.zaxxer.hikari.pool.HikariPool.<init>(HikariPool.java:98) ~[HikariCP-5.1.0.jar!/:na]
-        at com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:111) ~[HikariCP-5.1.0.jar!/:na]
-        at org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl.getConnection(DatasourceConnectionProviderImpl.java:126) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator$ConnectionProviderJdbcConnectionAccess.obtainConnection(JdbcEnvironmentInitiator.java:467) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        at org.hibernate.resource.transaction.backend.jdbc.internal.DdlTransactionIsolatorNonJtaImpl.getIsolatedConnection(DdlTransactionIsolatorNonJtaImpl.java:46) ~[hibernate-core-6.6.13.Final.jar!/:6.6.13.Final]
-        ... 155 common frames omitted
-Caused by: com.mysql.cj.exceptions.CJCommunicationsException: Communications link failure
-
-The last packet sent successfully to the server was 0 milliseconds ago. The driver has not received any packets from the server.
-        at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method) ~[na:na]
-        at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77) ~[na:na]
-        at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45) ~[na:na]
-        at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499) ~[na:na]
-        at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:480) ~[na:na]
-        at com.mysql.cj.exceptions.ExceptionFactory.createException(ExceptionFactory.java:52) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.mysql.cj.exceptions.ExceptionFactory.createException(ExceptionFactory.java:95) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.mysql.cj.exceptions.ExceptionFactory.createException(ExceptionFactory.java:140) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.mysql.cj.exceptions.ExceptionFactory.createCommunicationsException(ExceptionFactory.java:156) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.mysql.cj.protocol.a.NativeSocketConnection.connect(NativeSocketConnection.java:79) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.mysql.cj.NativeSession.connect(NativeSession.java:142) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.mysql.cj.jdbc.ConnectionImpl.connectOneTryOnly(ConnectionImpl.java:961) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.mysql.cj.jdbc.ConnectionImpl.createNewIO(ConnectionImpl.java:825) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        ... 168 common frames omitted
-Caused by: java.net.SocketTimeoutException: Connect timed out
-        at java.base/sun.nio.ch.NioSocketImpl.timedFinishConnect(NioSocketImpl.java:551) ~[na:na]
-        at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:602) ~[na:na]
-        at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:327) ~[na:na]
-        at java.base/java.net.Socket.connect(Socket.java:633) ~[na:na]
-        at com.mysql.cj.protocol.StandardSocketFactory.connect(StandardSocketFactory.java:144) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        at com.mysql.cj.protocol.a.NativeSocketConnection.connect(NativeSocketConnection.java:53) ~[mysql-connector-j-9.1.0.jar!/:9.1.0]
-        ... 171 common frames omitted
-
-[root@AtosBRE-Prd-Wb2 BRE_Dashboard]#
