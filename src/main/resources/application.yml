@@ -2,9 +2,9 @@ spring:
   application:
     name: bre-dashboard
   datasource:
-    url: ${BRE_DASHBOARD_DB_URL:}
-    username: ${BRE_DASHBOARD_DB_USERNAME:}
-    password: ${BRE_DASHBOARD_DB_PASSWORD:}
+    url: jdbc:mysql://localhost:3306/bre_dashboard?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&tinyInt1isBit=false
+    username: root
+    password: password
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 10
@@ -23,27 +23,34 @@ spring:
         type:
           preferred_boolean_jdbc_type: TINYINT
   thymeleaf:
-    cache: false
+    cache: true
   h2:
     console:
       enabled: false
 
+logging:
+  file:
+    path: ${BRE_DASHBOARD_LOG_PATH:logs}
+  level:
+    root: INFO
+    com.bredashboard.tester: DEBUG
+
 server:
-  port: ${SERVER_PORT:8080}
+  port: 8080
   ssl:
     # Server certificate for the dashboard's own hostname (e.g. bflbre-dashboard-prod.bajajfinserv.in).
-    enabled: ${SERVER_SSL_ENABLED:false}
-    key-store: ${SERVER_SSL_KEYSTORE:}
-    key-store-password: ${SERVER_SSL_KEYSTORE_PASSWORD:}
+    enabled: false
+    key-store: 
+    key-store-password: 
     key-store-type: PKCS12
-    key-alias: ${SERVER_SSL_KEY_ALIAS:}
+    key-alias: 
   servlet:
     session:
-      timeout: ${BRE_DASHBOARD_SESSION_TIMEOUT:30m}
+      timeout: 30m
       cookie:
         http-only: true
         same-site: lax
-        secure: ${BRE_DASHBOARD_SESSION_SECURE:false}
+        secure: false
 
 management:
   endpoints:
@@ -56,23 +63,24 @@ management:
 
 bredashboard:
   transaction-dashboard:
-    jdbc-url: ${TXN_DB_URL:}
-    username: ${TXN_DB_USERNAME:}
-    password: ${TXN_DB_PASSWORD:}
-    schema: ${TXN_DB_SCHEMA:bre_underwriting}
+    jdbc-url: jdbc:mysql://localhost:3306/bre_underwriting?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: root
+    password: password
+    schema: bre_underwriting
     minute-view: festival_summary_detailed_mins_new
     hourly-view: festival_summary_detailed_new
     otp-table: transaction_details_srcreq_otp
-    refresh-seconds: 60
+    refresh-seconds: 30
   auth:
     # Form login by default. Production sets Entra in application-prod.yml only.
-    mode: ${BRE_DASHBOARD_AUTH_MODE:dev}
+    mode: dev
     default-role-code: MONITORING
     seed-dev-users: false
-    bootstrap-email: ${BRE_DASHBOARD_BOOTSTRAP_EMAIL:}
-    bootstrap-password: ${BRE_DASHBOARD_BOOTSTRAP_PASSWORD:}
-    bootstrap-display-name: ${BRE_DASHBOARD_BOOTSTRAP_DISPLAY_NAME:Administrator}
+    bootstrap-email: admin@localhost
+    bootstrap-password: Password123!
+    bootstrap-display-name: Administrator
   health:
+    monitored-tiers: [UAT]
     refresh-seconds: 30
     refresh-interval-ms: 30000
     connect-timeout-ms: 3000
@@ -82,11 +90,11 @@ bredashboard:
       enabled: true
       oauth:
         token-url: https://login.microsoftonline.com/710de1d3-2901-4647-89e7-3b01f1c2806d/oauth2/v2.0/token
-        client-id: ${MODELHUB_OAUTH_CLIENT_ID:91becc5d-213e-4d9b-b0dc-e481c31fde4c}
+        client-id: 91becc5d-213e-4d9b-b0dc-e481c31fde4c
         grant-type: password
-        username: ${MODELHUB_OAUTH_USERNAME:}
-        password: ${MODELHUB_OAUTH_PASSWORD:}
-        scope: ${MODELHUB_OAUTH_SCOPE:email openid profile offline_access api://91becc5d-213e-4d9b-b0dc-e481c31fde4c/default}
+        username: modelhub@user
+        password: modelhubpass
+        scope: email openid profile offline_access api://91becc5d-213e-4d9b-b0dc-e481c31fde4c/default
       uat:
         base-url: https://emicardbre.bajajfinserv.in
         base-urls:
@@ -95,74 +103,10 @@ bredashboard:
         base-url: https://emicardbre-prod.bajajfinserv.in
         base-urls:
           - https://bfldaasbre-prod.bajajfinserv.in
-  bajaj-tester:
-    uat:
-      base-url: https://sauat.bajajfinserv.in/apis
-      operation-list-path: operationallist
-      token-path: oauth-token
-      token-ttl-seconds: ${BAJAJ_UAT_TOKEN_TTL_SECONDS:600}
-      # Bajaj rotates hashcode/salt about every 24 hours; reuse the list until then.
-      operation-list-ttl-seconds: ${BAJAJ_UAT_OPERATION_LIST_TTL_SECONDS:86400}
-      # Per-API calls post the ciphertext wrapped in quotes; the list/token calls do not.
-      quote-encrypted-body: true
-      encryption-key: ${BAJAJ_UAT_ENCRYPTION_KEY:}
-      encryption-iv: ${BAJAJ_UAT_ENCRYPTION_IV:}
-      headers:
-        Authorization: ${BAJAJ_UAT_AUTHORIZATION:}
-        connection-from: Upgrade-ws
-        source: ${BAJAJ_UAT_SOURCE:}
-        token: ${BAJAJ_UAT_TOKEN:}
-        additionalinfo5: cbc
-        additionalinfo1: ${BAJAJ_UAT_ADDITIONALINFO1:}
-        subscriptionid: ${BAJAJ_UAT_SUBSCRIPTION_ID:}
-      # Overrides applied to the token call and every API invoke (not the operation list).
-      api-headers:
-        connection-from: rest
-      request-body:
-        channel: ${BAJAJ_UAT_CHANNEL:}
-        appversion: ${BAJAJ_UAT_APPVERSION:}
-        deviceId: ${BAJAJ_UAT_DEVICE_ID:}
-      token-request-body:
-        grant_type: password
-        deviceId: ${BAJAJ_UAT_DEVICE_ID:}
-        channelId: ${BAJAJ_UAT_TOKEN_CHANNEL_ID:740}
-        username: ${BAJAJ_UAT_TOKEN_USERNAME:}
-        passwordType: password
-        password: ${BAJAJ_UAT_TOKEN_PASSWORD:}
-    prod:
-      base-url: https://superapp.bajajfinserv.in/apis
-      operation-list-path: operationallist
-      token-path: oauth-token
-      token-ttl-seconds: ${BAJAJ_PROD_TOKEN_TTL_SECONDS:600}
-      operation-list-ttl-seconds: ${BAJAJ_PROD_OPERATION_LIST_TTL_SECONDS:86400}
-      quote-encrypted-body: true
-      encryption-key: ${BAJAJ_PROD_ENCRYPTION_KEY:}
-      encryption-iv: ${BAJAJ_PROD_ENCRYPTION_IV:}
-      headers:
-        Authorization: ${BAJAJ_PROD_AUTHORIZATION:}
-        connection-from: Upgrade-ws
-        source: ${BAJAJ_PROD_SOURCE:}
-        token: ${BAJAJ_PROD_TOKEN:}
-        additionalinfo5: cbc
-        additionalinfo1: ${BAJAJ_PROD_ADDITIONALINFO1:}
-        subscriptionid: ${BAJAJ_PROD_SUBSCRIPTION_ID:}
-      api-headers:
-        connection-from: rest
-      request-body:
-        channel: ${BAJAJ_PROD_CHANNEL:}
-        appversion: ${BAJAJ_PROD_APPVERSION:}
-        deviceId: ${BAJAJ_PROD_DEVICE_ID:}
-      token-request-body:
-        grant_type: password
-        deviceId: ${BAJAJ_PROD_DEVICE_ID:}
-        channelId: ${BAJAJ_PROD_TOKEN_CHANNEL_ID:740}
-        username: ${BAJAJ_PROD_TOKEN_USERNAME:}
-        passwordType: password
-        password: ${BAJAJ_PROD_TOKEN_PASSWORD:}
   admin:
     mode: live
     ssh:
-      private-key-path: ${BRE_DASHBOARD_SSH_KEY_PATH:}
+      private-key-path: 
       connect-timeout-ms: 10000
       command-timeout-ms: 60000
     servers: []

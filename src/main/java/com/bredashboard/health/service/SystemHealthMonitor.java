@@ -6,6 +6,8 @@ import com.bredashboard.health.domain.HealthDeploymentTier;
 import com.bredashboard.health.domain.HealthStatus;
 import com.bredashboard.health.domain.SystemHealthView;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +17,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class SystemHealthMonitor {
+
+    private static final Logger log = LoggerFactory.getLogger(SystemHealthMonitor.class);
 
     private final MonitoredHostCatalog hostCatalog;
     private final ActuatorHealthService healthService;
@@ -29,6 +35,7 @@ public class SystemHealthMonitor {
     private final HealthHistoryService healthHistoryService;
     private final HealthProperties healthProperties;
     private final Object refreshLock = new Object();
+    private final AtomicBoolean staleRefreshQueued = new AtomicBoolean();
     private final AtomicReference<List<SystemHealthView>> latest =
             new AtomicReference<>(Collections.emptyList());
     private final Map<String, HealthStatus> previousStatuses = new ConcurrentHashMap<>();
@@ -65,8 +72,21 @@ public class SystemHealthMonitor {
     public void refreshIfStale() {
         Instant last = lastRefreshedAt;
         long maxAgeMs = healthProperties.getHealth().getRefreshIntervalMs();
-        if (last == null || Duration.between(last, Instant.now()).toMillis() >= maxAgeMs) {
-            refresh();
+        if ((last == null || Duration.between(last, Instant.now()).toMillis() >= maxAgeMs)
+                && staleRefreshQueued.compareAndSet(false, true)) {
+            CompletableFuture.runAsync(() -> {
+                try {
+                    Instant latestRefresh = lastRefreshedAt;
+                    if (latestRefresh == null
+                            || Duration.between(latestRefresh, Instant.now()).toMillis() >= maxAgeMs) {
+                        refresh();
+                    }
+                } catch (RuntimeException ex) {
+                    log.warn("Background health refresh failed: {}", ex.getMessage());
+                } finally {
+                    staleRefreshQueued.set(false);
+                }
+            });
         }
     }
 
@@ -139,6 +159,10 @@ public class SystemHealthMonitor {
         return latest.get();
     }
 
+    public List<HealthDeploymentTier> monitoredTiers() {
+        return List.of(healthProperties.getHealth().deploymentTier());
+    }
+
     public HealthSummary summary() {
         List<SystemHealthView> systems = latest.get();
         int up = 0;
@@ -170,65 +194,76 @@ public class SystemHealthMonitor {
 
     private List<SystemHealthView> fetchFromModelHub() {
         List<SystemHealthView> results = new ArrayList<>();
-        results.addAll(fetchModelHubTier(HealthDeploymentTier.UAT));
-        results.addAll(fetchModelHubTier(HealthDeploymentTier.PROD));
+        for (HealthDeploymentTier tier : monitoredTiers()) {
+            results.addAll(fetchModelHubTier(tier));
+        }
         return results;
     }
 
     private List<SystemHealthView> fetchModelHubTier(HealthDeploymentTier tier) {
-        try {
-            Instant fetchedAt = Instant.now();
+        Instant fetchedAt = Instant.now();
+        if (tier == HealthDeploymentTier.UAT) {
+            var watchlist = hostCatalog.findEnabledUat();
+            try {
             List<SystemHealthView> instances = modelHubHealthService.fetchAll(tier);
             Map<String, String> tags = modelHubHealthService.environmentTagsById(tier);
-            if (tier == HealthDeploymentTier.UAT) {
-                return modelHubWatchlistService.evaluateUatWatchlist(
-                        hostCatalog.findEnabledUat(),
-                        instances,
-                        tags,
-                        fetchedAt,
-                        tier.id()
-                );
+            return modelHubWatchlistService.evaluateUatWatchlist(
+                watchlist,
+                instances,
+                tags,
+                fetchedAt,
+                tier.id()
+            );
+            } catch (Exception ex) {
+            return modelHubWatchlistService.unavailableUatWatchlist(
+                watchlist,
+                fetchedAt,
+                tier.id(),
+                describeModelHubFailure(ex)
+            );
             }
+        }
+
+        var watchlist = hostCatalog.findEnabledProd();
+        try {
+            List<SystemHealthView> instances = modelHubHealthService.fetchAll(tier);
+            Map<String, String> tags = modelHubHealthService.environmentTagsById(tier);
             return modelHubWatchlistService.evaluateProdWatchlist(
-                    hostCatalog.findEnabledProd(),
+                watchlist,
                     instances,
                     tags,
                     fetchedAt,
                     tier.id()
             );
         } catch (Exception ex) {
-            return List.of(new SystemHealthView(
-                    null,
-                    "Model Hub API (" + tier.id() + ")",
-                    "—",
-                    0,
-                    tier == HealthDeploymentTier.PROD ? "Production" : "UAT",
-                    tier.id(),
-                    HealthStatus.DOWN,
-                    "DOWN",
-                    Instant.now(),
-                    0L,
-                    ex.getMessage(),
-                    null,
-                    null,
-                    0L,
-                    0L,
-                    null,
-                    null,
-                    null,
-                    tier.id()
-            ));
+            return modelHubWatchlistService.unavailableProdWatchlist(
+                watchlist,
+                fetchedAt,
+                tier.id(),
+                describeModelHubFailure(ex)
+            );
         }
     }
 
+        private static String describeModelHubFailure(Exception error) {
+        return error.getMessage() == null || error.getMessage().isBlank()
+            ? error.getClass().getSimpleName()
+            : error.getMessage();
+        }
+
     private List<SystemHealthView> fetchFromActuatorMonitors() {
         List<SystemHealthView> results = new ArrayList<>();
-        hostCatalog.findEnabledUat().parallelStream()
+        List<HealthDeploymentTier> tiers = monitoredTiers();
+        if (tiers.contains(HealthDeploymentTier.UAT)) {
+            results.addAll(hostCatalog.findEnabledUat().parallelStream()
                 .map(host -> healthService.check(host, HealthDeploymentTier.UAT.id()))
-                .forEach(results::add);
-        hostCatalog.findEnabledProd().parallelStream()
+                .toList());
+        }
+        if (tiers.contains(HealthDeploymentTier.PROD)) {
+            results.addAll(hostCatalog.findEnabledProd().parallelStream()
                 .map(host -> healthService.checkProd(host, HealthDeploymentTier.PROD.id()))
-                .forEach(results::add);
+                .toList());
+        }
         return results;
     }
 

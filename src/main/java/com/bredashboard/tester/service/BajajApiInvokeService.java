@@ -8,6 +8,9 @@ import com.bredashboard.tester.dto.BajajInvokeRequest;
 import com.bredashboard.tester.dto.BajajInvokeResponse;
 import com.bredashboard.tester.exception.BajajTesterException;
 import com.bredashboard.tester.util.AesCbcCrypto;
+import com.bredashboard.tester.util.BajajHttpDebugLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -21,6 +24,8 @@ import java.util.Map;
 
 @Service
 public class BajajApiInvokeService {
+
+    private static final Logger log = LoggerFactory.getLogger(BajajApiInvokeService.class);
 
     private final BajajTesterProperties properties;
     private final BajajTokenService tokenService;
@@ -45,12 +50,23 @@ public class BajajApiInvokeService {
         String requestUrl = config.apiUrl(request.publicUrl());
 
         long start = System.nanoTime();
+        String stage = "request encryption";
         try {
-            String encryptedBody = AesCbcCrypto.encryptUtf8(
-                    normalizeJson(request.requestBody()),
-                    request.encryptionKey(),
-                    request.encryptionIv()
-            );
+            String diagnosticBody = normalizeJson(request.requestBody());
+            String encryptedBody;
+            try {
+                encryptedBody = AesCbcCrypto.encryptUtf8(
+                        diagnosticBody,
+                        request.encryptionKey(),
+                        request.encryptionIv()
+                );
+            } catch (IllegalStateException ex) {
+                log.warn("Bajaj API request encryption failed: keyBytes={}, ivBytes={}, bodyChars={}, reason={}",
+                        request.encryptionKey().getBytes(StandardCharsets.UTF_8).length,
+                        request.encryptionIv().getBytes(StandardCharsets.UTF_8).length,
+                        diagnosticBody.length(), ex.getMessage());
+                throw ex;
+            }
 
             // The per-API Postman script posts the ciphertext wrapped in JSON quotes.
             String payload = config.isQuoteEncryptedBody()
@@ -58,15 +74,19 @@ public class BajajApiInvokeService {
                     : encryptedBody;
 
             // Step 1: obtain the rotating token header (cached per environment).
+                stage = "token acquisition";
             String token = tokenService.currentToken(environment);
-            HttpResponse<String> response = execute(config, requestUrl, payload, token);
+                stage = "HTTP request";
+            HttpResponse<String> response = execute(config, requestUrl, payload, token, diagnosticBody);
 
             // A rejected token is indistinguishable from a normal 401/403, so retry once
             // with a freshly minted token before surfacing the failure.
             if (response.statusCode() == 401 || response.statusCode() == 403) {
+                log.debug("Bajaj API invoke received HTTP {}; retrying once with a refreshed token",
+                        response.statusCode());
                 tokenService.invalidate(environment);
                 token = tokenService.refreshToken(environment);
-                response = execute(config, requestUrl, payload, token);
+                response = execute(config, requestUrl, payload, token, diagnosticBody);
             }
 
             long durationMs = (System.nanoTime() - start) / 1_000_000;
@@ -83,11 +103,13 @@ public class BajajApiInvokeService {
                 );
             }
 
+            stage = "response decryption";
             String decrypted = AesCbcCrypto.decryptUtf8(
                     body,
                     request.encryptionKey(),
                     request.encryptionIv()
             );
+                BajajHttpDebugLogger.logDecryptedBody(log, "API invoke", "decrypted response", decrypted, objectMapper);
 
             return new BajajInvokeResponse(
                     response.statusCode(),
@@ -98,9 +120,11 @@ public class BajajApiInvokeService {
                     null
             );
         } catch (BajajTesterException ex) {
+            log.warn("Bajaj API invoke failed during {}: {}", stage, ex.getClass().getSimpleName());
             throw ex;
         } catch (Exception ex) {
             long durationMs = (System.nanoTime() - start) / 1_000_000;
+            log.warn("Bajaj API invoke failed during {}: {}", stage, ex.getClass().getSimpleName());
             return new BajajInvokeResponse(
                     0,
                     durationMs,
@@ -116,7 +140,8 @@ public class BajajApiInvokeService {
             BajajTesterProperties.EnvironmentConfig config,
             String requestUrl,
             String encryptedBody,
-            String token
+            String token,
+            String diagnosticBody
     ) throws Exception {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(requestUrl))
@@ -141,10 +166,15 @@ public class BajajApiInvokeService {
             builder.header("token", token);
         }
 
-        return httpClient.send(
-                builder.build(),
+        HttpRequest httpRequest = builder.build();
+        BajajHttpDebugLogger.logRequest(log, "API invoke", httpRequest, diagnosticBody, objectMapper);
+        HttpResponse<String> response = httpClient.send(
+            httpRequest,
                 HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)
         );
+        BajajHttpDebugLogger.logResponse(
+            log, "API invoke", response.statusCode(), response.headers().map(), response.body(), objectMapper);
+        return response;
     }
 
     private void validateRequest(BajajInvokeRequest request) {

@@ -8,6 +8,7 @@ public record TransactionDashboardView(
         String sourceLabel,
         boolean available,
         String errorMessage,
+        TransactionMetrics totalMetrics,
         TransactionMetrics last15Minutes,
         MetricDelta delta,
         List<JourneyStage> journey,
@@ -25,6 +26,7 @@ public record TransactionDashboardView(
                 sourceLabel,
                 false,
                 message,
+                TransactionMetrics.empty(),
                 TransactionMetrics.empty(),
                 MetricDelta.none(),
                 List.of(),
@@ -49,10 +51,27 @@ public record TransactionDashboardView(
             long amazonApproved,
             double amazonApprovalRate,
             long voidCount,
-            long declinedCount
+            long declinedCount,
+            long approvedCount
     ) {
+        public TransactionMetrics(long totalHits, long ecomHits, long ecomApproved, double approvalRate,
+                                  long flipkartHits, long flipkartApproved, double flipkartApprovalRate,
+                                  long amazonHits, long amazonApproved, double amazonApprovalRate,
+                                  long voidCount, long declinedCount) {
+            this(totalHits, ecomHits, ecomApproved, approvalRate, flipkartHits, flipkartApproved,
+                    flipkartApprovalRate, amazonHits, amazonApproved, amazonApprovalRate,
+                    voidCount, declinedCount, 0);
+        }
+
         public static TransactionMetrics empty() {
             return new TransactionMetrics(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        }
+
+        /** Approved transactions across every product, not only e-commerce. */
+        public TransactionMetrics withApprovedCount(long approved) {
+            return new TransactionMetrics(totalHits, ecomHits, ecomApproved, approvalRate, flipkartHits,
+                    flipkartApproved, flipkartApprovalRate, amazonHits, amazonApproved, amazonApprovalRate,
+                    voidCount, declinedCount, approved);
         }
 
         public long exceptions() {
@@ -121,8 +140,18 @@ public record TransactionDashboardView(
             long declinedCount,
             double volumePercent,
             double changePercent,
-            boolean hasChange
+            boolean hasChange,
+            long totalApproved
     ) {
+        public VolumePoint(String label, long totalHits, long ecomHits, long ecomApproved, double approvalRate,
+                           long flipkartHits, long flipkartApproved, double flipkartApprovalRate,
+                           long amazonHits, long amazonApproved, double amazonApprovalRate,
+                           long voidCount, long declinedCount,
+                           double volumePercent, double changePercent, boolean hasChange) {
+            this(label, totalHits, ecomHits, ecomApproved, approvalRate, flipkartHits, flipkartApproved,
+                    flipkartApprovalRate, amazonHits, amazonApproved, amazonApprovalRate, voidCount, declinedCount,
+                    volumePercent, changePercent, hasChange, 0);
+        }
     }
 
     public record ResponseTimeBucket(

@@ -4,6 +4,7 @@ import com.bredashboard.auth.domain.AccountStatus;
 import com.bredashboard.auth.domain.AppUser;
 import com.bredashboard.auth.domain.BreOidcUser;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -12,6 +13,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConditionalOnProperty(name = "bredashboard.auth.mode", havingValue = "azure")
 public class AzureOidcUserService extends OidcUserService {
 
     private final UserProvisioningService provisioningService;

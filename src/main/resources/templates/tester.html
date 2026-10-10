@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
 <head>
 <th:block th:replace="~{fragments/head :: head(pageTitle='Tester')}"/>
-<link rel="stylesheet" th:href="@{/css/tester.css}"/>
+<link rel="stylesheet" data-bre-page-style th:href="@{/css/tester.css}"/>
 </head>
 <body class="bre-dashboard-app bg-background text-on-background font-body-md overflow-hidden h-screen flex">
 <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
@@ -21,12 +21,8 @@
 <section class="bt-workspace">
 <div class="bt-composer-card">
 <div class="bt-url-bar">
-<div id="btEnvWrap" class="bt-env-wrap bt-env-uat">
-<select id="btEnvironment" class="bt-env-select" aria-label="Environment">
-<option value="UAT" selected>UAT</option>
-<option value="PROD">Prod</option>
-</select>
-<span class="material-symbols-outlined bt-select-chevron">expand_more</span>
+<div id="btEnvWrap" class="bt-env-wrap" th:classappend="${deploymentTier.name() == 'PROD' ? 'bt-env-prod' : 'bt-env-uat'}">
+<span id="btEnvironment" class="bt-env-label" th:attr="data-environment=${deploymentTier.name()}" th:text="${deploymentTier.name() == 'PROD' ? 'PROD' : 'UAT'}">UAT</span>
 </div>
 <div class="bt-method-wrap">
 <span class="bt-method-label">POST</span>
@@ -58,7 +54,7 @@
 <div class="bt-meta-grid">
 <span class="material-symbols-outlined bt-endpoint-icon" aria-hidden="true">link</span>
 <code id="btEndpoint" class="bt-endpoint">Select an API to see the full endpoint URL</code>
-<p id="btStatus" class="bt-status-line">Choose UAT or Prod to load the operation list.</p>
+<p id="btStatus" class="bt-status-line">Loading the configured operation list…</p>
 </div>
 </div>
 </div>

@@ -80,10 +80,15 @@ ssh-key                (only if you use live SSH admin)
 Start **from that directory**:
 
 ```bash
-java -jar bre-dashboard-0.0.1-SNAPSHOT.jar
+chmod +x start.sh stop.sh
+./start.sh
 ```
 
+`start.sh` runs the newest `bre-dashboard-*.jar` in the directory with `nohup`, writes its PID to `bre-dashboard.pid`, and sends console output to `logs/console.log`. Stop it gracefully with `./stop.sh`. Optional overrides include `JAR_FILE`, `JAVA_BIN`, `JAVA_OPTS`, `CONSOLE_LOG`, and `STOP_TIMEOUT`.
+
 `spring.profiles.active` in that file selects `prod` or `uat`. Do not copy `application-local.yml`. Do not copy the YAML files from `src/main/resources`. Do not commit a filled copy.
+
+`bredashboard.health.monitored-tiers` selects the single deployment tier for the System Health and API Tester views. Set it to `[PROD]` or `[UAT]`; the UAT and production server templates already select their corresponding tier. The application defaults to `[UAT]` when no profile override is active.
 
 If a load balancer terminates TLS, set `server.ssl.enabled: false` and `server.port: 8080` in that YAML.
 
@@ -102,7 +107,13 @@ keytool -list -v -keystore dashboard.p12 -storetype PKCS12
 From the directory that contains the JAR and `application.yml`:
 
 ```bash
-java -jar bre-dashboard-0.0.1-SNAPSHOT.jar
+./start.sh
+```
+
+To stop it:
+
+```bash
+./stop.sh
 ```
 
 On prod, after Entra works, set `bredashboard.auth.mode: azure` in that YAML to hide password login.

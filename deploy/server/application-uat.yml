@@ -32,29 +32,13 @@ bredashboard:
     bootstrap-password: CHANGE_ME_MIN_8_CHARS
     bootstrap-display-name: Administrator
   health:
+    monitored-tiers: [UAT]
     model-hub:
       oauth:
         username: CHANGE_ME_MODELHUB_USERNAME
         password: CHANGE_ME_MODELHUB_PASSWORD
   bajaj-tester:
     uat:
-      encryption-key: CHANGE_ME
-      encryption-iv: CHANGE_ME
-      headers:
-        Authorization: CHANGE_ME
-        source: CHANGE_ME
-        token: CHANGE_ME
-        additionalinfo1: CHANGE_ME
-        subscriptionid: CHANGE_ME
-      request-body:
-        channel: CHANGE_ME
-        appversion: CHANGE_ME
-        deviceId: CHANGE_ME
-      token-request-body:
-        deviceId: CHANGE_ME
-        username: CHANGE_ME
-        password: CHANGE_ME
-    prod:
       encryption-key: CHANGE_ME
       encryption-iv: CHANGE_ME
       headers:

@@ -22,7 +22,7 @@ public class UserAdminController {
         model.addAttribute("users", roleAdminService.allUsers());
         model.addAttribute("roles", roleAdminService.allRoles());
         model.addAttribute("roleTabFlags", roleAdminService.tabMatrixForAllRoles());
-        model.addAttribute("allTabs", AppTab.values());
+        model.addAttribute("allTabs", AppTab.permissionTabs());
         return "user-management";
     }
 }

@@ -30,30 +30,22 @@
         }
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('[data-bre-account-menu]').forEach(function (menu) {
-            var trigger = menu.querySelector('[data-bre-account-trigger]');
-            if (!trigger) {
-                return;
-            }
-            trigger.addEventListener('click', function (event) {
-                event.stopPropagation();
-                toggleMenu(menu);
-            });
+    document.addEventListener('click', function (event) {
+        var trigger = event.target.closest('[data-bre-account-trigger]');
+        if (trigger) {
+            event.stopPropagation();
+            var menu = trigger.closest('[data-bre-account-menu]');
+            if (menu) toggleMenu(menu);
+            return;
+        }
+        document.querySelectorAll('[data-bre-account-menu].bre-account-menu--open').forEach(function (menu) {
+            if (!menu.contains(event.target)) closeMenu(menu);
         });
+    });
 
-        document.addEventListener('click', function (event) {
-            document.querySelectorAll('[data-bre-account-menu].bre-account-menu--open').forEach(function (menu) {
-                if (!menu.contains(event.target)) {
-                    closeMenu(menu);
-                }
-            });
-        });
-
-        document.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape') {
-                document.querySelectorAll('[data-bre-account-menu].bre-account-menu--open').forEach(closeMenu);
-            }
-        });
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            document.querySelectorAll('[data-bre-account-menu].bre-account-menu--open').forEach(closeMenu);
+        }
     });
 })();

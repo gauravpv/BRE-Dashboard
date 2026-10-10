@@ -9,11 +9,15 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.bredashboard.auth.domain.AppUser;
+import com.bredashboard.auth.domain.AppTab;
 import com.bredashboard.auth.domain.BreUserPrincipal;
 import com.bredashboard.auth.repository.AppUserRepository;
 import com.bredashboard.auth.service.AuthDataInitializer;
+import com.bredashboard.auth.service.NavAccessService;
 import com.bredashboard.auth.service.RoleAdminService;
 import com.bredashboard.auth.service.UserSessionService;
+import java.util.LinkedHashMap;
+import java.util.Map;
 @SpringBootTest
 @Transactional
 class RoleAdminServiceTest {
@@ -29,6 +33,30 @@ class RoleAdminServiceTest {
 
     @Autowired
     private UserSessionService userSessionService;
+
+        @Autowired
+        private NavAccessService navAccessService;
+
+        @Test
+        void analyticsPagesHaveIndependentRolePermissions() {
+        AppUser admin = userRepository.findByAzureAdId("dev-admin").orElseThrow();
+        AppUser monitoring = userRepository.findByAzureAdId("dev-monitoring").orElseThrow();
+        Long roleId = monitoring.getRole().getId();
+        Map<String, Boolean> access = new LinkedHashMap<>(
+            roleAdminService.tabMatrixForAllRoles().get(roleId));
+
+        assertThat(access)
+            .doesNotContainKey(AppTab.TRANSACTIONS.id())
+            .containsEntry(AppTab.HOURLY_TREND.id(), true)
+            .containsEntry(AppTab.RESPONSE_TIME.id(), true);
+
+        access.put(AppTab.HOURLY_TREND.id(), false);
+        roleAdminService.updateRoleTabs(roleId, access, admin);
+
+        assertThat(navAccessService.canAccess(monitoring, AppTab.TRANSACTIONS)).isFalse();
+        assertThat(navAccessService.canAccess(monitoring, AppTab.HOURLY_TREND)).isFalse();
+        assertThat(navAccessService.canAccess(monitoring, AppTab.RESPONSE_TIME)).isTrue();
+        }
 
     @Test
     void createUser_persistsWithPassword() {

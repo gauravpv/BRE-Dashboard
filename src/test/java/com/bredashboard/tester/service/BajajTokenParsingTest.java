@@ -6,6 +6,7 @@ import com.bredashboard.tester.domain.BajajEnvironment;
 import com.bredashboard.tester.dto.OperationEntryDto;
 import com.bredashboard.tester.dto.TokenStatusDto;
 import com.bredashboard.tester.exception.BajajTesterException;
+import com.bredashboard.tester.util.AesCbcCrypto;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -56,6 +57,25 @@ class BajajTokenParsingTest {
 
         assertThat(payload.token()).isEqualTo("abc123");
         assertThat(payload.expiresInSeconds()).isZero();
+    }
+
+    @Test
+    void decodeTokenResponse_acceptsPlaintextJson() {
+        String response = "{\"access_token\":\"abc123\",\"expires_in\":54000}";
+
+        assertThat(newService().decodeTokenResponse(response,
+                "0123456789abcdef0123456789abcdef", "0123456789abcdef"))
+                .isEqualTo(response);
+    }
+
+    @Test
+    void decodeTokenResponse_decryptsEncryptedResponse() {
+        String response = "{\"access_token\":\"abc123\"}";
+        String key = "0123456789abcdef0123456789abcdef";
+        String iv = "0123456789abcdef";
+        String encrypted = AesCbcCrypto.encryptUtf8(response, key, iv);
+
+        assertThat(newService().decodeTokenResponse(encrypted, key, iv)).isEqualTo(response);
     }
 
     @Test

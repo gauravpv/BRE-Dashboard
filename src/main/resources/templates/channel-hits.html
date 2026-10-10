@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
+<head>
+<th:block th:replace="~{fragments/head :: head(pageTitle='Channel Wise Hits')}"/>
+<link rel="stylesheet" data-bre-page-style th:href="@{/css/transaction-dashboard.css(v='20261006-responsive-layout')}"/>
+<link rel="stylesheet" data-bre-page-style th:href="@{/css/hourly-trend.css(v='20261007-refresh-gap')}"/>
+</head>
+<body class="bre-dashboard-app txn-body hourly-body response-time-body channel-body bg-background text-on-background font-body-md">
+<aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
+<th:block th:replace="~{fragments/page-shell :: page-header(title='Channel Wise Hits', searchPlaceholder='', searchId='', showSearch=false, fixed=true, showNotifications=true, showSettings=true, showUser=false)}"/>
+
+<div class="txn-shell hourly-shell" data-live-shell th:fragment="live-shell" th:attr="data-report-url=${reportUrl}">
+    <header class="txn-strip response-time-strip">
+        <div th:if="${dashboard.available()}" class="response-time-totals channel-totals">
+            <div class="txn-strip-hero">
+                <span class="txn-eyebrow">Total hits</span>
+                <strong data-rt="channel-total-hits" th:text="${#numbers.formatInteger(dashboard.totalHits(), 1, 'COMMA')}">0</strong>
+                <div class="txn-strip-hero-foot">
+                    <span th:text="${#temporals.format(dashboard.transactionDate(), 'dd MMM yyyy')}">Today</span>
+                </div>
+            </div>
+            <div class="txn-strip-hero">
+                <span class="txn-eyebrow">Approved</span>
+                <strong data-rt="channel-total-approved" th:text="${#numbers.formatInteger(dashboard.totalApproved(), 1, 'COMMA')}">0</strong>
+                <div class="txn-strip-hero-foot">
+                    <span th:text="${#temporals.format(dashboard.transactionDate(), 'dd MMM yyyy')}">Today</span>
+                </div>
+            </div>
+            <div class="txn-strip-hero">
+                <span class="txn-eyebrow">Approval rate</span>
+                <strong data-rt="channel-total-rate" th:text="|${#numbers.formatDecimal(dashboard.approvalRate(), 1, 2)}%|">0.00%</strong>
+                <div class="txn-strip-hero-foot">
+                    <span th:text="${dashboard.channels().size()} + ' channels'">channels</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div th:unless="${dashboard.available()}" class="txn-alert">
+        <span class="material-symbols-outlined">database_off</span>
+        <div>
+            <strong>Transaction data unavailable</strong>
+            <p th:text="${dashboard.errorMessage()}">Unable to load data.</p>
+        </div>
+    </div>
+
+    <div th:if="${dashboard.available()}" class="txn-area-tables channel-area">
+        <div th:if="${dashboard.totalHits() == 0}" class="txn-panel channel-empty">
+            <span class="material-symbols-outlined">hourglass_empty</span>
+            <p>No channel transactions recorded today yet.</p>
+        </div>
+
+        <div class="channel-grid">
+            <article th:each="channel : ${dashboard.channels()}" class="txn-panel channel-card"
+                     th:classappend="${channel.hits() == 0} ? ' channel-card--idle'">
+                <header class="channel-card-head">
+                    <h2 th:text="${channel.name()}">ECOM</h2>
+                    <span class="channel-code" th:text="'#' + ${channel.code()}">#5</span>
+                </header>
+
+                <div class="channel-hits">
+                    <span class="txn-eyebrow">Hits</span>
+                    <strong th:attr="data-rt='channel-' + ${channel.code()} + '-hits'"
+                            th:text="${#numbers.formatInteger(channel.hits(), 1, 'COMMA')}">0</strong>
+                </div>
+
+                <dl class="channel-stats">
+                    <div>
+                        <dt>Approved</dt>
+                        <dd th:attr="data-rt='channel-' + ${channel.code()} + '-approved'"
+                            th:text="${#numbers.formatInteger(channel.approved(), 1, 'COMMA')}">0</dd>
+                    </div>
+                    <div>
+                        <dt>Approval</dt>
+                        <dd>
+                            <span class="txn-rate-pill"
+                                  th:classappend="${channel.hits() > 0 and channel.approvalRate() < 85} ? ' txn-rate-pill--warn'"
+                                  th:text="|${#numbers.formatDecimal(channel.approvalRate(), 1, 2)}%|">0.00%</span>
+                        </dd>
+                    </div>
+                </dl>
+
+                <div class="channel-share">
+                    <div class="channel-share-label">
+                        <span>Share of hits</span>
+                        <b th:text="|${#numbers.formatDecimal(channel.sharePercent(), 1, 2)}%|">0.00%</b>
+                    </div>
+                    <div class="channel-share-track">
+                        <span th:attr="data-rt-bar='channel-' + ${channel.code()}"
+                              th:style="'width: ' + ${channel.sharePercent()} + '%'"></span>
+                    </div>
+                </div>
+            </article>
+        </div>
+
+        <div class="response-time-actions">
+            <button type="button" class="txn-refresh" data-txn-refresh>
+                <span class="material-symbols-outlined">refresh</span>
+                <span>Refresh</span>
+                <em th:text="'· auto ' + ${refreshSeconds} + 's'">auto</em>
+            </button>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/page-shell :: page-footer(hint='Hits and approvals by partner EDC channel for today')}"/>
+
+<script th:inline="javascript">
+    window.breDashboardTransactionRefreshSeconds = /*[[${refreshSeconds}]]*/ 60;
+</script>
+<script th:src="@{/js/live-refresh.js(v='20261008-aligned-refresh')}"></script>
+</body>
+</html>

@@ -8,6 +8,7 @@ import com.bredashboard.tester.dto.OperationEntryDto;
 import com.bredashboard.tester.dto.TokenStatusDto;
 import com.bredashboard.tester.exception.BajajTesterException;
 import com.bredashboard.tester.util.AesCbcCrypto;
+import com.bredashboard.tester.util.BajajHttpDebugLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -102,10 +103,10 @@ public class BajajTokenService {
             CachedToken fresh = fetchAndCache(environment, tokenOperation);
             return TokenStatusDto.ready(fresh.token(), fresh.secondsRemaining());
         } catch (BajajTesterException ex) {
-            log.warn("Could not pre-fetch {} token: {}", environment, ex.getMessage());
+            log.warn("Could not pre-fetch {} token: {}", environment, ex.getClass().getSimpleName());
             return TokenStatusDto.failed(ex.getMessage());
         } catch (Exception ex) {
-            log.warn("Could not pre-fetch {} token", environment, ex);
+            log.warn("Could not pre-fetch {} token: {}", environment, ex.getClass().getSimpleName());
             return TokenStatusDto.failed("Failed to fetch API token");
         }
     }
@@ -156,15 +157,28 @@ public class BajajTokenService {
     }
 
     private String callTokenApi(BajajTesterProperties.EnvironmentConfig config, String key, String iv) {
+        String stage = "request preparation";
         try {
             if (config.getTokenRequestBody().isEmpty()) {
                 throw new BajajTesterException(
                         "Token credentials are not configured (bredashboard.bajaj-tester.*.token-request-body)");
             }
 
+            stage = "request serialization";
             String requestJson = objectMapper.writeValueAsString(config.getTokenRequestBody());
-            String encryptedBody = AesCbcCrypto.encryptUtf8(requestJson, key, iv);
+            String encryptedBody;
+            try {
+                stage = "request encryption";
+                encryptedBody = AesCbcCrypto.encryptUtf8(requestJson, key, iv);
+            } catch (IllegalStateException ex) {
+                log.warn("Bajaj token request encryption failed: keyBytes={}, ivBytes={}, reason={}",
+                        key.getBytes(StandardCharsets.UTF_8).length,
+                        iv.getBytes(StandardCharsets.UTF_8).length,
+                        ex.getMessage());
+                throw ex;
+            }
 
+            stage = "HTTP exchange";
             HttpRequest.Builder builder = HttpRequest.newBuilder()
                     .uri(URI.create(config.tokenUrl()))
                     .timeout(Duration.ofSeconds(45))
@@ -183,10 +197,14 @@ public class BajajTokenService {
                 builder.header(name, header.getValue());
             }
 
-            HttpResponse<String> response = httpClient.send(
-                    builder.build(),
+                HttpRequest request = builder.build();
+                BajajHttpDebugLogger.logRequest(log, "token", request, requestJson, objectMapper);
+                HttpResponse<String> response = httpClient.send(
+                    request,
                     HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)
             );
+                BajajHttpDebugLogger.logResponse(
+                    log, "token", response.statusCode(), response.headers().map(), response.body(), objectMapper);
 
             if (response.statusCode() < 200 || response.statusCode() >= 300) {
                 throw new BajajTesterException(
@@ -196,12 +214,31 @@ public class BajajTokenService {
                                 : ""));
             }
 
-            return AesCbcCrypto.decryptUtf8(response.body(), key, iv);
+            stage = "response decoding";
+            String decoded = decodeTokenResponse(response.body(), key, iv);
+            stage = "decrypted response logging";
+            BajajHttpDebugLogger.logDecryptedBody(log, "token", "decoded response", decoded, objectMapper);
+            return decoded;
         } catch (BajajTesterException ex) {
+            log.warn("Bajaj token call failed during {}: {}", stage, ex.getClass().getSimpleName());
             throw ex;
         } catch (Exception ex) {
+            log.warn("Bajaj token call failed during {}: {}", stage, ex.getClass().getSimpleName());
             throw new BajajTesterException("Failed to fetch API token", ex);
         }
+    }
+
+    String decodeTokenResponse(String responseBody, String key, String iv) {
+        try {
+            JsonNode response = objectMapper.readTree(responseBody);
+            if (response != null && response.isObject()) {
+                log.debug("Bajaj token response is plaintext JSON; skipping AES decryption");
+                return responseBody;
+            }
+        } catch (Exception ignored) {
+            // Non-JSON response bodies may contain encrypted Base64 ciphertext.
+        }
+        return AesCbcCrypto.decryptUtf8(responseBody, key, iv);
     }
 
     /** Parses the decrypted oauth-token response. Package-private for testing. */

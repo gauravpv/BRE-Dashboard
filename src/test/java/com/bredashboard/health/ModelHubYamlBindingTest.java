@@ -1,6 +1,7 @@
 package com.bredashboard.health;
 
 import com.bredashboard.health.config.HealthProperties;
+import com.bredashboard.health.domain.HealthDeploymentTier;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -15,6 +16,15 @@ class ModelHubYamlBindingTest {
     @EnableConfigurationProperties(HealthProperties.class)
     static class TestConfig {
     }
+
+        @Test
+        void bindsMonitoredTierSelection() {
+        runner.withPropertyValues("bredashboard.health.monitored-tiers[0]=PROD")
+            .run(context -> assertThat(context.getBean(HealthProperties.class).getHealth().getMonitoredTiers())
+                .containsExactly(HealthDeploymentTier.PROD));
+        runner.run(context -> assertThat(context.getBean(HealthProperties.class).getHealth().getMonitoredTiers())
+            .containsExactly(HealthDeploymentTier.UAT));
+        }
 
     @Test
     void bindsModelHubUnderHealthPrefix() {

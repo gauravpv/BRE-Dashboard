@@ -191,7 +191,9 @@ public class AuthDataInitializer implements ApplicationRunner {
         return switch (roleCode) {
             case CODE_ADMINISTRATOR, "ADMINISTRATOR" -> EnumSet.allOf(AppTab.class);
             case CODE_TESTER, "OPERATOR" -> EnumSet.of(AppTab.DASHBOARD, AppTab.HEALTH, AppTab.TESTER, AppTab.DEV_UTILS);
-            case CODE_MONITORING, "VIEWER" -> EnumSet.of(AppTab.DASHBOARD, AppTab.HEALTH, AppTab.TRANSACTIONS);
+                case CODE_MONITORING, "VIEWER" -> EnumSet.of(
+                    AppTab.DASHBOARD, AppTab.HEALTH,
+                    AppTab.HOURLY_TREND, AppTab.RESPONSE_TIME, AppTab.CHANNEL_HITS);
             default -> EnumSet.of(AppTab.DASHBOARD);
         };
     }
@@ -199,17 +201,25 @@ public class AuthDataInitializer implements ApplicationRunner {
     private void ensureAllTabsRegistered() {
         for (AppRole role : roleRepository.findAll()) {
             EnumSet<AppTab> defaults = defaultTabsFor(role.getCode());
-            for (AppTab tab : AppTab.values()) {
+            for (AppTab tab : AppTab.permissionTabs()) {
                 RoleTabAccess entry = tabAccessRepository.findByRole_IdAndTab(role.getId(), tab);
                 if (entry == null) {
-                    tabAccessRepository.save(new RoleTabAccess(role, tab, defaults.contains(tab)));
+                    boolean allowed = defaults.contains(tab);
+                    if (tab == AppTab.HOURLY_TREND || tab == AppTab.RESPONSE_TIME || tab == AppTab.CHANNEL_HITS) {
+                        RoleTabAccess transactionAccess = tabAccessRepository.findByRole_IdAndTab(
+                                role.getId(), AppTab.TRANSACTIONS);
+                        if (transactionAccess != null) {
+                            allowed = transactionAccess.isAllowed();
+                        }
+                    }
+                    tabAccessRepository.save(new RoleTabAccess(role, tab, allowed));
                 }
             }
         }
     }
 
     private void seedTabs(AppRole role, EnumSet<AppTab> allowed) {
-        for (AppTab tab : AppTab.values()) {
+        for (AppTab tab : AppTab.permissionTabs()) {
             RoleTabAccess entry = tabAccessRepository.findByRole_IdAndTab(role.getId(), tab);
             if (entry == null) {
                 tabAccessRepository.save(new RoleTabAccess(role, tab, allowed.contains(tab)));

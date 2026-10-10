@@ -4,7 +4,7 @@
   const PLACEHOLDER = 'Select an API endpoint…';
   const NO_APIS = 'No APIs loaded';
 
-  const environmentSelect = document.getElementById('btEnvironment');
+  const environment = document.getElementById('btEnvironment').dataset.environment;
   const envWrap = document.getElementById('btEnvWrap');
   const apiCombobox = document.getElementById('btApiCombobox');
   const apiTrigger = document.getElementById('btApiTrigger');
@@ -90,7 +90,7 @@
   }
 
   function updateEnvStyle() {
-    const isProd = environmentSelect.value === 'PROD';
+    const isProd = environment === 'PROD';
     envWrap.classList.toggle('bt-env-uat', !isProd);
     envWrap.classList.toggle('bt-env-prod', isProd);
   }
@@ -260,7 +260,6 @@
   }
 
   async function loadOperations(forceRefresh = false) {
-    const environment = environmentSelect.value;
     updateEnvStyle();
     closeApiDropdown();
     setStatus(forceRefresh
@@ -364,7 +363,7 @@
     setTokenStatus({ loading: true });
     try {
       const response = await fetch(
-        `/api/tester/token/refresh?environment=${encodeURIComponent(environmentSelect.value)}`,
+        `/api/tester/token/refresh?environment=${encodeURIComponent(environment)}`,
         { method: 'POST', headers: { Accept: 'application/json' } }
       );
       const payload = await response.json();
@@ -417,7 +416,7 @@
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          environment: environmentSelect.value,
+          environment,
           publicUrl: op.publicUrl,
           encryptionKey: op.encryptionKey,
           encryptionIv: op.encryptionIv,
@@ -479,7 +478,6 @@
     }
   }
 
-  environmentSelect.addEventListener('change', () => loadOperations(false));
   reloadBtn.addEventListener('click', () => loadOperations(true));
   sendBtn.addEventListener('click', sendRequest);
   formatBtn.addEventListener('click', formatRequest);

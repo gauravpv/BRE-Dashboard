@@ -4,7 +4,10 @@ import com.bredashboard.activity.service.ActivityFeedService;
 import com.bredashboard.admin.domain.AdminActionLog;
 import com.bredashboard.admin.service.ServiceAdminService;
 import com.bredashboard.admin.util.AdminActionLabels;
+import com.bredashboard.auth.domain.AppUser;
 import com.bredashboard.auth.domain.AppTab;
+import com.bredashboard.auth.domain.CurrentUser;
+import com.bredashboard.health.domain.HealthDeploymentTier;
 import com.bredashboard.health.service.SystemHealthMonitor;
 import com.bredashboard.web.service.DashboardService;
 import org.springframework.stereotype.Controller;
@@ -44,11 +47,19 @@ public class PageController {
     @GetMapping("/")
     public String dashboard(Model model) {
         healthMonitor.refreshIfStale();
+        List<HealthDeploymentTier> tiers = healthMonitor.monitoredTiers();
+        String title = tiers != null && tiers.size() == 1 ? tiers.get(0).id() + " Dashboard" : "System Dashboard";
+        model.addAttribute("dashboardTitle", title);
         model.addAttribute("summary", healthMonitor.summary());
         model.addAttribute("servicesUpChart", healthMonitor.servicesUpChart());
         model.addAttribute("apiSuccess", healthMonitor.apiSuccess());
         model.addAttribute("responseTimeChart", healthMonitor.responseTimeChart());
-        model.addAttribute("activities", activityFeedService.recent(DASHBOARD_ACTIVITY_LIMIT));
+        AppUser user = CurrentUser.userOrNull();
+        boolean administrator = user != null && "ADMIN".equals(user.getRole().getCode());
+        model.addAttribute("isAdministrator", administrator);
+        if (administrator) {
+            model.addAttribute("activities", activityFeedService.recent(DASHBOARD_ACTIVITY_LIMIT));
+        }
         model.addAttribute("recentIncidents", dashboardService.recentIncidents());
         return page("dashboard", AppTab.DASHBOARD, model);
     }

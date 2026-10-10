@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
 <head>
 <th:block th:replace="~{fragments/head :: head(pageTitle='System Health')}"/>
-<style>
+<style data-bre-page-style>
     #register-modal.open { pointer-events: auto; opacity: 1; }
     #register-modal.open #register-modal-panel { transform: translateY(0); }
     #register-modal .register-modal-header { padding: 14px 24px; }
@@ -14,6 +14,7 @@
         gap: 14px;
     }
     #health-sections { display: flex; flex-direction: column; gap: 2rem; }
+    .health-page-content { padding-top: 5rem; }
     .health-grid { align-items: stretch; }
     .health-card {
         height: 100%;
@@ -121,7 +122,8 @@
         flex-wrap: wrap;
     }
     .health-filter-all,
-    .health-filter-select {
+    .health-filter-select,
+    .health-tier-pill {
         box-sizing: border-box;
         height: 2.125rem;
         min-width: 9.75rem;
@@ -160,8 +162,19 @@
         color: #fff;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='%23ffffff'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
     }
+    .health-tier-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 1rem;
+        border-radius: 9999px;
+        background-color: #051125;
+        color: #fff;
+        white-space: nowrap;
+    }
     html.dark .health-filter-select { background-color: #1b263b; color: #dbe4ed; }
     html.dark .health-filter-select.filter-active { background-color: #0070ea; }
+    html.dark .health-tier-pill { background-color: #0070ea; }
     .health-refresh-btn {
         display: inline-flex;
         align-items: center;
@@ -257,19 +270,16 @@
     .health-card-remove:hover { background: rgba(186, 26, 26, 0.1); color: #ba1a1a; }
 </style>
 </head>
-<body class="bre-dashboard-app bg-background text-on-background font-body-md overflow-x-hidden">
+<body class="bre-dashboard-app system-health-page bg-background text-on-background font-body-md overflow-x-hidden">
 <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
 <th:block th:replace="~{fragments/page-shell :: page-header(title='System Health', searchPlaceholder='Search services...', searchId='health-search', showSearch=true, fixed=true, showNotifications=true, showSettings=true, showUser=false)}"/>
 
 <main class="ml-[240px] min-h-screen flex flex-col">
-<div class="bre-page-main--fixed flex-1 px-unit-xl pb-unit-xl">
-<div th:if="${modelHubEnabled}" class="health-source-banner">
-<span class="material-symbols-outlined text-secondary text-[18px]">cloud_sync</span>
-<span>Systems are stored in the database and matched against live Model Hub instance URLs. Refreshes every <span th:text="${refreshSeconds}">30</span>s.</span>
-</div>
+<div class="bre-page-main--fixed health-page-content flex-1 px-unit-xl pb-unit-xl">
 <div th:if="${!modelHubEnabled}" class="health-source-banner">
 <span class="material-symbols-outlined text-secondary text-[18px]">database</span>
-<span>Monitored IP and port are stored in the database. Add or edit systems below; changes persist across restarts. Refreshes every <span th:text="${refreshSeconds}">30</span>s.</span>
+<span th:if="${isAdministrator}">Monitored IP and port are stored in the database. Add or edit systems below; changes persist across restarts. Refreshes every <span th:text="${refreshSeconds}">30</span>s.</span>
+<span th:unless="${isAdministrator}">System configuration is managed by Administrators. Refreshes every <span th:text="${refreshSeconds}">30</span>s.</span>
 </div>
 <div class="health-filter-bar">
 <div class="health-filter-bar__pills">
@@ -281,10 +291,7 @@
     <option value="UP" th:text="|Up (${summary.up})|">Up (0)</option>
     <option value="DOWN" th:text="|Down (${summary.down})|">Down (0)</option>
 </select>
-<select id="health-env-filter" class="health-filter-select filter-active" aria-label="Filter by environment">
-    <option value="UAT" th:text="|UAT (${summary.uatTier})|" selected>UAT (0)</option>
-    <option value="PROD" th:text="|Prod (${summary.prodTier})|">Prod (0)</option>
-</select>
+<span class="health-tier-pill" th:text="${deploymentTier == T(com.bredashboard.health.domain.HealthDeploymentTier).PROD ? 'Prod' : 'UAT'}">UAT</span>
 </div>
 <button type="button" id="refresh-now" class="health-refresh-btn" title="Refresh health data now">
     <span class="material-symbols-outlined text-[18px]" id="refresh-icon">sync</span>
@@ -309,11 +316,11 @@
         <h3 class="health-card-title text-primary truncate" th:text="${system.name}">Service</h3>
                 </div>
                 <div class="flex items-center gap-0.5 shrink-0">
-                <button th:if="${system.id != null}" type="button" class="health-card-edit"
+                <button th:if="${isAdministrator and system.id != null}" type="button" class="health-card-edit"
                         th:attr="data-monitor-id=${system.id}, data-monitor-tier=${system.deploymentTier}, aria-label=${'Edit ' + system.name}" title="Edit system">
                     <span class="material-symbols-outlined text-[18px]">edit</span>
                 </button>
-                <button th:if="${system.id != null}" type="button" class="health-card-remove"
+                <button th:if="${isAdministrator and system.id != null}" type="button" class="health-card-remove"
                         th:attr="data-monitor-id=${system.id}, data-monitor-tier=${system.deploymentTier}, aria-label=${'Remove ' + system.name}" title="Remove system">
                     <span class="material-symbols-outlined text-[18px]">delete</span>
                 </button>
@@ -362,14 +369,14 @@
                     <span class="health-card-row-label">Port</span>
                     <span class="health-card-row-value text-on-surface" th:text="${system.port}">8080</span>
                 </div>
-                <div th:if="${system.errorMessage != null and system.status.name() != 'DOWN'}" class="mt-2.5 rounded-lg border border-error/30 bg-red-50 px-2.5 py-2 text-error text-xs leading-snug" th:text="${system.errorMessage}">Error</div>
+                <div th:if="${system.errorMessage != null}" class="mt-2.5 rounded-lg border border-error/30 bg-red-50 px-2.5 py-2 text-error text-xs leading-snug" th:text="${system.errorMessage}">Error</div>
             </div>
         </div>
     </div>
 </section>
 
 <div class="health-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-gutter mt-unit-lg">
-<button type="button" id="register-service-card"
+<button th:if="${isAdministrator}" type="button" id="register-service-card"
         class="health-card border-2 border-dashed border-outline-variant rounded-xl text-on-surface-variant hover:border-secondary hover:text-secondary transition-all group bg-surface-container-lowest/50 flex flex-col">
     <span class="material-symbols-outlined text-[28px] leading-none group-hover:scale-105 transition-transform">add_circle</span>
     <span class="text-sm font-medium text-on-surface group-hover:text-secondary mt-1">Add System</span>
@@ -397,12 +404,10 @@
 <input type="hidden" id="reg-monitor-id" value=""/>
 <div id="register-error" class="hidden rounded-lg border border-error/30 bg-red-100 px-3 py-2 text-error text-sm"></div>
 <div>
-<label class="block text-xs font-medium text-on-surface-variant mb-1" for="reg-environment">Environment</label>
-<select id="reg-environment" name="environment" required
-        class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 text-body-sm text-on-surface focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20">
-    <option value="UAT">UAT — emicardbre + bfldaasbre</option>
-    <option value="PROD">Prod — emicardbre-prod + bfldaasbre-prod</option>
-</select>
+<label class="block text-xs font-medium text-on-surface-variant mb-1">Deployment tier</label>
+<div class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 text-body-sm text-on-surface"
+     th:text="${deploymentTier == T(com.bredashboard.health.domain.HealthDeploymentTier).PROD ? 'Production' : 'UAT'}">UAT</div>
+<input type="hidden" id="reg-environment" name="environment" th:value="${deploymentTier.name()}"/>
 </div>
 <div>
 <label class="block text-xs font-medium text-on-surface-variant mb-1" for="reg-name">Service name</label>
@@ -422,9 +427,18 @@
 </div>
 </div>
 <div>
-<label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="reg-region">Group name</label>
-<input id="reg-region" name="region" required placeholder="e.g. BRE AUTH"
-       class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 text-body-sm text-on-surface focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20"/>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="reg-region-select">Group name</label>
+<select id="reg-region-select" required
+        class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 text-body-sm text-on-surface focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20 cursor-pointer">
+    <option value="" selected disabled>Select an existing group</option>
+    <option th:each="group : ${systemGroups}" th:value="${group.region}" th:text="${group.region}">BRE AUTH</option>
+    <option value="__new__">+ Add new group...</option>
+</select>
+<div id="reg-region-new-wrap" class="hidden mt-2">
+    <label class="sr-only" for="reg-region">New group name</label>
+    <input id="reg-region" name="region" maxlength="120" placeholder="Enter new group name"
+           class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 text-body-sm text-on-surface focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20"/>
+</div>
 </div>
 <div th:if="${!modelHubEnabled}">
 <label class="block font-label-md text-label-md text-on-surface-variant mb-1" for="reg-actuator">Actuator path <span class="text-on-surface-variant/70">(optional)</span></label>
@@ -442,30 +456,42 @@
 </div>
 </div>
 
+<th:block th:if="${isAdministrator}">
 <div class="fixed top-0 right-0 w-[320px] h-screen bg-surface border-l border-outline-variant shadow-2xl z-50 transform translate-x-full transition-transform duration-300" id="activity-panel">
 <div class="p-unit-lg h-full flex flex-col">
 <div class="flex items-center justify-between mb-unit-lg">
 <h3 class="font-title-lg text-title-lg text-primary">System Activity</h3>
 <button type="button" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container rounded-full p-1" onclick="document.getElementById('activity-panel').classList.add('translate-x-full')">close</button>
 </div>
-<div class="flex-1 overflow-y-auto space-y-unit-md pr-2 custom-scrollbar">
+<div class="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
 <th:block th:replace="~{fragments/activity-feed :: activity-list(activities=${activities}, emptyMessage='No recent activity yet. Events appear when users sign in, services change health status, or roles are updated.')}"/>
 </div>
 </div>
 </div>
-<button type="button" class="fixed bottom-unit-lg right-unit-lg w-14 h-14 bg-secondary text-on-secondary rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-40 group" onclick="document.getElementById('activity-panel').classList.toggle('translate-x-full')">
+<button type="button" class="health-activity-trigger fixed bottom-unit-lg right-unit-lg w-14 h-14 bg-secondary text-on-secondary rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-40 group" onclick="document.getElementById('activity-panel').classList.toggle('translate-x-full')">
 <span class="material-symbols-outlined">history</span>
 <div class="absolute right-16 px-3 py-1 bg-primary text-on-primary text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">View History</div>
 </button>
+</th:block>
 
 <script th:inline="javascript">
     const refreshSeconds = /*[[${refreshSeconds}]]*/ 30;
     const modelHubEnabled = /*[[${modelHubEnabled}]]*/ true;
     const initialStatusFilter = /*[[${initialStatusFilter}]]*/ '';
+    const csrfHeaderName = /*[[${_csrf != null ? _csrf.headerName : 'X-XSRF-TOKEN'}]]*/ 'X-XSRF-TOKEN';
+    const csrfToken = /*[[${_csrf != null ? _csrf.token : ''}]]*/ '';
     let countdown = refreshSeconds;
     const refreshText = document.getElementById('refresh-countdown');
     const refreshNowBtn = document.getElementById('refresh-now');
     const refreshIcon = document.getElementById('refresh-icon');
+
+    function secureFetch(url, options = {}) {
+        const headers = new Headers(options.headers || {});
+        if (csrfToken) {
+            headers.set(csrfHeaderName, csrfToken);
+        }
+        return fetch(url, { ...options, headers, credentials: 'same-origin' });
+    }
 
     setInterval(() => {
         countdown--;
@@ -482,7 +508,7 @@
         refreshIcon.classList.add('animate-spin');
         refreshNowBtn.disabled = true;
         try {
-            await fetch('/api/health/refresh', { method: 'POST' });
+            await secureFetch('/api/health/refresh', { method: 'POST' });
         } finally {
             window.location.reload();
         }
@@ -512,7 +538,7 @@
 
         removeBtn.disabled = true;
         try {
-            const response = await fetch(`/api/health/monitors/${monitorTier.toLowerCase()}/${monitorId}`, { method: 'DELETE' });
+            const response = await secureFetch(`/api/health/monitors/${monitorTier.toLowerCase()}/${monitorId}/delete`, { method: 'POST' });
             if (!response.ok) {
                 const data = await response.json().catch(() => ({}));
                 alert(data.message || 'Could not remove system.');
@@ -528,12 +554,10 @@
 
     const filterAllBtn = document.getElementById('health-filter-all');
     const statusFilterSelect = document.getElementById('health-status-filter');
-    const envFilterSelect = document.getElementById('health-env-filter');
     const cards = document.querySelectorAll('.health-card[data-status]');
     const searchInput = document.getElementById('health-search');
     const noResults = document.getElementById('health-no-results');
     let statusFilter = '';
-    let envFilter = envFilterSelect?.value || 'UAT';
 
     if (initialStatusFilter === 'UP' || initialStatusFilter === 'DOWN') {
         statusFilter = initialStatusFilter;
@@ -543,8 +567,6 @@
     }
 
     function matchesFilter(card) {
-        const cardTier = (card.dataset.deploymentTier || 'UAT').toUpperCase();
-        if (envFilter && cardTier !== envFilter) return false;
         if (statusFilter && card.dataset.status !== statusFilter) return false;
         return true;
     }
@@ -562,7 +584,6 @@
         filterAllBtn.classList.toggle('bg-surface-container', !showAll);
         filterAllBtn.classList.toggle('text-on-surface-variant', !showAll);
         statusFilterSelect.classList.toggle('filter-active', !!statusFilter);
-        envFilterSelect.classList.toggle('filter-active', true);
     }
 
     function applyVisibility() {
@@ -592,11 +613,6 @@
         applyVisibility();
     });
 
-    envFilterSelect.addEventListener('change', () => {
-        envFilter = envFilterSelect.value;
-        applyVisibility();
-    });
-
     searchInput.addEventListener('input', applyVisibility);
     searchInput.addEventListener('click', e => e.stopPropagation());
     applyVisibility();
@@ -611,7 +627,36 @@
     const registerModalSubtitle = document.getElementById('register-modal-subtitle');
     const monitorIdInput = document.getElementById('reg-monitor-id');
     const envSelect = document.getElementById('reg-environment');
+    const regionSelect = document.getElementById('reg-region-select');
+    const regionNewWrap = document.getElementById('reg-region-new-wrap');
     const regionInput = document.getElementById('reg-region');
+    const newGroupValue = '__new__';
+
+    function syncRegionControl() {
+        const addingNewGroup = regionSelect?.value === newGroupValue;
+        regionNewWrap?.classList.toggle('hidden', !addingNewGroup);
+        if (regionInput) {
+            regionInput.required = addingNewGroup;
+            if (!addingNewGroup) regionInput.value = '';
+        }
+    }
+
+    function setRegionValue(region) {
+        if (!regionSelect) return;
+        const value = (region || '').trim();
+        const existingOption = Array.from(regionSelect.options)
+            .some(option => option.value === value && option.value !== newGroupValue);
+        regionSelect.value = existingOption ? value : (value ? newGroupValue : '');
+        if (regionInput) regionInput.value = existingOption ? '' : value;
+        syncRegionControl();
+    }
+
+    function selectedRegion() {
+        if (regionSelect?.value === newGroupValue) {
+            return regionInput?.value.trim() || null;
+        }
+        return regionSelect?.value.trim() || null;
+    }
 
     function selectedEnvironmentTier() {
         return (envSelect?.value || 'UAT').toUpperCase() === 'PROD' ? 'PROD' : 'UAT';
@@ -630,10 +675,10 @@
         registerError.classList.add('hidden');
         registerError.textContent = '';
         registerForm.reset();
+        syncRegionControl();
         monitorIdInput.value = '';
         if (envSelect) {
             envSelect.disabled = false;
-            envSelect.value = envFilter || 'UAT';
         }
         setModalMode('add');
         registerModal.classList.add('open');
@@ -645,6 +690,7 @@
         registerError.classList.add('hidden');
         registerError.textContent = '';
         registerForm.reset();
+        syncRegionControl();
         monitorIdInput.value = monitorId;
         const tier = (monitorTier || 'UAT').toUpperCase();
         if (envSelect) {
@@ -667,9 +713,7 @@
             if (envSelect && data.tier) {
                 envSelect.value = data.tier.toUpperCase();
             }
-            if (regionInput) {
-                regionInput.value = data.region || '';
-            }
+            setRegionValue(data.region);
 
             if (!modelHubEnabled) {
                 const actuatorInput = document.getElementById('reg-actuator');
@@ -691,9 +735,15 @@
         document.body.style.overflow = '';
         monitorIdInput.value = '';
         if (envSelect) envSelect.disabled = false;
+        registerForm.reset();
+        syncRegionControl();
         setModalMode('add');
     }
 
+    regionSelect?.addEventListener('change', () => {
+        syncRegionControl();
+        if (regionSelect.value === newGroupValue) regionInput?.focus();
+    });
     document.getElementById('register-service-card')?.addEventListener('click', openRegisterModal);
     document.getElementById('register-modal-close').addEventListener('click', closeRegisterModal);
     document.getElementById('register-cancel').addEventListener('click', closeRegisterModal);
@@ -721,7 +771,7 @@
             name: document.getElementById('reg-name').value.trim(),
             host: document.getElementById('reg-host').value.trim(),
             port: parseInt(document.getElementById('reg-port').value, 10),
-            region: regionInput?.value.trim() || null
+            region: selectedRegion()
         };
 
         if (!modelHubEnabled) {
@@ -731,10 +781,9 @@
 
         try {
             const monitorId = monitorIdInput.value.trim();
-            const url = monitorId ? `/api/health/monitors/${tier.toLowerCase()}/${monitorId}` : '/api/health/monitors';
-            const method = monitorId ? 'PUT' : 'POST';
-            const response = await fetch(url, {
-                method,
+            const url = monitorId ? `/api/health/monitors/${tier.toLowerCase()}/${monitorId}/update` : '/api/health/monitors';
+            const response = await secureFetch(url, {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });

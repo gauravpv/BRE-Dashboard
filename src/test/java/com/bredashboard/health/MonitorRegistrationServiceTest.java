@@ -10,6 +10,7 @@ import com.bredashboard.health.service.MonitoredHostCatalog;
 import com.bredashboard.health.service.MonitorRegistrationService;
 import com.bredashboard.health.service.SystemHealthMonitor;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
@@ -23,6 +24,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,6 +45,14 @@ class MonitorRegistrationServiceTest {
     @InjectMocks
     private MonitorRegistrationService registrationService;
 
+    private HealthProperties.Health health;
+
+    @BeforeEach
+    void setConfiguredTier() {
+        health = new HealthProperties.Health();
+        lenient().when(healthProperties.getHealth()).thenReturn(health);
+    }
+
     @Test
     void normalizeEnvironment_mapsCommonAliases() {
         assertThat(MonitorRegistrationService.normalizeEnvironment("prod")).isEqualTo("Production");
@@ -56,8 +67,7 @@ class MonitorRegistrationServiceTest {
 
     @Test
     void register_resolvesTierFromEnvironmentWhenTierMissing() {
-        HealthProperties.Health health = new HealthProperties.Health();
-        when(healthProperties.getHealth()).thenReturn(health);
+        health.setMonitoredTiers(List.of(HealthDeploymentTier.PROD));
         when(catalog.existsByHostAndPort(HealthDeploymentTier.PROD, "10.0.0.8", 9090, null)).thenReturn(false);
         when(catalog.saveProd(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(healthMonitor.getSystems()).thenReturn(List.of());
@@ -73,8 +83,6 @@ class MonitorRegistrationServiceTest {
 
     @Test
     void register_persistsHostAndRefreshesMonitor() {
-        HealthProperties.Health health = new HealthProperties.Health();
-        when(healthProperties.getHealth()).thenReturn(health);
         when(catalog.existsByHostAndPort(HealthDeploymentTier.UAT, "10.0.0.8", 9090, null)).thenReturn(false);
         when(catalog.saveUat(any(MonitoredHost.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(healthMonitor.getSystems()).thenReturn(List.of());
@@ -94,8 +102,6 @@ class MonitorRegistrationServiceTest {
 
     @Test
     void register_rejectsDuplicateHostPort() {
-        HealthProperties.Health health = new HealthProperties.Health();
-        when(healthProperties.getHealth()).thenReturn(health);
         when(catalog.existsByHostAndPort(HealthDeploymentTier.UAT, "localhost", 8080, null)).thenReturn(true);
 
         assertThatThrownBy(() -> registrationService.register(
@@ -106,8 +112,6 @@ class MonitorRegistrationServiceTest {
 
     @Test
     void update_persistsChangesAndRefreshesMonitor() {
-        HealthProperties.Health health = new HealthProperties.Health();
-        when(healthProperties.getHealth()).thenReturn(health);
         MonitoredHost host = new MonitoredHost("Old Name", "10.0.0.8", 9090, "UAT", "BRE AUTH", "/actuator/health", "bre_auth_uat");
         when(catalog.findUat(7L)).thenReturn(host);
         when(catalog.existsByHostAndPort(HealthDeploymentTier.UAT, "10.0.0.9", 9091, 7L)).thenReturn(false);
@@ -115,11 +119,13 @@ class MonitorRegistrationServiceTest {
         when(healthMonitor.getSystems()).thenReturn(List.of());
         when(healthMonitor.summary()).thenReturn(new SystemHealthMonitor.HealthSummary(1, 1, 0, 0, 0, 1, 0));
         when(healthMonitor.getLastRefreshedAt()).thenReturn(Instant.now());
+        doThrow(new IllegalStateException("History store unavailable")).when(healthMonitor).refresh();
 
         var request = new RegisterMonitorRequest("UAT", "Updated Name", "10.0.0.9", 9091, null, "BRE AUTH", null, null);
         registrationService.update(HealthDeploymentTier.UAT, 7L, request);
 
         assertThat(host.getName()).isEqualTo("Updated Name");
+        assertThat(host.getModelHubEnvironmentId()).isEqualTo("bre_auth_uat");
         verify(healthMonitor).refresh();
     }
 
@@ -144,6 +150,19 @@ class MonitorRegistrationServiceTest {
         registrationService.remove(HealthDeploymentTier.UAT, 7L);
 
         verify(catalog).delete(HealthDeploymentTier.UAT, 7L);
+        verify(healthMonitor).refresh();
+    }
+
+    @Test
+    void remove_deletesProdHostAndRefreshesMonitor() {
+        health.setMonitoredTiers(List.of(HealthDeploymentTier.PROD));
+        when(healthMonitor.getSystems()).thenReturn(List.of());
+        when(healthMonitor.summary()).thenReturn(new SystemHealthMonitor.HealthSummary(0, 0, 0, 0, 0, 0, 0));
+        when(healthMonitor.getLastRefreshedAt()).thenReturn(Instant.now());
+
+        registrationService.remove(HealthDeploymentTier.PROD, 7L);
+
+        verify(catalog).delete(HealthDeploymentTier.PROD, 7L);
         verify(healthMonitor).refresh();
     }
 }

@@ -50,6 +50,34 @@ public class ModelHubWatchlistService {
         );
     }
 
+            public List<SystemHealthView> unavailableUatWatchlist(
+                List<MonitoredHost> watchlist,
+                Instant fetchedAt,
+                String deploymentTier,
+                String errorMessage
+            ) {
+            return unavailableWatchlist(
+                watchlist.stream().map(WatchlistEntry::fromUat).toList(),
+                fetchedAt,
+                deploymentTier,
+                errorMessage
+            );
+            }
+
+            public List<SystemHealthView> unavailableProdWatchlist(
+                List<MonitoredHostProd> watchlist,
+                Instant fetchedAt,
+                String deploymentTier,
+                String errorMessage
+            ) {
+            return unavailableWatchlist(
+                watchlist.stream().map(WatchlistEntry::fromProd).toList(),
+                fetchedAt,
+                deploymentTier,
+                errorMessage
+            );
+            }
+
     private List<SystemHealthView> evaluateWatchlist(
             List<WatchlistEntry> watchlist,
             List<SystemHealthView> modelHubInstances,
@@ -65,6 +93,37 @@ public class ModelHubWatchlistService {
 
         return results;
     }
+
+        private static List<SystemHealthView> unavailableWatchlist(
+            List<WatchlistEntry> watchlist,
+            Instant fetchedAt,
+            String deploymentTier,
+            String errorMessage
+        ) {
+        return watchlist.stream()
+            .map(host -> new SystemHealthView(
+                host.id(),
+                host.name(),
+                host.host(),
+                host.port(),
+                host.environment(),
+                host.region(),
+                HealthStatus.DOWN,
+                HealthStatus.DOWN.displayLabel(),
+                fetchedAt,
+                0L,
+                errorMessage,
+                null,
+                null,
+                0L,
+                0L,
+                null,
+                null,
+                null,
+                deploymentTier
+            ))
+            .toList();
+        }
 
     private static SystemHealthView matchHost(
             WatchlistEntry host,
@@ -85,7 +144,7 @@ public class ModelHubWatchlistService {
         String region = resolveRegion(host, match.map(SystemHealthView::environmentId).orElse(null), environmentTagsById);
 
         if (match.isEmpty()) {
-            return downView(host, fetchedAt, "Not found in Model Hub", region, deploymentTier);
+            return downView(host, fetchedAt, "System Down", region, deploymentTier);
         }
 
         SystemHealthView instance = match.get();

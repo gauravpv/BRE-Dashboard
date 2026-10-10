@@ -19,7 +19,7 @@ public class WebMvcAuthConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**")
                 .excludePathPatterns(
                         "/login", "/login/process", "/login/oauth2/**", "/logout", "/oauth2/**", "/auth/**",
-                        "/error", "/css/**", "/js/**", "/h2-console/**", "/api/**"
+                        "/error", "/css/**", "/js/**", "/fonts/**", "/h2-console/**", "/api/**"
                 );
     }
 }

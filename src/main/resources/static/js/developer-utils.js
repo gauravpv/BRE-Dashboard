@@ -199,7 +199,7 @@
     card.appendChild(head);
     card.appendChild(body);
     workspace.appendChild(card);
-    if (headerDesc) headerDesc.textContent = meta.desc;
+    if (headerDesc) headerDesc.textContent = meta.id === 'json-beautify' ? '' : meta.desc;
     bodyFn(body);
     queueMicrotask(() => {
       const first = body.querySelector('textarea:not([readonly]), input:not([readonly]):not([type=checkbox]):not([type=number])');

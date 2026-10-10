@@ -30,6 +30,7 @@ class UserAdminPageTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("id=\"userSearch\"")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("id=\"usersPaginationBar\"")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("initUsersTable();")))
                 .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString(">Azure AD ID</th>"))));
     }
 }

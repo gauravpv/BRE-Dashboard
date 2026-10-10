@@ -2,14 +2,20 @@
 <html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
 <head>
 <th:block th:replace="~{fragments/head :: head(pageTitle='User Administration')}"/>
-<style>
+<style data-bre-page-style>
     #userDrawer { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); }
     #userDrawer.open { transform: translateX(0); }
     #drawerOverlay { transition: opacity 0.3s ease; pointer-events: none; opacity: 0; }
     #drawerOverlay.open { pointer-events: auto; opacity: 1; }
+    .user-admin-page .user-admin-table tbody tr { transition: background-color .14s ease; }
+    html.dark .user-admin-page .user-admin-table tbody tr:nth-child(even) { background: rgb(255 255 255 / 2.5%); }
+    html.dark .user-admin-page .user-admin-table tbody tr:hover { background: rgb(118 183 255 / 9%); }
+    html.dark .user-admin-page .user-last-login { color: #c1ccdc; }
+    html.dark .user-admin-page .user-last-login--empty { color: #9eacc0; }
+    .user-admin-page .user-status-dot--pending { background-color: #f59e0b; box-shadow: 0 0 0 3px rgb(245 158 11 / 14%); }
 </style>
 </head>
-<body class="bre-dashboard-app bg-background text-on-background font-body-md overflow-hidden">
+<body class="bre-dashboard-app user-admin-page bg-background text-on-background font-body-md overflow-hidden">
 <div class="flex h-screen overflow-hidden">
 <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
 <main class="flex-1 flex flex-col ml-[240px] h-screen overflow-hidden bg-background">
@@ -39,7 +45,7 @@ Add user
 </div>
 </div>
 <div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-xl">
-<table class="w-full border-collapse table-fixed" id="usersTable">
+<table class="w-full border-collapse table-fixed user-admin-table" id="usersTable">
 <colgroup>
 <col style="width:22%"/>
 <col style="width:24%"/>
@@ -50,43 +56,44 @@ Add user
 </colgroup>
 <thead class="bg-surface-container-low border-b border-outline-variant">
 <tr>
-<th class="px-4 py-3 text-left font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">User</th>
-<th class="px-4 py-3 text-left font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Email</th>
-<th class="px-4 py-3 text-left font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Role</th>
-<th class="px-4 py-3 text-left font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Status</th>
-<th class="px-4 py-3 text-left font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Last login</th>
-<th class="px-4 py-3 text-right font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Actions</th>
+<th class="px-3 py-2 text-left font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">User</th>
+<th class="px-3 py-2 text-left font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Email</th>
+<th class="px-3 py-2 text-left font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Role</th>
+<th class="px-3 py-2 text-left font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Status</th>
+<th class="px-3 py-2 text-left font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Last login</th>
+<th class="px-3 py-2 text-right font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Actions</th>
 </tr>
 </thead>
 <tbody id="usersTableBody" class="divide-y divide-outline-variant">
 <tr th:each="u : ${users}" class="user-row hover:bg-surface-container-low/50 transition-colors duration-150 group hidden"
     th:attr="data-search=${#strings.toLowerCase(u.displayName + ' ' + u.email + ' ' + u.role.name + ' ' + u.role.code + ' ' + u.accountStatus.name() + ' ' + (u.jobTitle != null ? u.jobTitle : ''))}">
-<td class="px-4 py-3 align-middle">
-<div class="flex items-center gap-3 min-w-0">
-<div class="w-9 h-9 rounded-full bg-secondary-container/20 border border-outline-variant flex items-center justify-center shrink-0">
-<span class="material-symbols-outlined text-secondary-fixed-dim text-[20px]">person</span>
+<td class="px-3 py-2 align-middle">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-8 h-8 rounded-full bg-secondary-container/20 border border-outline-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary-fixed-dim text-[18px]">person</span>
 </div>
-<p class="font-title-md text-title-md text-on-surface truncate min-w-0" th:text="${u.displayName}">Name</p>
+<p class="font-body-md text-body-md font-semibold text-on-surface truncate min-w-0" th:text="${u.displayName}">Name</p>
 </div>
 </td>
-<td class="px-4 py-3 align-middle">
-<span class="font-body-md text-body-md text-on-surface truncate block" th:text="${u.email}">email</span>
+<td class="px-3 py-2 align-middle">
+<span class="font-body-sm text-body-sm text-on-surface truncate block" th:text="${u.email}">email</span>
 </td>
-<td class="px-4 py-3 align-middle">
+<td class="px-3 py-2 align-middle">
 <span th:class="${u.role.code == 'ADMIN' or u.role.name == 'Administrator'} ? 'inline-block px-2.5 py-0.5 rounded-full bre-badge-admin font-label-md text-label-md whitespace-nowrap' : 'inline-block px-2.5 py-0.5 rounded-full bg-surface-container-low text-on-surface-variant border border-outline-variant font-label-md text-label-md whitespace-nowrap'"
       th:text="${u.role.name}">Role</span>
 </td>
-<td class="px-4 py-3 align-middle">
+<td class="px-3 py-2 align-middle">
 <div class="flex items-center gap-2 whitespace-nowrap">
-<span th:class="${u.accountStatus.name() == 'ACTIVE' ? 'w-2 h-2 rounded-full bre-status-dot-active shrink-0' : (u.accountStatus.name() == 'PENDING' ? 'w-2 h-2 rounded-full bg-tertiary shrink-0' : 'w-2 h-2 rounded-full bg-error shrink-0')}"></span>
+<span th:class="${u.accountStatus.name() == 'ACTIVE' ? 'w-2 h-2 rounded-full bre-status-dot-active shrink-0' : (u.accountStatus.name() == 'PENDING' ? 'w-2 h-2 rounded-full user-status-dot--pending shrink-0' : 'w-2 h-2 rounded-full bg-error shrink-0')}"></span>
 <span class="font-body-sm text-body-sm text-on-surface" th:text="${#strings.capitalize(#strings.toLowerCase(u.accountStatus.name()))}">Active</span>
 </div>
 </td>
-<td class="px-4 py-3 align-middle">
-<span class="font-body-sm text-body-sm text-on-surface-variant/70 block truncate"
+<td class="px-3 py-2 align-middle">
+<span class="font-body-sm text-body-sm text-on-surface-variant block truncate user-last-login"
+    th:classappend="${u.lastLoginAt == null} ? ' user-last-login--empty'"
       th:text="${u.lastLoginAt != null ? #temporals.format(u.lastLoginAt, 'MMM d yyyy HH:mm') : 'Never'}">Never</span>
 </td>
-<td class="px-4 py-3 text-right align-middle">
+<td class="px-3 py-2 text-right align-middle">
 <div class="inline-flex items-center justify-end gap-0.5">
 <button type="button" class="p-2 hover:bg-surface-container-low rounded transition-all text-secondary-fixed-dim"
         th:attr="data-user-id=${u.id}, data-user-name=${u.displayName}, data-user-role=${u.role.code}, data-user-enabled=${u.enabled}"
@@ -137,23 +144,23 @@ Next
 </div>
 <div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-xl" id="roleTabsMatrix">
 <div class="overflow-x-auto">
-<table class="w-full border-collapse">
+<table class="w-full border-collapse role-access-table">
 <thead class="bg-surface-container-low border-b border-outline-variant">
 <tr>
-<th class="px-4 py-3 text-left font-label-md text-label-md text-on-surface-variant uppercase tracking-wider min-w-[160px]">Tab</th>
-<th th:each="role : ${roles}" class="px-4 py-3 text-center font-label-md text-label-md text-on-surface-variant uppercase tracking-wider min-w-[120px]"
+<th class="px-3 py-2 text-left font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider min-w-[160px]">Tab</th>
+<th th:each="role : ${roles}" class="px-3 py-2 text-center font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider min-w-[120px]"
     th:attr="data-role-id=${role.id}">
 <div class="flex flex-col items-center gap-0.5">
-<span th:text="${role.name}">Role</span>
-<span class="text-label-sm opacity-70" th:text="${role.code}">CODE</span>
+<span class="font-body-sm text-body-sm font-semibold text-on-surface" th:text="${role.name}">Role</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant" th:text="${role.code}">CODE</span>
 </div>
 </th>
 </tr>
 </thead>
 <tbody class="divide-y divide-outline-variant/50">
 <tr th:each="tab : ${allTabs}" class="hover:bg-surface-container-low/30">
-<td class="px-4 py-3 font-body-md text-on-surface" th:text="${tab.label}">Tab</td>
-<td th:each="role : ${roles}" class="px-4 py-3 text-center">
+<td class="px-3 py-2 font-body-md text-body-md font-semibold text-on-surface" th:text="${tab.label}">Tab</td>
+<td th:each="role : ${roles}" class="px-3 py-2 text-center">
 <input type="checkbox" class="role-tab-cb rounded border-outline-variant/30 bg-surface-container-low text-secondary-container focus:ring-secondary-container"
        th:attr="data-role-id=${role.id}, data-tab-id=${tab.id()}"
        th:checked="${roleTabFlags[role.id][tab.id()] == true}"/>
@@ -406,7 +413,7 @@ Save tab access
         applyUsersTableView();
     }
 
-    document.addEventListener('DOMContentLoaded', initUsersTable);
+    initUsersTable();
 
     async function adminApiErrorMessage(res, fallback) {
         const data = await res.json().catch(() => ({}));
@@ -479,8 +486,8 @@ Save tab access
         }
         if (!confirm(`Delete user "${userName}"? This cannot be undone.`)) return;
         try {
-            const res = await fetch(`/api/admin/users/${userId}`, {
-                method: 'DELETE',
+            const res = await fetch(`/api/admin/users/${userId}/delete`, {
+                method: 'POST',
                 credentials: 'same-origin'
             });
             if (!res.ok) {
@@ -600,7 +607,7 @@ Save tab access
         const roleCode = document.getElementById('userRoleSelect').value;
         try {
             const res = await fetch(`/api/admin/users/${selectedUserId}/approve`, {
-                method: 'PUT',
+                method: 'POST',
                 credentials: 'same-origin',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ roleCode })
@@ -616,8 +623,8 @@ Save tab access
         if (!selectedUserId) return;
         if (!confirm('Force this user to sign in again?')) return;
         try {
-            const res = await fetch(`/api/admin/users/${selectedUserId}/sessions`, {
-                method: 'DELETE',
+            const res = await fetch(`/api/admin/users/${selectedUserId}/sessions/revoke`, {
+                method: 'POST',
                 credentials: 'same-origin'
             });
             if (!res.ok) throw new Error(await adminApiErrorMessage(res, 'Failed to revoke session'));
@@ -634,8 +641,8 @@ Save tab access
         const displayName = document.getElementById('drawerDisplayName').value.trim();
         const jobTitle = document.getElementById('drawerJobTitle').value.trim();
         try {
-            const profileRes = await fetch(`/api/admin/users/${selectedUserId}`, {
-                method: 'PUT',
+            const profileRes = await fetch(`/api/admin/users/${selectedUserId}/profile`, {
+                method: 'POST',
                 credentials: 'same-origin',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ displayName, jobTitle: jobTitle || null })
@@ -643,7 +650,7 @@ Save tab access
             if (!profileRes.ok) throw new Error(await adminApiErrorMessage(profileRes, 'Failed to save profile'));
 
             const roleRes = await fetch(`/api/admin/users/${selectedUserId}/role`, {
-                method: 'PUT',
+                method: 'POST',
                 credentials: 'same-origin',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ roleCode })
@@ -651,7 +658,7 @@ Save tab access
             if (!roleRes.ok) throw new Error(await adminApiErrorMessage(roleRes, 'Failed to save role'));
 
             const statusRes = await fetch(`/api/admin/users/${selectedUserId}/status`, {
-                method: 'PUT',
+                method: 'POST',
                 credentials: 'same-origin',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ enabled })
@@ -674,7 +681,7 @@ Save tab access
                     tabs[cb.dataset.tabId] = cb.checked;
                 });
                 const res = await fetch(`/api/admin/roles/${roleId}/tabs`, {
-                    method: 'PUT',
+                    method: 'POST',
                     credentials: 'same-origin',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ tabs })

@@ -1,68 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
 <head>
-<th:block th:replace="~{fragments/head :: head(pageTitle='Operations Dashboard')}"/>
-<style>
-    .dashboard-shell {
-        margin-left: var(--bre-sidebar-width, 240px);
-        padding-top: 4rem;
-        min-height: 100vh;
-        display: flex;
-        align-items: stretch;
-    }
-    .dashboard-main {
-        flex: 1 1 auto;
-        min-width: 0;
-        padding: 24px;
-    }
-    .dashboard-activity {
-        flex: 0 0 320px;
-        width: 320px;
-        position: sticky;
-        top: 4rem;
-        align-self: flex-start;
-        height: calc(100vh - 4rem);
-        display: flex;
-        flex-direction: column;
-        background: var(--bre-panel, #fff);
-        border-left: 1px solid var(--bre-border, #e0e0e0);
-    }
-    .kpi-card {
-        display: flex;
-        flex-direction: column;
-        padding: 10px 12px;
-        min-width: 0;
-    }
-    .kpi-card .kpi-header {
-        margin-bottom: 4px;
-    }
-    .kpi-card .kpi-body {
-        flex: 0 0 auto;
-        min-width: 0;
-    }
-    .kpi-card .kpi-footer {
-        flex-shrink: 0;
-        margin-top: 6px;
-        min-height: 1rem;
-        display: flex;
-        align-items: flex-end;
-    }
-    .dashboard-kpi-grid {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 16px;
-        align-items: stretch;
-    }
-    @media (max-width: 1280px) {
-        .dashboard-kpi-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-    }
-</style>
+<th:block th:replace="~{fragments/head :: head(pageTitle=${dashboardTitle})}"/>
 </head>
 <body class="bre-dashboard-app dashboard-page bg-background font-body-md text-on-background antialiased selection:bg-secondary-fixed-dim">
 <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
-<th:block th:replace="~{fragments/page-shell :: page-header(title='System Dashboard', searchPlaceholder='Search services, logs, or metrics...', searchId='dash-search', showSearch=true, fixed=true, showNotifications=true, showSettings=true, showUser=false)}"/>
+<th:block th:replace="~{fragments/page-shell :: page-header(title=${dashboardTitle}, searchPlaceholder='', searchId='', showSearch=false, fixed=true, showNotifications=true, showSettings=true, showUser=false)}"/>
 <div class="dashboard-shell">
 <main class="dashboard-main">
 <div class="grid dashboard-kpi-grid gap-gutter mb-unit-lg items-stretch min-w-0">
@@ -159,7 +102,7 @@
 </p>
 </div>
 </div>
-<div class="h-64 w-full relative flex gap-2">
+<div class="h-64 w-full relative flex gap-2 dashboard-services-plot">
 <div class="flex flex-col justify-between text-[10px] text-on-surface-variant tabular-nums py-1 shrink-0 w-4 text-right">
 <span th:text="${servicesUpChart.maxY}">4</span>
 <span th:text="${servicesUpChart.maxY / 2}">2</span>
@@ -198,7 +141,7 @@
 <h4 class="font-title-lg text-title-lg text-primary">Recent Incidents</h4>
 <a th:href="@{/health(status='DOWN')}" class="text-secondary font-label-md text-label-md hover:underline">View All</a>
 </div>
-<div class="flex-1 overflow-y-auto custom-scrollbar">
+<div class="flex-1 overflow-y-auto custom-scrollbar dashboard-incidents-list">
 <table class="w-full text-left">
 <thead class="bg-surface-container-low sticky top-0">
 <tr>
@@ -230,86 +173,31 @@
 </div>
 </div>
 </div>
-<div class="grid grid-cols-12 gap-gutter">
-<div class="col-span-7 bg-surface border border-outline-variant rounded-lg p-unit-lg">
-<div class="flex justify-between items-center mb-unit-lg">
-<h4 class="font-title-lg text-title-lg text-primary">API Response Time (ms)</h4>
-<span class="flex items-center gap-2 text-label-sm text-on-surface-variant" th:if="${responseTimeChart.currentAvgMs() > 0}">
-<span class="w-3 h-3 rounded-full bg-secondary"></span>
-<span th:text="|Avg: ${responseTimeChart.currentAvgMs()}ms|">Avg: 0ms</span>
-</span>
-<span class="flex items-center gap-2 text-label-sm text-on-surface-variant" th:if="${responseTimeChart.currentAvgMs() == 0}">
-No probe latency recorded yet
-</span>
-</div>
-<div class="h-48 flex items-end gap-1" th:if="${!#lists.isEmpty(responseTimeChart.bars())}">
-<div th:each="bar : ${responseTimeChart.bars()}"
-     class="flex-1 bg-secondary/60 rounded-t transition-all duration-300 min-h-[4px]"
-     th:style="|height: ${bar.heightPercent()}%|"
-     th:title="|${bar.avgMs()}ms|"></div>
-</div>
-<div class="h-48 flex items-center justify-center text-body-sm text-on-surface-variant" th:if="${#lists.isEmpty(responseTimeChart.bars())}">
-Response time history builds as health probes run.
-</div>
-</div>
-<div class="col-span-5 bg-surface border border-outline-variant rounded-lg p-unit-lg">
-<h4 class="font-title-lg text-title-lg text-primary mb-unit-lg">Load Heatmap by Endpoint</h4>
-<div class="grid grid-cols-8 grid-rows-4 gap-1">
-<div class="aspect-square rounded-sm bg-green-500/20" title="/v1/login"></div>
-<div class="aspect-square rounded-sm bg-green-500/40"></div>
-<div class="aspect-square rounded-sm bg-green-500/10"></div>
-<div class="aspect-square rounded-sm bg-green-500/60"></div>
-<div class="aspect-square rounded-sm bg-orange-500/80"></div>
-<div class="aspect-square rounded-sm bg-green-500/20"></div>
-<div class="aspect-square rounded-sm bg-green-500/10"></div>
-<div class="aspect-square rounded-sm bg-green-500/30"></div>
-<div class="aspect-square rounded-sm bg-green-500/10"></div>
-<div class="aspect-square rounded-sm bg-green-500/20"></div>
-<div class="aspect-square rounded-sm bg-green-500/50"></div>
-<div class="aspect-square rounded-sm bg-green-500/30"></div>
-<div class="aspect-square rounded-sm bg-green-500/20"></div>
-<div class="aspect-square rounded-sm bg-green-500/10"></div>
-<div class="aspect-square rounded-sm bg-red-500/90"></div>
-<div class="aspect-square rounded-sm bg-green-500/20"></div>
-<div class="aspect-square rounded-sm bg-green-500/40"></div>
-<div class="aspect-square rounded-sm bg-green-500/30"></div>
-<div class="aspect-square rounded-sm bg-green-500/10"></div>
-<div class="aspect-square rounded-sm bg-orange-500/50"></div>
-<div class="aspect-square rounded-sm bg-green-500/20"></div>
-<div class="aspect-square rounded-sm bg-green-500/10"></div>
-<div class="aspect-square rounded-sm bg-green-500/40"></div>
-<div class="aspect-square rounded-sm bg-green-500/10"></div>
-<div class="aspect-square rounded-sm bg-green-500/10"></div>
-<div class="aspect-square rounded-sm bg-green-500/10"></div>
-<div class="aspect-square rounded-sm bg-green-500/10"></div>
-<div class="aspect-square rounded-sm bg-green-500/10"></div>
-<div class="aspect-square rounded-sm bg-green-500/10"></div>
-<div class="aspect-square rounded-sm bg-green-500/10"></div>
-<div class="aspect-square rounded-sm bg-green-500/10"></div>
-<div class="aspect-square rounded-sm bg-green-500/10"></div>
-</div>
-<div class="mt-unit-lg flex items-center justify-between text-label-sm text-on-surface-variant">
-<span>Cluster Efficiency: 94.2%</span>
-<div class="flex gap-1">
-<div class="w-3 h-3 rounded-sm bg-green-500/10"></div>
-<div class="w-3 h-3 rounded-sm bg-green-500/50"></div>
-<div class="w-3 h-3 rounded-sm bg-orange-500/80"></div>
-<div class="w-3 h-3 rounded-sm bg-red-500/90"></div>
-</div>
-</div>
-</div>
 </div>
 <th:block th:replace="~{fragments/page-shell :: page-footer(hint='Operations overview and KPIs')}"/>
 </main>
-<aside class="dashboard-activity z-30">
-<div class="p-unit-lg border-b border-outline-variant flex items-center justify-between shrink-0">
+<aside th:if="${isAdministrator}" id="dashboardActivityPanel" class="dashboard-activity z-30"
+    aria-label="System Activity" aria-hidden="true" inert>
+<div class="dashboard-activity-header p-unit-lg border-b border-outline-variant flex items-center justify-between shrink-0">
+<div class="dashboard-activity-heading">
 <h3 class="font-title-lg text-title-lg text-primary">System Activity</h3>
+<button th:if="${isAdministrator}" type="button" id="dashboardActivityCloseToggle"
+        class="dashboard-activity-close" aria-controls="dashboardActivityPanel"
+        aria-expanded="true" aria-label="Close System Activity" title="Close System Activity">
+    <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+</button>
+</div>
 <span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
 </div>
-<div class="flex-1 overflow-y-auto p-unit-lg space-y-unit-lg custom-scrollbar min-h-0">
+<div class="flex-1 overflow-y-auto p-unit-lg space-y-3 custom-scrollbar min-h-0">
 <th:block th:replace="~{fragments/activity-feed :: activity-list(activities=${activities}, emptyMessage='No recent activity yet. Events appear when users sign in, services change health status, or roles are updated.')}"/>
 </div>
 </aside>
+<button th:if="${isAdministrator}" type="button" id="dashboardActivityToggle"
+        class="dashboard-activity-open-toggle" aria-controls="dashboardActivityPanel"
+        aria-expanded="false" aria-label="Open System Activity" title="Open System Activity">
+    <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+</button>
 </div>
 <script>
         // Simple micro-interaction for KPI cards
@@ -323,17 +211,36 @@ Response time history builds as health probes run.
             card.style.transition = 'transform 0.2s ease, box-shadow 0.2s ease';
         });
 
-        // Search bar focus effect
-        const searchInput = document.querySelector('input[type="search"]');
-        if (searchInput) {
-            searchInput.addEventListener('focus', () => {
-                searchInput.parentElement.classList.add('scale-[1.02]');
+        const activityToggle = document.getElementById('dashboardActivityToggle');
+        const activityCloseToggle = document.getElementById('dashboardActivityCloseToggle');
+        const activityPanel = document.getElementById('dashboardActivityPanel');
+        if (activityToggle && activityCloseToggle && activityPanel) {
+            const setActivityOpen = open => {
+                document.querySelector('.dashboard-shell').classList.toggle('activity-open', open);
+                activityPanel.classList.toggle('is-open', open);
+                activityPanel.inert = !open;
+                activityPanel.setAttribute('aria-hidden', String(!open));
+                activityToggle.hidden = open;
+                activityToggle.setAttribute('aria-expanded', String(open));
+                activityCloseToggle.setAttribute('aria-expanded', String(open));
+            };
+
+            activityToggle.addEventListener('click', () => {
+                setActivityOpen(true);
             });
-            searchInput.addEventListener('blur', () => {
-                searchInput.parentElement.classList.remove('scale-[1.02]');
+
+            activityCloseToggle.addEventListener('click', () => {
+                setActivityOpen(false);
             });
-            searchInput.parentElement.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+
+            document.addEventListener('keydown', event => {
+                if (event.key === 'Escape' && activityCloseToggle.getAttribute('aria-expanded') === 'true') {
+                    setActivityOpen(false);
+                    activityToggle.focus();
+                }
+            });
         }
+
     </script>
 </body></html>
 

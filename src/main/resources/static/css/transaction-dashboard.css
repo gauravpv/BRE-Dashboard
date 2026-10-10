@@ -677,6 +677,7 @@
     display: flex;
     flex-direction: column;
     gap: .7rem;
+    overflow: hidden;
 }
 
 .txn-market {
@@ -692,7 +693,6 @@
 
 .txn-market--flipkart { --txn-accent: #0f62b5; }
 .txn-market--amazon { --txn-accent: #f59e0b; }
-.txn-market--other { --txn-accent: #6366f1; }
 
 .txn-market-head {
     display: flex;
@@ -904,6 +904,128 @@
     text-align: center;
 }
 
+/* ── Live top bar: figures centred, refresh on the right ── */
+.txn-strip--live {
+    display: grid;
+    grid-template-columns: 9.5rem minmax(0, 1fr) 9.5rem;
+    align-items: center;
+}
+
+.txn-strip--live > * {
+    padding-right: 0;
+    border-right: 0;
+}
+
+.txn-strip-figures {
+    grid-column: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+    min-width: 0;
+}
+
+.txn-strip-figures > * + * {
+    padding-left: 1.25rem;
+    border-left: 1px solid var(--bre-border);
+}
+
+.txn-strip-figures .txn-strip-stats {
+    flex: 0 1 32rem;
+}
+
+.txn-strip-actions {
+    grid-column: 3;
+    justify-self: end;
+}
+
+/* ── Grid tables: borders, zebra rows, column separators ── */
+.txn-table--grid {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.txn-table--grid th,
+.txn-table--grid td {
+    border-bottom: 1px solid var(--bre-border);
+    vertical-align: middle;
+}
+
+.txn-table--grid td {
+    border-top: 0;
+    padding: .5rem .7rem;
+}
+
+.txn-table--grid th + th,
+.txn-table--grid td + td {
+    border-left: 1px solid var(--bre-border);
+}
+
+.txn-table--grid tbody tr:nth-child(even) {
+    background: var(--bre-panel-subtle);
+}
+
+.txn-table--grid tbody tr:hover {
+    background: rgb(0 89 187 / 5%);
+}
+
+.txn-table--grid .txn-inline-bar {
+    display: block;
+}
+
+/* ── Live refresh animations ── */
+.txn-funnel-bar span,
+.txn-meter-fill,
+.txn-inline-bar span,
+.txn-histogram-track span,
+.txn-ring-value {
+    transition: width .7s cubic-bezier(.22, 1, .36, 1),
+                height .7s cubic-bezier(.22, 1, .36, 1),
+                stroke-dasharray .7s cubic-bezier(.22, 1, .36, 1);
+}
+
+.txn-marker {
+    transition: left .7s cubic-bezier(.22, 1, .36, 1), top .7s cubic-bezier(.22, 1, .36, 1);
+}
+
+[data-rt-path] {
+    transition: d .7s cubic-bezier(.22, 1, .36, 1);
+}
+
+.rt-no-transition {
+    transition: none !important;
+}
+
+[data-rt] {
+    border-radius: .25rem;
+    transition: color .4s ease, background-color .4s ease;
+}
+
+[data-rt].rt-changed--up {
+    color: #15803d;
+    background-color: rgb(22 163 74 / 10%);
+}
+
+[data-rt].rt-changed--down {
+    color: #b45309;
+    background-color: rgb(217 119 6 / 10%);
+}
+
+@media (max-width: 1280px) {
+    .txn-strip--live {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .txn-strip-figures {
+        grid-column: 1;
+        flex-wrap: wrap;
+    }
+
+    .txn-strip-actions {
+        grid-column: 2;
+    }
+}
+
 /* ── Dark theme ── */
 html.dark .txn-latency-head strong,
 html.dark .txn-funnel-conv b,
@@ -943,7 +1065,7 @@ html.dark .txn-funnel-step--final .txn-funnel-top .material-symbols-outlined {
 html.dark .txn-market--flipkart { --txn-accent: #76b7ff; }
 
 /* ── Narrow viewports: fall back to a scrolling page ── */
-@media (max-width: 1280px), (max-height: 640px) {
+@media (max-width: 1120px), (max-height: 640px) {
     .txn-body {
         overflow: auto;
     }

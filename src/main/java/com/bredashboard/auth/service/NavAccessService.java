@@ -25,7 +25,7 @@ public class NavAccessService {
     }
 
     public boolean canAccess(AppUser user, AppTab tab) {
-        if (user == null || !user.isEnabled() || tab == null) {
+        if (user == null || !user.isEnabled() || tab == null || !AppTab.permissionTabs().contains(tab)) {
             return false;
         }
         return allowedTabs(user).contains(tab);
@@ -43,7 +43,7 @@ public class NavAccessService {
         }
         Set<AppTab> allowed = allowedTabs(user);
         Map<String, Boolean> map = new LinkedHashMap<>();
-        for (AppTab tab : AppTab.values()) {
+        for (AppTab tab : AppTab.permissionTabs()) {
             map.put(tab.id(), allowed.contains(tab));
         }
         return map;
@@ -53,7 +53,7 @@ public class NavAccessService {
         if (path == null || path.isBlank() || "/".equals(path)) {
             return AppTab.DASHBOARD;
         }
-        for (AppTab tab : AppTab.values()) {
+        for (AppTab tab : AppTab.permissionTabs()) {
             if (tab.path().equals(path)) {
                 return tab;
             }

@@ -26,25 +26,27 @@ import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import java.util.Optional;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     private final AuthProperties authProperties;
-    private final OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService;
+    private final Optional<OAuth2UserService<OidcUserRequest, OidcUser>> oidcUserService;
     private final AuthenticationSuccessHandler loginSuccessHandler;
     private final AzureLoginFailureHandler azureLoginFailureHandler;
     private final UserDetailsService userDetailsService;
 
     public SecurityConfig(
             AuthProperties authProperties,
-            AzureOidcUserService oidcUserService,
+            Optional<AzureOidcUserService> oidcUserService,
             LoginSuccessHandler loginSuccessHandler,
             AzureLoginFailureHandler azureLoginFailureHandler,
             BreUserDetailsService userDetailsService
     ) {
         this.authProperties = authProperties;
-        this.oidcUserService = oidcUserService;
+        this.oidcUserService = oidcUserService.map(s -> (OAuth2UserService<OidcUserRequest, OidcUser>) s);
         this.loginSuccessHandler = loginSuccessHandler;
         this.azureLoginFailureHandler = azureLoginFailureHandler;
         this.userDetailsService = userDetailsService;
@@ -61,6 +63,8 @@ public class SecurityConfig {
                                 "/error",
                                 "/css/**",
                                 "/js/**",
+                                "/fonts/**",
+                                "/images/**",
                                 "/favicon.ico"
                         ).permitAll()
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
@@ -97,7 +101,7 @@ public class SecurityConfig {
         if (authProperties.isAzureOAuthConfigured()) {
             http.oauth2Login(oauth -> oauth
                     .loginPage("/login")
-                    .userInfoEndpoint(userInfo -> userInfo.oidcUserService(oidcUserService))
+                    .userInfoEndpoint(userInfo -> oidcUserService.ifPresent(service -> userInfo.oidcUserService(service)))
                     .successHandler(loginSuccessHandler)
                     .failureHandler(azureLoginFailureHandler)
             );

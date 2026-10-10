@@ -29,6 +29,10 @@ Open http://localhost:8080
 
 Local profile still seeds `admin@bredashboard.local` / `Admin@123` for developers only. Do not use that profile in UAT or PROD.
 
+## Logging
+
+Log4j2 writes application and framework logs to the console and `logs/bre-dashboard.log`. Files roll daily or at 20 MB, are compressed under `logs/archive`, and are retained for 30 days. Set `BRE_DASHBOARD_LOG_PATH` to use a different writable directory on the server.
+
 ## Run UAT / PROD
 
 See [deploy/README.md](deploy/README.md) for SQL scripts. For UAT/PROD, copy [deploy/server/application.yml](deploy/server/application.yml) (or the UAT template) next to the JAR, fill the values, and run `java -jar` from that folder. No environment variables.

@@ -44,11 +44,36 @@ class PageControllerTest {
                 .andExpect(model().attributeExists("responseTimeChart"))
                 .andExpect(model().attributeExists("activities"))
                 .andExpect(model().attributeExists("recentIncidents"))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("System Activity")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("id=\"dashboardActivityToggle\"")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("aria-expanded=\"false\"")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Total Services")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Health Rate")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString(" of ")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString(" up")));
     }
+
+            @Test
+            void systemActivityIsOnlyDisplayedForAdministrators() throws Exception {
+            AppUser admin = userRepository.findByAzureAdId("dev-admin").orElseThrow();
+            AppUser monitoring = userRepository.findByAzureAdId("dev-monitoring").orElseThrow();
+            AppUser tester = userRepository.findByAzureAdId("dev-tester").orElseThrow();
+
+            for (AppUser nonAdministrator : java.util.List.of(monitoring, tester)) {
+                mockMvc.perform(get("/").with(user(BreUserPrincipal.fromUser(nonAdministrator))))
+                    .andExpect(status().isOk())
+                    .andExpect(content().string(org.hamcrest.Matchers.not(
+                        org.hamcrest.Matchers.containsString("System Activity"))));
+                mockMvc.perform(get("/health").with(user(BreUserPrincipal.fromUser(nonAdministrator))))
+                    .andExpect(status().isOk())
+                    .andExpect(content().string(org.hamcrest.Matchers.not(
+                        org.hamcrest.Matchers.containsString("System Activity"))));
+            }
+
+            mockMvc.perform(get("/health").with(user(BreUserPrincipal.fromUser(admin))))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("System Activity")));
+            }
 
     @Test
     void systemAdmin_rendersSeededServices() throws Exception {

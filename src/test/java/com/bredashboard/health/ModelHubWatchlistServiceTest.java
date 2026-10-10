@@ -90,9 +90,31 @@ class ModelHubWatchlistServiceTest {
         List<SystemHealthView> results = service.evaluateUatWatchlist(List.of(host), List.of(), Map.of(), fetchedAt, "UAT");
 
         assertThat(results.get(0).status()).isEqualTo(HealthStatus.DOWN);
-        assertThat(results.get(0).errorMessage()).isEqualTo("Not found in Model Hub");
+        assertThat(results.get(0).errorMessage()).isEqualTo("System Down");
         assertThat(results.get(0).region()).isEqualTo("BRE AUTH");
     }
+
+        @Test
+        void unavailableWatchlist_keepsRegisteredHostDetailsAndError() {
+                MonitoredHost host = org.mockito.Mockito.mock(MonitoredHost.class);
+                org.mockito.Mockito.when(host.getId()).thenReturn(17L);
+                org.mockito.Mockito.when(host.getName()).thenReturn("Billing API");
+                org.mockito.Mockito.when(host.getHost()).thenReturn("10.0.0.8");
+                org.mockito.Mockito.when(host.getPort()).thenReturn(9090);
+                org.mockito.Mockito.when(host.getEnvironment()).thenReturn("UAT");
+                org.mockito.Mockito.when(host.getRegion()).thenReturn("US-East");
+
+                List<SystemHealthView> results = service.unavailableUatWatchlist(
+                                List.of(host), fetchedAt, "UAT", "Model Hub unavailable"
+                );
+
+                assertThat(results).singleElement().satisfies(system -> {
+                        assertThat(system.id()).isEqualTo(17L);
+                        assertThat(system.name()).isEqualTo("Billing API");
+                        assertThat(system.status()).isEqualTo(HealthStatus.DOWN);
+                        assertThat(system.errorMessage()).isEqualTo("Model Hub unavailable");
+                });
+        }
 
     @Test
     void evaluateWatchlist_matchesByHostPortWithoutStoredEnvironmentId() {

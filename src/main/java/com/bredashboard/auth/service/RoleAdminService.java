@@ -78,7 +78,7 @@ public class RoleAdminService {
         Map<Long, Map<String, Boolean>> result = new LinkedHashMap<>();
         for (AppRole role : roleRepository.findAll()) {
             Map<String, Boolean> flags = new LinkedHashMap<>();
-            for (AppTab tab : AppTab.values()) {
+            for (AppTab tab : AppTab.permissionTabs()) {
                 flags.put(tab.id(), false);
             }
             result.put(role.getId(), flags);
@@ -278,20 +278,6 @@ public class RoleAdminService {
     }
 
     @Transactional
-    public void changeOwnPassword(AppUser actor, String currentPassword, String newPassword) {
-        AppUser user = userRepository.findById(actor.getId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        if (!user.hasLocalPassword() || !passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
-            throw new IllegalArgumentException("Current password is incorrect");
-        }
-        if (!StringUtils.hasText(newPassword) || newPassword.length() < 8) {
-            throw new IllegalArgumentException("Password must be at least 8 characters");
-        }
-        user.setPasswordHash(passwordEncoder.encode(newPassword));
-        userRepository.save(user);
-    }
-
-    @Transactional
     public void updateRoleTabs(Long roleId, Map<String, Boolean> tabAccess, AppUser actor) {
         AppRole role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new IllegalArgumentException("Role not found"));
@@ -302,7 +288,7 @@ public class RoleAdminService {
         }
 
         List<RoleTabAccess> toSave = new ArrayList<>();
-        for (AppTab tab : AppTab.values()) {
+        for (AppTab tab : AppTab.permissionTabs()) {
             boolean allowed = Boolean.TRUE.equals(tabAccess.get(tab.id()));
             RoleTabAccess entry = existing.get(tab);
             if (entry == null) {

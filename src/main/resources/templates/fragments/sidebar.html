@@ -9,38 +9,24 @@
        class="bre-dashboard-sidebar w-[240px] h-screen fixed left-0 top-0 bg-primary border-r border-outline-variant flex flex-col py-unit-lg z-50">
 
     <div class="px-unit-lg mb-unit-xl bre-sidebar-header">
-
         <div class="flex items-center gap-unit-sm">
-
             <div class="w-8 h-8 rounded bg-secondary-container flex items-center justify-center shrink-0">
-
                 <span class="material-symbols-outlined text-on-secondary" style="font-variation-settings: 'FILL' 1;">terminal</span>
-
             </div>
-
             <div class="bre-sidebar-brand-text flex-1 min-w-0">
-
                 <h1 class="font-headline-sm text-headline-sm font-bold text-on-primary leading-none">BRE Dashboard</h1>
-
-                <p class="text-[10px] text-on-primary-container uppercase tracking-widest mt-1">DevOps Platform</p>
-
             </div>
-
             <button type="button" id="breSidebarToggle" class="bre-sidebar-toggle" aria-expanded="true" title="Collapse sidebar" aria-label="Collapse sidebar">
-
                 <span class="material-symbols-outlined text-[20px]">chevron_left</span>
-
             </button>
-
         </div>
-
     </div>
 
     <nav class="flex-1 overflow-y-auto custom-scrollbar space-y-1">
 
         <a th:if="${navAccess == null or navAccess['dashboard'] == true}" th:href="@{/}"
 
-           th:classappend="${activeNav == 'dashboard'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
+           th:classappend="${activeNav == 'dashboard'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container hover:bg-primary-container/80'"
 
            class="flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200"
 
@@ -54,7 +40,7 @@
 
         <a th:if="${navAccess == null or navAccess['health'] == true}" th:href="@{/health}"
 
-           th:classappend="${activeNav == 'health'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
+           th:classappend="${activeNav == 'health'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container hover:bg-primary-container/80'"
 
            class="flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200"
 
@@ -66,23 +52,74 @@
 
         </a>
 
-        <a th:if="${navAccess == null or navAccess['transactions'] == true}" th:href="@{/transactions}"
-
-           th:classappend="${activeNav == 'transactions'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
-
-           class="flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200"
-
-           title="Transaction Analytics">
-
-            <span class="material-symbols-outlined">credit_card</span>
-
-            <span class="font-body-md text-body-md bre-sidebar-label">Transaction Analytics</span>
-
-        </a>
+           <div th:if="${navAccess == null or navAccess['overview'] == true or navAccess['hourly-trend'] == true or navAccess['response-time'] == true or navAccess['channel-hits'] == true or navAccess['loan-average'] == true or navAccess['otp-hits'] == true}"
+             class="bre-sidebar-menu-group"
+               th:classappend="${activeNav == 'overview' or activeNav == 'hourly-trend' or activeNav == 'response-time' or activeNav == 'channel-hits' or activeNav == 'loan-average' or activeNav == 'otp-hits'} ? ' is-open'">
+                <button type="button" id="emiCardAuthToggle" class="bre-sidebar-menu-toggle flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200"
+                    th:classappend="${activeNav == 'overview' or activeNav == 'hourly-trend' or activeNav == 'response-time' or activeNav == 'channel-hits' or activeNav == 'loan-average' or activeNav == 'otp-hits'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
+                    aria-controls="emiCardAuthSubmenu"
+                    th:attr="aria-expanded=${activeNav == 'overview' or activeNav == 'hourly-trend' or activeNav == 'response-time' or activeNav == 'channel-hits' or activeNav == 'loan-average' or activeNav == 'otp-hits'}"
+                    title="EMICard Auth">
+                <span class="material-symbols-outlined">credit_card</span>
+                <span class="font-body-md text-body-md bre-sidebar-menu-label">EMICard Auth</span>
+                <span class="material-symbols-outlined bre-sidebar-menu-chevron" aria-hidden="true">expand_more</span>
+            </button>
+            <div id="emiCardAuthSubmenu" class="bre-sidebar-submenu"
+                  th:attr="aria-hidden=${!(activeNav == 'overview' or activeNav == 'hourly-trend' or activeNav == 'response-time' or activeNav == 'channel-hits' or activeNav == 'loan-average' or activeNav == 'otp-hits')}">
+                <a th:if="${navAccess == null or navAccess['overview'] == true}" th:href="@{/transactions/overview}"
+                         class="flex items-center gap-unit-md pl-unit-xl pr-unit-lg py-unit-sm transition-colors duration-200"
+                         th:classappend="${activeNav == 'overview'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
+                   th:attr="aria-current=${activeNav == 'overview'} ? 'page' : null"
+                   title="Live Overview">
+                    <span class="material-symbols-outlined">dashboard_customize</span>
+                    <span class="font-body-md text-body-md">Live Overview</span>
+                </a>
+                <a th:if="${navAccess == null or navAccess['hourly-trend'] == true}" th:href="@{/transactions/hourly}"
+                         class="flex items-center gap-unit-md pl-unit-xl pr-unit-lg py-unit-sm transition-colors duration-200"
+                         th:classappend="${activeNav == 'hourly-trend'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
+                   th:attr="aria-current=${activeNav == 'hourly-trend'} ? 'page' : null"
+                   title="Auth Transactions">
+                    <span class="material-symbols-outlined">schedule</span>
+                    <span class="font-body-md text-body-md">Auth Transactions</span>
+                </a>
+                <a th:if="${navAccess == null or navAccess['response-time'] == true}" th:href="@{/transactions/response-time}"
+                         class="flex items-center gap-unit-md pl-unit-xl pr-unit-lg py-unit-sm transition-colors duration-200"
+                         th:classappend="${activeNav == 'response-time'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
+                   th:attr="aria-current=${activeNav == 'response-time'} ? 'page' : null"
+                   title="Response Time">
+                    <span class="material-symbols-outlined">timer</span>
+                    <span class="font-body-md text-body-md">Response Time</span>
+                </a>
+                <a th:if="${navAccess == null or navAccess['channel-hits'] == true}" th:href="@{/transactions/channels}"
+                         class="flex items-center gap-unit-md pl-unit-xl pr-unit-lg py-unit-sm transition-colors duration-200"
+                         th:classappend="${activeNav == 'channel-hits'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
+                   th:attr="aria-current=${activeNav == 'channel-hits'} ? 'page' : null"
+                   title="Channel Wise Hits">
+                    <span class="material-symbols-outlined">hub</span>
+                    <span class="font-body-md text-body-md">Channel Wise Hits</span>
+                </a>
+                <a th:if="${navAccess == null or navAccess['loan-average'] == true}" th:href="@{/transactions/loan-average}"
+                         class="flex items-center gap-unit-md pl-unit-xl pr-unit-lg py-unit-sm transition-colors duration-200"
+                         th:classappend="${activeNav == 'loan-average'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
+                   th:attr="aria-current=${activeNav == 'loan-average'} ? 'page' : null"
+                   title="Avg Loan Amount">
+                    <span class="material-symbols-outlined">currency_rupee</span>
+                    <span class="font-body-md text-body-md">Avg Loan Amount</span>
+                </a>
+                <a th:if="${navAccess == null or navAccess['otp-hits'] == true}" th:href="@{/transactions/otp-hits}"
+                         class="flex items-center gap-unit-md pl-unit-xl pr-unit-lg py-unit-sm transition-colors duration-200"
+                         th:classappend="${activeNav == 'otp-hits'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
+                   th:attr="aria-current=${activeNav == 'otp-hits'} ? 'page' : null"
+                   title="OTP Hits">
+                    <span class="material-symbols-outlined">sms</span>
+                    <span class="font-body-md text-body-md">OTP Hits</span>
+                </a>
+            </div>
+        </div>
 
         <a th:if="${navAccess == null or navAccess['tester'] == true}" th:href="@{/tester}"
 
-           th:classappend="${activeNav == 'tester'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
+           th:classappend="${activeNav == 'tester'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container hover:bg-primary-container/80'"
 
            class="flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200"
 
@@ -96,7 +133,7 @@
 
         <a th:if="${navAccess == null or navAccess['dev-utils'] == true}" th:href="@{/dev-utils}"
 
-           th:classappend="${activeNav == 'dev-utils'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
+           th:classappend="${activeNav == 'dev-utils'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container hover:bg-primary-container/80'"
 
            class="flex items-center gap-unit-md px-unit-lg py-unit-sm transition-colors duration-200"
 
@@ -108,6 +145,7 @@
 
         </a>
 
+        <!--/* Temporarily hidden until functionality is ready
         <a th:if="${navAccess == null or navAccess['admin'] == true}" th:href="@{/admin}"
 
            th:classappend="${activeNav == 'admin'} ? ' bg-secondary-container/10 text-secondary-fixed border-l-4 border-secondary-container' : ' text-on-primary-container/70 hover:bg-primary-container/80'"
@@ -121,6 +159,7 @@
             <span class="font-body-md text-body-md bre-sidebar-label">System Admin</span>
 
         </a>
+        */-->
 
         <a th:if="${navAccess == null or navAccess['users'] == true}" th:href="@{/users}"
 
@@ -141,11 +180,8 @@
     <div class="px-unit-lg mt-auto pt-unit-lg space-y-unit-sm bre-sidebar-footer">
 
         <div th:if="${currentUser != null}" class="p-unit-sm bg-primary-container rounded-lg border border-outline-variant/20 bre-sidebar-user-card">
-
             <p class="text-[11px] font-label-sm text-on-primary-container truncate" th:text="${currentUser.displayName}">User</p>
-
             <p class="text-[10px] text-on-primary-container/70 truncate" th:text="${currentUser.role != null ? currentUser.role.name : 'User'}">Role</p>
-
         </div>
 
         <form th:action="@{/logout}" method="post" class="w-full">

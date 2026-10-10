@@ -39,8 +39,8 @@ class BajajOperationListCacheTest {
 
         OperationEntryDto found = service.findOperation(BajajEnvironment.UAT, "oauth-token");
 
-        assertThat(found.encryptionKey()).isEqualTo("hash");
-        assertThat(found.encryptionIv()).isEqualTo("salt");
+        assertThat(found.encryptionKey()).isEqualTo("salt");
+        assertThat(found.encryptionIv()).isEqualTo("hash");
     }
 
     private static OperationListResponseDto sampleList() {

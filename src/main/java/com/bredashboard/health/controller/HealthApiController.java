@@ -3,6 +3,7 @@ package com.bredashboard.health.controller;
 import com.bredashboard.auth.domain.AppTab;
 import com.bredashboard.auth.domain.AppUser;
 import com.bredashboard.auth.domain.CurrentUser;
+import com.bredashboard.auth.service.AuthDataInitializer;
 import com.bredashboard.auth.service.NavAccessService;
 import com.bredashboard.common.dto.ErrorResponse;
 import com.bredashboard.health.domain.HealthDeploymentTier;
@@ -16,6 +17,7 @@ import com.bredashboard.health.service.ModelHubHealthService;
 import com.bredashboard.health.service.MonitorRegistrationService;
 import com.bredashboard.health.service.SystemHealthMonitor;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -77,7 +79,7 @@ public class HealthApiController {
 
     @PostMapping("/monitors")
     public HealthRefreshResponse registerMonitor(@RequestBody RegisterMonitorRequest request) {
-        requireHealthAccess();
+        requireMonitorAdministration();
         return registrationService.register(request);
     }
 
@@ -93,26 +95,42 @@ public class HealthApiController {
             @PathVariable Long id,
             @RequestBody RegisterMonitorRequest request
     ) {
-        requireHealthAccess();
+        requireMonitorAdministration();
         return registrationService.update(HealthDeploymentTier.fromPathSegment(tier), id, request);
+    }
+
+    @PostMapping("/monitors/{tier}/{id}/update")
+    public HealthRefreshResponse updateMonitorWithPost(
+            @PathVariable String tier,
+            @PathVariable Long id,
+            @RequestBody RegisterMonitorRequest request
+    ) {
+        return updateMonitor(tier, id, request);
     }
 
     @DeleteMapping("/monitors/{tier}/{id}")
     public HealthRefreshResponse removeMonitor(@PathVariable String tier, @PathVariable Long id) {
-        requireHealthAccess();
+        requireMonitorAdministration();
         return registrationService.remove(HealthDeploymentTier.fromPathSegment(tier), id);
+    }
+
+    @PostMapping("/monitors/{tier}/{id}/delete")
+    public HealthRefreshResponse removeMonitorWithPost(@PathVariable String tier, @PathVariable Long id) {
+        return removeMonitor(tier, id);
     }
 
     @GetMapping("/environments/{tier}")
     public List<ModelHubEnvironmentOption> environmentsForTier(@PathVariable String tier) {
         requireHealthAccess();
-        return modelHubHealthService.listEnvironments(HealthDeploymentTier.fromPathSegment(tier));
+        HealthDeploymentTier requested = HealthDeploymentTier.fromPathSegment(tier);
+        requireConfiguredTier(requested);
+        return modelHubHealthService.listEnvironments(requested);
     }
 
     @GetMapping("/environments")
     public List<ModelHubEnvironmentOption> environmentsApi() {
         requireHealthAccess();
-        return modelHubHealthService.listEnvironments(HealthDeploymentTier.UAT);
+        return modelHubHealthService.listEnvironments(healthMonitor.monitoredTiers().get(0));
     }
 
     @ExceptionHandler(MonitorRegistrationException.class)
@@ -122,11 +140,27 @@ public class HealthApiController {
         return new ErrorResponse(ex.getMessage());
     }
 
+    private void requireConfiguredTier(HealthDeploymentTier requested) {
+        HealthDeploymentTier configured = healthMonitor.monitoredTiers().get(0);
+        if (requested != configured) {
+            throw new MonitorRegistrationException("This deployment is configured for " + configured + " only");
+        }
+    }
+
     private void requireHealthAccess() {
         AppUser user = CurrentUser.userOrNull();
         if (user == null) {
             return;
         }
         navAccessService.require(user, AppTab.HEALTH);
+    }
+
+    private void requireMonitorAdministration() {
+        requireHealthAccess();
+        AppUser user = CurrentUser.userOrNull();
+        if (user == null || !(AuthDataInitializer.CODE_ADMINISTRATOR.equals(user.getRole().getCode())
+                || "ADMINISTRATOR".equals(user.getRole().getCode()))) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Administrator access required");
+        }
     }
 }

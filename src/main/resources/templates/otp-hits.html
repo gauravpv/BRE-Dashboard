@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
+<head>
+<th:block th:replace="~{fragments/head :: head(pageTitle='OTP Hits')}"/>
+<link rel="stylesheet" data-bre-page-style th:href="@{/css/transaction-dashboard.css(v='20261006-responsive-layout')}"/>
+<link rel="stylesheet" data-bre-page-style th:href="@{/css/hourly-trend.css(v='20261008-otp-layout')}"/>
+</head>
+<body class="bre-dashboard-app txn-body hourly-body hourly-trend-page bg-background text-on-background font-body-md">
+<aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
+<th:block th:replace="~{fragments/page-shell :: page-header(title='OTP Hits', searchPlaceholder='', searchId='', showSearch=false, fixed=true, showNotifications=true, showSettings=true, showUser=false)}"/>
+
+<div class="txn-shell hourly-shell" data-live-shell th:fragment="live-shell" th:attr="data-report-url=${reportUrl}">
+    <header th:if="${dashboard.available()}" class="txn-strip response-time-strip">
+        <div class="response-time-totals otp-totals">
+            <div class="txn-strip-hero">
+                <span class="txn-eyebrow">Total hits</span>
+                <strong data-rt="otp-total-hits" th:text="${#numbers.formatInteger(dashboard.total().hits(), 1, 'COMMA')}">0</strong>
+                <div class="txn-strip-hero-foot">
+                    <span th:text="${#temporals.format(dashboard.transactionDate(), 'dd MMM yyyy')}">Today</span>
+                </div>
+            </div>
+            <div class="txn-strip-hero">
+                <span class="txn-eyebrow">Approved</span>
+                <strong data-rt="otp-total-approved" th:text="${#numbers.formatInteger(dashboard.total().approved(), 1, 'COMMA')}">0</strong>
+                <div class="txn-strip-hero-foot">
+                    <span th:text="${#temporals.format(dashboard.transactionDate(), 'dd MMM yyyy')}">Today</span>
+                </div>
+            </div>
+            <div class="txn-strip-hero">
+                <span class="txn-eyebrow">Declined</span>
+                <strong data-rt="otp-total-declined" th:text="${#numbers.formatInteger(dashboard.total().declined(), 1, 'COMMA')}">0</strong>
+                <div class="txn-strip-hero-foot">
+                    <span th:text="${#temporals.format(dashboard.transactionDate(), 'dd MMM yyyy')}">Today</span>
+                </div>
+            </div>
+            <div class="txn-strip-hero">
+                <span class="txn-eyebrow">Approval rate</span>
+                <strong data-rt="otp-total-rate" th:text="|${#numbers.formatDecimal(dashboard.total().approvalRate(), 1, 2)}%|">0.00%</strong>
+                <div class="txn-strip-hero-foot">
+                    <span>AUTOTP · E-commerce</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div th:unless="${dashboard.available()}" class="txn-alert">
+        <span class="material-symbols-outlined">database_off</span>
+        <div>
+            <strong>Transaction data unavailable</strong>
+            <p th:text="${dashboard.errorMessage()}">Unable to load data.</p>
+        </div>
+    </div>
+
+    <div th:if="${dashboard.available()}" class="hourly-table-area txn-area-tables">
+        <section class="txn-panel hourly-tables">
+            <header class="txn-panel-header hourly-breakdown-header">
+                <h2>Minute detail · last 10 minutes</h2>
+            </header>
+            <div class="txn-tabpanes">
+            <div class="txn-tabpane">
+            <table class="txn-table txn-table--grid hourly-data-table otp-data-table">
+                <thead><tr>
+                    <th>Minute</th><th>Total hits</th><th>Approved</th><th>Declined</th><th>Approval %</th>
+                    <th:block th:each="market : ${dashboard.marketplaces()}">
+                        <th th:text="${market.name()}">Flipkart</th>
+                        <th th:text="${market.name()} + ' approval %'">Flipkart approval %</th>
+                    </th:block>
+                </tr></thead>
+                <tbody>
+                <tr th:each="row : ${dashboard.minuteRows()}" th:with="k='otp-min-' + ${row.label()}">
+                    <td data-label="Minute" class="txn-cell-key" th:text="${row.label()}">00:00</td>
+                    <td data-label="Total hits" th:attr="data-rt=${k} + '-hits'" th:text="${#numbers.formatInteger(row.total().hits(), 1, 'COMMA')}">0</td>
+                    <td data-label="Approved" th:attr="data-rt=${k} + '-approved'" th:text="${#numbers.formatInteger(row.total().approved(), 1, 'COMMA')}">0</td>
+                    <td data-label="Declined" th:attr="data-rt=${k} + '-declined'" th:text="${#numbers.formatInteger(row.total().declined(), 1, 'COMMA')}">0</td>
+                    <td data-label="Approval %"><span class="txn-rate-pill" th:classappend="${row.total().hits() > 0 and row.total().approvalRate() < 85} ? ' txn-rate-pill--warn'"
+                            th:text="|${#numbers.formatDecimal(row.total().approvalRate(), 1, 2)}%|">0.00%</span></td>
+                    <th:block th:each="market : ${row.marketplaces()}">
+                        <td th:attr="data-label=${market.name()}" th:text="${#numbers.formatInteger(market.hits(), 1, 'COMMA')}">0</td>
+                        <td th:attr="data-label=${market.name()} + ' approval %'" th:text="|${#numbers.formatDecimal(market.approvalRate(), 1, 2)}%|">0.00%</td>
+                    </th:block>
+                </tr>
+                <tr th:if="${#lists.isEmpty(dashboard.minuteRows())}">
+                    <td colspan="9" class="txn-empty">No AUTOTP hits in the last 10 minutes.</td>
+                </tr>
+                </tbody>
+                <tfoot><tr>
+                    <td data-label="Minute" class="txn-cell-key">Today total</td>
+                    <td data-label="Total hits" th:text="${#numbers.formatInteger(dashboard.total().hits(), 1, 'COMMA')}">0</td>
+                    <td data-label="Approved" th:text="${#numbers.formatInteger(dashboard.total().approved(), 1, 'COMMA')}">0</td>
+                    <td data-label="Declined" th:text="${#numbers.formatInteger(dashboard.total().declined(), 1, 'COMMA')}">0</td>
+                    <td data-label="Approval %"><span class="txn-rate-pill" th:classappend="${dashboard.total().hits() > 0 and dashboard.total().approvalRate() < 85} ? ' txn-rate-pill--warn'"
+                            th:text="|${#numbers.formatDecimal(dashboard.total().approvalRate(), 1, 2)}%|">0.00%</span></td>
+                    <th:block th:each="market : ${dashboard.marketplaces()}">
+                        <td th:attr="data-label=${market.name()}" th:text="${#numbers.formatInteger(market.hits(), 1, 'COMMA')}">0</td>
+                        <td th:attr="data-label=${market.name()} + ' approval %'" th:text="|${#numbers.formatDecimal(market.approvalRate(), 1, 2)}%|">0.00%</td>
+                    </th:block>
+                </tr></tfoot>
+            </table>
+            </div>
+            </div>
+        </section>
+
+        <div class="response-time-actions">
+            <button type="button" class="txn-refresh" data-txn-refresh>
+                <span class="material-symbols-outlined">refresh</span>
+                <span>Refresh</span>
+                <em th:text="'· auto ' + ${refreshSeconds} + 's'">auto</em>
+            </button>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/page-shell :: page-footer(hint='AUTOTP e-commerce hits from the OTP table: today totals and minute-wise detail for the last 10 minutes')}"/>
+
+<script th:inline="javascript">
+    window.breDashboardTransactionRefreshSeconds = /*[[${refreshSeconds}]]*/ 60;
+</script>
+<script th:src="@{/js/live-refresh.js(v='20261008-aligned-refresh')}"></script>
+</body>
+</html>

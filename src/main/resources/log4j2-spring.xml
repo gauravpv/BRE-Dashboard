@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+    <SpringProperty scope="context" name="logPath" source="logging.file.path" defaultValue="logs"/>
+
+    <Properties>
+        <Property name="logPattern">%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level [%t] %logger{40} - %msg%n%throwable</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${logPattern}" charset="UTF-8"/>
+        </Console>
+
+        <RollingFile name="ApplicationFile"
+                     fileName="${logPath}/bre-dashboard.log"
+                     filePattern="${logPath}/archive/bre-dashboard-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${logPattern}" charset="UTF-8"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10">
+                <Delete basePath="${logPath}/archive" maxDepth="1">
+                    <IfFileName glob="bre-dashboard-*.log.gz"/>
+                    <IfLastModified age="30d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="com.bredashboard.tester" level="DEBUG"/>
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="ApplicationFile"/>
+        </Root>
+    </Loggers>
+</Configuration>

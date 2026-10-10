@@ -28,10 +28,15 @@
 
     window.StitchTheme = { applyTheme: applyTheme, toggleTheme: toggleTheme };
 
-    document.addEventListener('DOMContentLoaded', function () {
+    applyTheme(resolveTheme());
+
+    document.addEventListener('click', function (event) {
+        if (event.target.closest('[data-stitch-theme-toggle]')) {
+            toggleTheme();
+        }
+    });
+
+    window.addEventListener('bre:page:navigated', function () {
         applyTheme(resolveTheme());
-        document.querySelectorAll('[data-stitch-theme-toggle]').forEach(function (btn) {
-            btn.addEventListener('click', toggleTheme);
-        });
     });
 })();

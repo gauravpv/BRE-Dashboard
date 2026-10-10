@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
+<head>
+<th:block th:replace="~{fragments/head :: head(pageTitle='Response Time')}"/>
+<link rel="stylesheet" data-bre-page-style th:href="@{/css/transaction-dashboard.css}"/>
+<link rel="stylesheet" data-bre-page-style th:href="@{/css/transaction-dashboard.css(v='20261006-responsive-layout')}"/>
+<link rel="stylesheet" data-bre-page-style th:href="@{/css/hourly-trend.css(v='20261007-refresh-gap')}"/>
+</head>
+<body class="bre-dashboard-app txn-body hourly-body response-time-body bg-background text-on-background font-body-md">
+<aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
+<th:block th:replace="~{fragments/page-shell :: page-header(title='Response Time', searchPlaceholder='', searchId='', showSearch=false, fixed=true, showNotifications=true, showSettings=true, showUser=false)}"/>
+
+<div class="txn-shell hourly-shell" data-live-shell th:fragment="live-shell" th:attr="data-report-url=${reportUrl}">
+    <header class="txn-strip response-time-strip">
+        <div th:if="${dashboard.available()}" class="response-time-totals">
+            <div class="txn-strip-hero">
+                <span class="txn-eyebrow">ECOMELGB requests</span>
+                <strong data-rt="ecom-total" th:text="${#numbers.formatInteger(dashboard.ecomDay().totalCount(), 1, 'COMMA')}">0</strong>
+                <div class="txn-strip-hero-foot">
+                    <span th:text="${#temporals.format(dashboard.transactionDate(), 'dd MMM yyyy')}">Today</span>
+                </div>
+            </div>
+
+            <div class="txn-strip-hero">
+                <span class="txn-eyebrow">AUTOTP requests</span>
+                <strong data-rt="autotp-total" th:text="${#numbers.formatInteger(dashboard.autotpDay().totalCount(), 1, 'COMMA')}">0</strong>
+                <div class="txn-strip-hero-foot">
+                    <span th:text="${#temporals.format(dashboard.transactionDate(), 'dd MMM yyyy')}">Today</span>
+                </div>
+            </div>
+
+            <div class="txn-strip-hero">
+                <span class="txn-eyebrow">ELGBLT requests</span>
+                <strong data-rt="elgblt-total" th:text="${#numbers.formatInteger(dashboard.elgbltDay().totalCount(), 1, 'COMMA')}">0</strong>
+                <div class="txn-strip-hero-foot">
+                    <span th:text="${#temporals.format(dashboard.transactionDate(), 'dd MMM yyyy')}">Today</span>
+                </div>
+            </div>
+
+            <div class="txn-strip-hero">
+                <span class="txn-eyebrow">BRESRCH requests</span>
+                <strong data-rt="bresrch-total" th:text="${#numbers.formatInteger(dashboard.bresrchDay().totalCount(), 1, 'COMMA')}">0</strong>
+                <div class="txn-strip-hero-foot">
+                    <span th:text="${#temporals.format(dashboard.transactionDate(), 'dd MMM yyyy')}">Today</span>
+                </div>
+            </div>
+
+            <div class="txn-strip-hero">
+                <span class="txn-eyebrow">MKPELGB requests</span>
+                <strong data-rt="mkpelgb-total" th:text="${#numbers.formatInteger(dashboard.mkpelgbDay().totalCount(), 1, 'COMMA')}">0</strong>
+                <div class="txn-strip-hero-foot">
+                    <span th:text="${#temporals.format(dashboard.transactionDate(), 'dd MMM yyyy')}">Today</span>
+                </div>
+            </div>
+        </div>
+
+    </header>
+
+    <div th:unless="${dashboard.available()}" class="txn-alert">
+        <span class="material-symbols-outlined">database_off</span>
+        <div>
+            <strong>Transaction data unavailable</strong>
+            <p th:text="${dashboard.errorMessage()}">Unable to load data.</p>
+        </div>
+    </div>
+
+    <div th:if="${dashboard.available()}" class="txn-area-tables response-time-grid">
+        <section th:each="panel : ${dashboard.recent()}" class="txn-panel hourly-tables response-time-tables">
+            <header class="rt-panel-title">
+                <h2 th:text="${panel.title()}">ECOM Eligibility</h2>
+            </header>
+
+            <div class="txn-tabpanes">
+                <div class="txn-tabpane">
+                    <table class="txn-table txn-table--grid rt-table">
+                        <colgroup>
+                            <col class="rt-col-range">
+                            <col class="rt-col-count"><col class="rt-col-percent">
+                            <col class="rt-col-count"><col class="rt-col-percent">
+                            <col class="rt-col-count"><col class="rt-col-percent">
+                        </colgroup>
+                        <thead>
+                        <tr>
+                            <th rowspan="2" class="rt-range-head">Time range</th>
+                            <th colspan="2" class="rt-group-start" th:classappend="' rt-slow--' + ${panel.slowTone(5)}">Last 5 min</th>
+                            <th colspan="2" class="rt-group-start" th:classappend="' rt-slow--' + ${panel.slowTone(15)}">Last 15 min</th>
+                            <th colspan="2" class="rt-group-start" th:classappend="' rt-slow--' + ${panel.slowTone(60)}">Last 60 min</th>
+                        </tr>
+                        <tr>
+                            <th>Count</th><th>Percent</th>
+                            <th>Count</th><th>Percent</th>
+                            <th>Count</th><th>Percent</th>
+                        </tr>
+                        </thead>
+                        <tbody th:if="${panel.last60Total() > 0}">
+                        <tr th:each="row, stat : ${panel.rows()}" th:with="key=${panel.reqType()} + '-' + ${stat.index}">
+                            <td data-label="Time range" class="txn-cell-key" th:text="${row.rangeLabel()}">0-50 MS</td>
+                            <td data-label="Last 5 min" class="rt-group-start" th:classappend="${row.slow()} ? (' rt-slow--' + ${panel.slowTone(5)}) : ''">
+                                <b class="rt-count" th:attr="data-rt=${key} + '-5'" th:text="${#numbers.formatInteger(row.last5Count(), 1, 'COMMA')}">0</b>
+                            </td>
+                            <td data-label="Last 5 min percent" class="rt-percent" th:classappend="${row.slow()} ? (' rt-slow--' + ${panel.slowTone(5)}) : ''">
+                                <span th:text="|${#numbers.formatDecimal(row.last5Percentage(), 1, 2)}%|">0.00%</span>
+                            </td>
+                            <td data-label="Last 15 min count" class="rt-group-start" th:classappend="${row.slow()} ? (' rt-slow--' + ${panel.slowTone(15)}) : ''">
+                                <b class="rt-count" th:attr="data-rt=${key} + '-15'" th:text="${#numbers.formatInteger(row.last15Count(), 1, 'COMMA')}">0</b>
+                            </td>
+                            <td data-label="Last 15 min percent" class="rt-percent" th:classappend="${row.slow()} ? (' rt-slow--' + ${panel.slowTone(15)}) : ''">
+                                <span th:text="|${#numbers.formatDecimal(row.last15Percentage(), 1, 2)}%|">0.00%</span>
+                            </td>
+                            <td data-label="Last 60 min count" class="rt-group-start" th:classappend="${row.slow()} ? (' rt-slow--' + ${panel.slowTone(60)}) : ''">
+                                <b class="rt-count" th:attr="data-rt=${key} + '-60'" th:text="${#numbers.formatInteger(row.last60Count(), 1, 'COMMA')}">0</b>
+                            </td>
+                            <td data-label="Last 60 min percent" class="rt-percent" th:classappend="${row.slow()} ? (' rt-slow--' + ${panel.slowTone(60)}) : ''">
+                                <span th:text="|${#numbers.formatDecimal(row.last60Percentage(), 1, 2)}%|">0.00%</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                        <tbody th:unless="${panel.last60Total() > 0}">
+                        <tr>
+                            <td colspan="7" class="txn-empty" th:text="'No ' + ${panel.title()} + ' transactions in the last 60 minutes.'">No transactions in the last 60 minutes.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        <div class="response-time-actions">
+            <button type="button" class="txn-refresh" data-txn-refresh>
+                <span class="material-symbols-outlined">refresh</span>
+                <span>Refresh</span>
+                <em th:text="'· auto ' + ${refreshSeconds} + 's'">auto</em>
+            </button>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/page-shell :: page-footer(hint='Daily response time distribution')}"/>
+
+<script th:inline="javascript">
+    window.breDashboardTransactionRefreshSeconds = /*[[${refreshSeconds}]]*/ 60;
+</script>
+<script th:src="@{/js/live-refresh.js(v='20261008-aligned-refresh')}"></script>
+</body>
+</html>

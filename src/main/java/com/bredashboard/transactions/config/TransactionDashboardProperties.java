@@ -12,7 +12,7 @@ public class TransactionDashboardProperties {
     private String minuteView = "festival_summary_detailed_mins_new";
     private String hourlyView = "festival_summary_detailed_new";
     private String otpTable = "transaction_details_srcreq_otp";
-    private int refreshSeconds = 60;
+    private int refreshSeconds = 30;
 
     public String getJdbcUrl() {
         return jdbcUrl;

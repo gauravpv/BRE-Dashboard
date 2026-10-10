@@ -5,6 +5,7 @@ import com.bredashboard.auth.domain.AppUser;
 import com.bredashboard.auth.domain.CurrentUser;
 import com.bredashboard.auth.service.NavAccessService;
 import com.bredashboard.common.dto.ErrorResponse;
+import com.bredashboard.health.config.HealthProperties;
 import com.bredashboard.tester.domain.BajajEnvironment;
 import com.bredashboard.tester.dto.BajajInvokeRequest;
 import com.bredashboard.tester.dto.BajajInvokeResponse;
@@ -33,22 +34,25 @@ public class TesterApiController {
     private final BajajApiInvokeService invokeService;
     private final BajajTokenService tokenService;
     private final NavAccessService navAccessService;
+    private final HealthProperties healthProperties;
 
     public TesterApiController(
             BajajOperationListService operationListService,
             BajajApiInvokeService invokeService,
             BajajTokenService tokenService,
-            NavAccessService navAccessService
+            NavAccessService navAccessService,
+            HealthProperties healthProperties
     ) {
         this.operationListService = operationListService;
         this.invokeService = invokeService;
         this.tokenService = tokenService;
         this.navAccessService = navAccessService;
+        this.healthProperties = healthProperties;
     }
 
     @GetMapping("/operations")
     public OperationListResponseDto operations(
-            @RequestParam(defaultValue = "UAT") String environment,
+            @RequestParam(required = false) String environment,
             @RequestParam(defaultValue = "false") boolean refresh
     ) {
         requireTesterAccess();
@@ -63,11 +67,13 @@ public class TesterApiController {
     @PostMapping("/invoke")
     public BajajInvokeResponse invoke(@RequestBody BajajInvokeRequest request) {
         requireTesterAccess();
-        return invokeService.invoke(request);
+        BajajEnvironment environment = requireEnvironment(request.environment());
+        return invokeService.invoke(new BajajInvokeRequest(
+            environment.name(), request.publicUrl(), request.encryptionKey(), request.encryptionIv(), request.requestBody()));
     }
 
     @PostMapping("/token/refresh")
-    public TokenStatusDto refreshToken(@RequestParam(defaultValue = "UAT") String environment) {
+    public TokenStatusDto refreshToken(@RequestParam(required = false) String environment) {
         requireTesterAccess();
         BajajEnvironment env = requireEnvironment(environment);
         tokenService.refreshToken(env);
@@ -80,10 +86,17 @@ public class TesterApiController {
         return new ErrorResponse(ex.getMessage());
     }
 
-    private static BajajEnvironment requireEnvironment(String environment) {
-        BajajEnvironment parsed = BajajEnvironment.parse(environment);
+    private BajajEnvironment requireEnvironment(String environment) {
+        BajajEnvironment configured = BajajEnvironment.valueOf(
+                healthProperties.getHealth().deploymentTier().name());
+        BajajEnvironment parsed = environment == null || environment.isBlank()
+                ? configured : BajajEnvironment.parse(environment);
         if (parsed == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Environment must be UAT or PROD");
+        }
+        if (parsed != configured) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "This deployment is configured for " + configured + " only");
         }
         return parsed;
     }

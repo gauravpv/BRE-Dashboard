@@ -8,17 +8,21 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import com.bredashboard.auth.domain.AccountStatus;
 import com.bredashboard.auth.domain.AppUser;
 import com.bredashboard.auth.domain.BreUserPrincipal;
+import com.bredashboard.auth.repository.AppRoleRepository;
 import com.bredashboard.auth.repository.AppUserRepository;
 import com.bredashboard.auth.service.AuthDataInitializer;
 import com.bredashboard.auth.service.RoleAdminService;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 class RoleAdminApiControllerTest {
@@ -28,6 +32,9 @@ class RoleAdminApiControllerTest {
 
     @Autowired
     private AppUserRepository userRepository;
+
+        @Autowired
+        private AppRoleRepository roleRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -78,9 +85,59 @@ class RoleAdminApiControllerTest {
                 .getContentAsString();
         Long userId = objectMapper.readTree(created).get("id").asLong();
 
-        mockMvc.perform(delete("/api/admin/users/" + userId)
+        mockMvc.perform(post("/api/admin/users/" + userId + "/delete")
                         .with(user(BreUserPrincipal.fromUser(admin)))
                         .with(csrf()))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void updateUserProfile_asAdminUsingPost_savesChanges() throws Exception {
+        AppUser admin = userRepository.findByAzureAdId("dev-admin").orElseThrow();
+        var monitoringRole = roleRepository.findByCode(AuthDataInitializer.CODE_MONITORING).orElseThrow();
+        long suffix = System.currentTimeMillis();
+        AppUser target = userRepository.save(new AppUser(
+                "profile-api-" + suffix,
+                "profile-api-" + suffix + "@bredashboard.local",
+                "Before Update",
+                monitoringRole
+        ));
+
+        mockMvc.perform(post("/api/admin/users/" + target.getId() + "/profile")
+                        .with(user(BreUserPrincipal.fromUser(admin)))
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"displayName\":\"After Update\",\"jobTitle\":\"Operations\"}"))
+                .andExpect(status().isNoContent());
+
+        AppUser updated = userRepository.findById(target.getId()).orElseThrow();
+        assertThat(updated.getDisplayName()).isEqualTo("After Update");
+        assertThat(updated.getJobTitle()).isEqualTo("Operations");
+    }
+
+    @Test
+    void approveUser_asAdminUsingPost_activatesPendingUser() throws Exception {
+        AppUser admin = userRepository.findByAzureAdId("dev-admin").orElseThrow();
+        var monitoringRole = roleRepository.findByCode(AuthDataInitializer.CODE_MONITORING).orElseThrow();
+        AppUser pending = new AppUser(
+                "pending-api-" + System.currentTimeMillis(),
+                "pending-api-" + System.currentTimeMillis() + "@bredashboard.local",
+                "Pending API User",
+                monitoringRole
+        );
+        pending.setAccountStatus(AccountStatus.PENDING);
+        pending = userRepository.save(pending);
+
+        mockMvc.perform(post("/api/admin/users/" + pending.getId() + "/approve")
+                        .with(user(BreUserPrincipal.fromUser(admin)))
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"roleCode\":\"" + AuthDataInitializer.CODE_MONITORING + "\"}"))
+                .andExpect(status().isNoContent());
+
+        AppUser approved = userRepository.findById(pending.getId()).orElseThrow();
+        assertThat(approved.getAccountStatus()).isEqualTo(AccountStatus.ACTIVE);
+        assertThat(approved.getRole().getCode())
+                .isEqualTo(AuthDataInitializer.CODE_MONITORING);
     }
 }

@@ -78,6 +78,12 @@ public class RoleAdminApiController {
         roleAdminService.deleteUser(userId, CurrentUser.requireUser());
     }
 
+    @PostMapping("/users/{userId}/delete")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUserWithPost(@PathVariable Long userId) {
+        deleteUser(userId);
+    }
+
     @PutMapping("/users/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateUserProfile(
@@ -86,6 +92,15 @@ public class RoleAdminApiController {
     ) {
         requireUserAdminAccess();
         roleAdminService.updateUserProfile(userId, body, CurrentUser.requireUser());
+    }
+
+    @PostMapping("/users/{userId}/profile")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateUserProfileWithPost(
+            @PathVariable Long userId,
+            @RequestBody RoleAdminService.UpdateUserProfileRequest body
+    ) {
+        updateUserProfile(userId, body);
     }
 
     @PutMapping("/users/{userId}/role")
@@ -98,6 +113,15 @@ public class RoleAdminApiController {
         roleAdminService.updateUserRole(userId, body.roleCode(), CurrentUser.requireUser());
     }
 
+    @PostMapping("/users/{userId}/role")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateUserRoleWithPost(
+            @PathVariable Long userId,
+            @RequestBody RoleAdminService.UserRoleUpdateRequest body
+    ) {
+        updateUserRole(userId, body);
+    }
+
     @PutMapping("/users/{userId}/status")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateUserStatus(
@@ -108,7 +132,16 @@ public class RoleAdminApiController {
         roleAdminService.updateUserEnabled(userId, body.enabled(), CurrentUser.requireUser());
     }
 
-    @PutMapping("/users/{userId}/approve")
+    @PostMapping("/users/{userId}/status")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateUserStatusWithPost(
+            @PathVariable Long userId,
+            @RequestBody RoleAdminService.UserStatusUpdateRequest body
+    ) {
+        updateUserStatus(userId, body);
+    }
+
+    @PostMapping("/users/{userId}/approve")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void approveUser(
             @PathVariable Long userId,
@@ -125,6 +158,11 @@ public class RoleAdminApiController {
         return new SessionRevocationResponse(revoked);
     }
 
+    @PostMapping("/users/{userId}/sessions/revoke")
+    public SessionRevocationResponse revokeSessionsWithPost(@PathVariable Long userId) {
+        return revokeSessions(userId);
+    }
+
     @PutMapping("/users/{userId}/password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateUserPassword(
@@ -135,6 +173,15 @@ public class RoleAdminApiController {
         roleAdminService.updateUserPassword(userId, body.password(), CurrentUser.requireUser());
     }
 
+    @PostMapping("/users/{userId}/password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateUserPasswordWithPost(
+            @PathVariable Long userId,
+            @RequestBody RoleAdminService.PasswordUpdateRequest body
+    ) {
+        updateUserPassword(userId, body);
+    }
+
     @PutMapping("/roles/{roleId}/tabs")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateRoleTabs(
@@ -143,6 +190,15 @@ public class RoleAdminApiController {
     ) {
         requireUserAdminAccess();
         roleAdminService.updateRoleTabs(roleId, body.tabs(), CurrentUser.requireUser());
+    }
+
+    @PostMapping("/roles/{roleId}/tabs")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateRoleTabsWithPost(
+            @PathVariable Long roleId,
+            @RequestBody RoleAdminService.RoleTabsUpdateRequest body
+    ) {
+        updateRoleTabs(roleId, body);
     }
 
     private void requireUserAdminAccess() {

@@ -1,14 +1,14 @@
-# Copy this file NEXT TO the JAR and fill every CHANGE_ME value.
-# Directory layout:
-#   bre-dashboard-0.0.1-SNAPSHOT.jar
-#   application.yml          (this file, filled in)
-#   dashboard.p12            (only if ssl.enabled is true)
-#   ssh-key                  (only if you use live SSH admin)
+# ============================================================================
+# BRE Dashboard Production Configuration
+# ============================================================================
+# DEPLOYMENT INSTRUCTIONS:
+# 1. Copy this file to the same directory as bre-dashboard-0.0.1-SNAPSHOT.jar
+# 2. Copy your SSL certificate to dashboard.p12 (if SSL is enabled)
+# 3. Fill in all CHANGE_ME_ values below
+# 4. Run: java -jar bre-dashboard-0.0.1-SNAPSHOT.jar
 #
-# Start from that directory (no environment variables):
-#   java -jar bre-dashboard-0.0.1-SNAPSHOT.jar
-#
-# Do not commit a filled copy. Do not copy application-local.yml.
+# NO ENVIRONMENT VARIABLES NEEDED — all configuration is in this file.
+# ============================================================================
 
 spring:
   profiles:
@@ -17,15 +17,41 @@ spring:
     url: jdbc:mysql://CHANGE_ME_DB_HOST:3306/bre_dashboard?useSSL=true&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: bre_dashboard
     password: CHANGE_ME_BRE_DASHBOARD_PASSWORD
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    database-platform: org.hibernate.dialect.MySQLDialect
 
 server:
   port: 8443
+  forward-headers-strategy: native
+  tomcat:
+    remoteip:
+      protocol-header: X-Forwarded-Proto
+      remote-ip-header: X-Forwarded-For
+      host-header: X-Forwarded-Host
   ssl:
     enabled: true
     key-store: dashboard.p12
     key-store-password: CHANGE_ME_P12_PASSWORD
     key-store-type: PKCS12
     key-alias: CHANGE_ME_P12_ALIAS
+  servlet:
+    session:
+      cookie:
+        secure: true
+        same-site: lax
+        http-only: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
 
 bredashboard:
   transaction-dashboard:
@@ -33,56 +59,84 @@ bredashboard:
     username: CHANGE_ME_TXN_USERNAME
     password: CHANGE_ME_TXN_PASSWORD
     schema: bre_underwriting
+    minute-view: festival_summary_detailed_mins_new
+    hourly-view: festival_summary_detailed_new
+    otp-table: transaction_details_srcreq_otp
+    refresh-seconds: 30
+
   auth:
-    # dev = password login (needed for first Administrator). azure = Microsoft-only.
+    seed-dev-users: false
+    default-role-code: MONITORING
+    # Change mode to "azure" to enable Microsoft Entra/Azure AD authentication
     mode: dev
     bootstrap-email: CHANGE_ME_ADMIN@company.com
     bootstrap-password: CHANGE_ME_MIN_8_CHARS
     bootstrap-display-name: Administrator
+    
+    # Uncomment and fill these to enable Azure OAuth2 / Microsoft Entra
+    # Also change mode to "azure" above
     azure:
       client-id: CHANGE_ME_AZURE_CLIENT_ID
       client-secret: CHANGE_ME_AZURE_CLIENT_SECRET
       tenant-id: CHANGE_ME_AZURE_TENANT_ID
+
   health:
+    refresh-seconds: 30
+    monitored-tiers: [PROD]
     model-hub:
+      enabled: true
       oauth:
+        token-url: https://login.microsoftonline.com/710de1d3-2901-4647-89e7-3b01f1c2806d/oauth2/v2.0/token
+        client-id: 91becc5d-213e-4d9b-b0dc-e481c31fde4c
+        grant-type: password
         username: CHANGE_ME_MODELHUB_USERNAME
         password: CHANGE_ME_MODELHUB_PASSWORD
+        scope: email openid profile offline_access api://91becc5d-213e-4d9b-b0dc-e481c31fde4c/default
+      uat:
+        base-url: https://emicardbre.bajajfinserv.in
+        base-urls:
+          - https://bfldaasbre-uat.bajajfinserv.in
+      prod:
+        base-url: https://emicardbre-prod.bajajfinserv.in
+        base-urls:
+          - https://bfldaasbre-prod.bajajfinserv.in
+
   bajaj-tester:
-    uat:
-      encryption-key: CHANGE_ME
-      encryption-iv: CHANGE_ME
-      headers:
-        Authorization: CHANGE_ME
-        source: CHANGE_ME
-        token: CHANGE_ME
-        additionalinfo1: CHANGE_ME
-        subscriptionid: CHANGE_ME
-      request-body:
-        channel: CHANGE_ME
-        appversion: CHANGE_ME
-        deviceId: CHANGE_ME
-      token-request-body:
-        deviceId: CHANGE_ME
-        username: CHANGE_ME
-        password: CHANGE_ME
     prod:
+      base-url: https://superapp.bajajfinserv.in/apis
+      operation-list-path: operationallist
+      token-path: oauth-token
+      token-ttl-seconds: 600
+      operation-list-ttl-seconds: 86400
+      quote-encrypted-body: true
       encryption-key: CHANGE_ME
       encryption-iv: CHANGE_ME
       headers:
         Authorization: CHANGE_ME
+        connection-from: Upgrade-ws
         source: CHANGE_ME
         token: CHANGE_ME
+        additionalinfo5: cbc
         additionalinfo1: CHANGE_ME
         subscriptionid: CHANGE_ME
+      api-headers:
+        connection-from: rest
       request-body:
         channel: CHANGE_ME
         appversion: CHANGE_ME
         deviceId: CHANGE_ME
       token-request-body:
+        grant_type: password
         deviceId: CHANGE_ME
+        channelId: 740
         username: CHANGE_ME
+        passwordType: password
         password: CHANGE_ME
+
   admin:
+    mode: live
     ssh:
       private-key-path: ssh-key
+      connect-timeout-ms: 10000
+      command-timeout-ms: 60000
+    servers: []

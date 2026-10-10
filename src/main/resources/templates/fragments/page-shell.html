@@ -22,12 +22,6 @@
         <th:block th:insert="~{::headerLeading} ?: ~{::empty}"/>
         <th:block th:replace="~{fragments/stitch-theme :: theme-toggle}"/>
         <th:block th:insert="~{::headerExtra} ?: ~{::empty}"/>
-        <th:block th:if="${showNotifications}">
-            <div class="bre-header-divider h-8 w-[1px] bg-outline-variant mx-unit-sm"></div>
-            <button type="button" class="bre-header-icon-btn p-2 hover:bg-surface-container-low rounded-full transition-all text-on-surface-variant" title="Notifications">
-                <span class="material-symbols-outlined">notifications</span>
-            </button>
-        </th:block>
         <th:block th:if="${showSettings and currentUser != null}">
             <div class="bre-account-menu relative" data-bre-account-menu>
                 <button type="button"
@@ -55,12 +49,6 @@
                               th:text="${currentUser.role.name}">Role</span>
                     </div>
                     <div class="py-1">
-                        <a th:href="@{/account/password}"
-                           class="bre-account-menu__item flex items-center gap-2 px-4 py-2.5 text-body-sm text-on-surface hover:bg-surface-container-low transition-colors"
-                           role="menuitem">
-                            <span class="material-symbols-outlined text-[18px] text-on-surface-variant">lock_reset</span>
-                            Change password
-                        </a>
                         <a th:if="${navAccess == null or navAccess['users'] == true}"
                            th:href="@{/users}"
                            class="bre-account-menu__item flex items-center gap-2 px-4 py-2.5 text-body-sm text-on-surface hover:bg-surface-container-low transition-colors"

@@ -1,6 +1,7 @@
 target/
 bin/
 data/
+logs/
 .idea/
 *.iml
 .classpath

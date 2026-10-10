@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
+<head>
+<th:block th:replace="~{fragments/head :: head(pageTitle='Auth Transactions')}"/>
+<link rel="stylesheet" data-bre-page-style th:href="@{/css/transaction-dashboard.css}"/>
+<link rel="stylesheet" data-bre-page-style th:href="@{/css/transaction-dashboard.css(v='20261006-responsive-layout')}"/>
+<link rel="stylesheet" data-bre-page-style th:href="@{/css/hourly-trend.css(v='20261007-refresh-gap')}"/>
+</head>
+<body class="bre-dashboard-app txn-body hourly-body hourly-trend-page bg-background text-on-background font-body-md">
+<aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
+<th:block th:replace="~{fragments/page-shell :: page-header(title='Auth Transactions', searchPlaceholder='', searchId='', showSearch=false, fixed=true, showNotifications=true, showSettings=true, showUser=false)}"/>
+
+<div class="txn-shell hourly-shell" data-live-shell th:fragment="live-shell" th:attr="data-report-url=${reportUrl}">
+    <header th:if="${dashboard.available()}" class="txn-strip response-time-strip"
+            th:with="m=${dashboard.totalMetrics()}">
+        <div class="response-time-totals hourly-totals">
+            <div class="txn-strip-hero">
+                <span class="txn-eyebrow">Total auth hits</span>
+                <strong data-rt="day-total-hits" th:text="${#numbers.formatInteger(m.totalHits(), 1, 'COMMA')}">0</strong>
+                <div class="txn-strip-hero-foot"><span th:text="${#temporals.format(#temporals.createToday(), 'dd MMM yyyy')}">Today</span></div>
+            </div>
+
+            <div class="txn-strip-hero">
+                <span class="txn-eyebrow">Total approved</span>
+                <strong data-rt="day-approved" th:text="${#numbers.formatInteger(m.approvedCount(), 1, 'COMMA')}">0</strong>
+                <div class="txn-strip-hero-foot"><span th:text="${#temporals.format(#temporals.createToday(), 'dd MMM yyyy')}">Today</span></div>
+            </div>
+
+            <div class="txn-strip-hero">
+                <span class="txn-eyebrow">Total void</span>
+                <strong data-rt="day-void" th:text="${#numbers.formatInteger(m.voidCount(), 1, 'COMMA')}">0</strong>
+                <div class="txn-strip-hero-foot"><span th:text="${#temporals.format(#temporals.createToday(), 'dd MMM yyyy')}">Today</span></div>
+            </div>
+        </div>
+    </header>
+
+    <div th:unless="${dashboard.available()}" class="txn-alert">
+        <span class="material-symbols-outlined">database_off</span>
+        <div>
+            <strong>Transaction data unavailable</strong>
+            <p th:text="${dashboard.errorMessage()}">Unable to load data.</p>
+        </div>
+    </div>
+
+    <div th:if="${dashboard.available()}" class="hourly-table-area txn-area-tables">
+    <section class="txn-panel hourly-tables">
+        <header class="txn-panel-header hourly-breakdown-header">
+            <h2>Auth Transactions</h2>
+            <div class="hourly-panel-actions">
+                <nav class="txn-tabs hourly-tabs" aria-label="Breakdown view">
+                    <a th:href="@{/transactions/hourly}" data-hourly-view="minute"
+                       th:classappend="${!showHours} ? ' is-active'"
+                       th:attr="aria-current=${!showHours} ? 'page' : null">Minute detail</a>
+                    <a th:href="@{/transactions/hourly(view='hour')}" data-hourly-view="hour"
+                       th:classappend="${showHours} ? ' is-active'"
+                       th:attr="aria-current=${showHours} ? 'page' : null">Last 10 hours</a>
+                </nav>
+            </div>
+        </header>
+
+        <div class="txn-tabpanes">
+            <div th:if="${!showHours}" class="txn-tabpane txn-tabpane--minute">
+                <table class="txn-table txn-table--grid hourly-data-table hourly-data-table--minute">
+                    <thead><tr>
+                        <th>Minute</th><th>Total hits</th><th>Total approved</th><th>ECOM HITS</th><th>ECOM Approved</th>
+                        <th>ECOM Approval %</th><th>Flipkart</th><th>Amazon</th><th>Void</th>
+                    </tr></thead>
+                    <tbody>
+                    <tr th:each="point : ${dashboard.minuteRows()}" th:with="k=${point.label()}">
+                        <td data-label="Minute" class="txn-cell-key" th:text="${point.label()}">00:00</td>
+                        <td th:attr="data-rt=${k} + '-total'" data-label="Total hits" th:text="${#numbers.formatInteger(point.totalHits(), 1, 'COMMA')}">0</td>
+                        <td th:attr="data-rt=${k} + '-total-approved'" data-label="Total approved" th:text="${#numbers.formatInteger(point.totalApproved(), 1, 'COMMA')}">0</td>
+                        <td th:attr="data-rt=${k} + '-ecom'" data-label="ECOM HITS" th:text="${#numbers.formatInteger(point.ecomHits(), 1, 'COMMA')}">0</td>
+                        <td th:attr="data-rt=${k} + '-approved'" data-label="Approved" th:text="${#numbers.formatInteger(point.ecomApproved(), 1, 'COMMA')}">0</td>
+                        <td data-label="ECOM Approval %"><span class="txn-rate-pill" th:classappend="${point.approvalRate() < 85} ? ' txn-rate-pill--warn'">
+                            <span th:attr="data-rt=${k} + '-rate'" th:text="${#numbers.formatDecimal(point.approvalRate(), 1, 2)}">0</span>%</span></td>
+                        <td th:attr="data-rt=${k} + '-fk'" data-label="Flipkart" th:text="${#numbers.formatInteger(point.flipkartHits(), 1, 'COMMA')}">0</td>
+                        <td th:attr="data-rt=${k} + '-az'" data-label="Amazon" th:text="${#numbers.formatInteger(point.amazonHits(), 1, 'COMMA')}">0</td>
+                        <td th:data-rt="${k} + '-void'" data-label="Void" th:text="${#numbers.formatInteger(point.voidCount(), 1, 'COMMA')}">0</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(dashboard.minuteRows())}">
+                        <td colspan="9" class="txn-empty">No minute data returned.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div th:if="${showHours}" class="txn-tabpane txn-tabpane--hour">
+                <table class="txn-table txn-table--grid hourly-data-table hourly-data-table--hour">
+                    <thead><tr>
+                        <th>Hour</th><th class="txn-col-volume">Total hits</th>
+                        <th>ECOM HITS</th><th>ECOM Approved</th><th>ECOM Approval %</th>
+                        <th>Flipkart</th><th>Flipkart rate</th><th>Amazon</th><th>Amazon rate</th>
+                        <th>Void</th>
+                    </tr></thead>
+                    <tbody>
+                    <tr th:each="point : ${dashboard.hourlyRows()}" th:with="k=${point.label()}">
+                        <td data-label="Hour" class="txn-cell-key hourly-hour-cell" th:text="${point.label()}">Hour</td>
+                        <td data-label="Total hits" class="txn-col-volume"><div class="txn-volume-cell">
+                            <div class="txn-inline-bar"><span th:attr="data-rt-bar=${k} + '-volume'" th:style="|width: ${point.volumePercent()}%|"></span></div>
+                            <b th:attr="data-rt=${k} + '-total'" th:text="${#numbers.formatInteger(point.totalHits(), 1, 'COMMA')}">0</b>
+                        </div></td>
+                        <td th:attr="data-rt=${k} + '-ecom'" data-label="ECOM HITS" th:text="${#numbers.formatInteger(point.ecomHits(), 1, 'COMMA')}">0</td>
+                        <td th:attr="data-rt=${k} + '-approved'" data-label="Approved" th:text="${#numbers.formatInteger(point.ecomApproved(), 1, 'COMMA')}">0</td>
+                        <td data-label="ECOM Approval %"><span class="txn-rate-pill" th:classappend="${point.approvalRate() < 85} ? ' txn-rate-pill--warn'">
+                            <span th:attr="data-rt=${k} + '-rate'" th:text="${#numbers.formatDecimal(point.approvalRate(), 1, 2)}">0</span>%</span></td>
+                        <td th:attr="data-rt=${k} + '-fk'" data-label="Flipkart" th:text="${#numbers.formatInteger(point.flipkartHits(), 1, 'COMMA')}">0</td>
+                        <td data-label="Flipkart rate"><span th:attr="data-rt=${k} + '-fk-rate'" th:text="${#numbers.formatDecimal(point.flipkartApprovalRate(), 1, 2)}">0</span>%</td>
+                        <td th:attr="data-rt=${k} + '-az'" data-label="Amazon" th:text="${#numbers.formatInteger(point.amazonHits(), 1, 'COMMA')}">0</td>
+                        <td data-label="Amazon rate"><span th:attr="data-rt=${k} + '-az-rate'" th:text="${#numbers.formatDecimal(point.amazonApprovalRate(), 1, 2)}">0</span>%</td>
+                        <td th:data-rt="${k} + '-void'" data-label="Void" th:text="${#numbers.formatInteger(point.voidCount(), 1, 'COMMA')}">0</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(dashboard.hourlyRows())}">
+                        <td colspan="10" class="txn-empty">No hourly data returned.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+        <div class="response-time-actions">
+            <button type="button" class="txn-refresh" data-txn-refresh>
+                <span class="material-symbols-outlined">refresh</span>
+                <span>Refresh</span>
+                <em th:text="'· auto ' + ${refreshSeconds} + 's'">auto</em>
+            </button>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/page-shell :: page-footer(hint='Auth Transactions')}"/>
+
+<script th:inline="javascript">
+    window.breDashboardTransactionRefreshSeconds = /*[[${refreshSeconds}]]*/ 60;
+</script>
+<script th:src="@{/js/live-refresh.js(v='20261008-aligned-refresh')}"></script>
+</body>
+</html>

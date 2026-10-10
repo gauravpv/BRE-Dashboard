@@ -1,4 +1,5 @@
 # Production overlay. Activate with SPRING_PROFILES_ACTIVE=prod
+# This file contains defaults; override with YAML file placed next to the JAR (see deploy/server/application.yml)
 
 spring:
   h2:
@@ -11,7 +12,7 @@ spring:
     cache: true
 
 server:
-  port: ${SERVER_PORT:8443}
+  port: 8443
   # So OAuth redirect_uri uses https://bflbre-dashboard-prod.bajajfinserv.in when a proxy terminates TLS.
   forward-headers-strategy: native
   tomcat:
@@ -20,11 +21,11 @@ server:
       remote-ip-header: X-Forwarded-For
       host-header: X-Forwarded-Host
   ssl:
-    enabled: ${SERVER_SSL_ENABLED:true}
-    key-store: ${SERVER_SSL_KEYSTORE:}
-    key-store-password: ${SERVER_SSL_KEYSTORE_PASSWORD:}
+    enabled: true
+    key-store: dashboard.p12
+    key-store-password: 
     key-store-type: PKCS12
-    key-alias: ${SERVER_SSL_KEY_ALIAS:}
+    key-alias: 
   servlet:
     session:
       cookie:
@@ -35,13 +36,14 @@ server:
 bredashboard:
   auth:
     seed-dev-users: false
-    # Entra app registration is production-only. Password login stays until BRE_DASHBOARD_AUTH_MODE=azure.
-    mode: ${BRE_DASHBOARD_AUTH_MODE:dev}
+    # Entra app registration is production-only. Default to dev until explicitly configured.
+    mode: dev
     azure:
-      client-id: ${AZURE_CLIENT_ID:}
-      client-secret: ${AZURE_CLIENT_SECRET:}
-      tenant-id: ${AZURE_TENANT_ID:}
+      client-id: 
+      client-secret: 
+      tenant-id: 
   health:
+    monitored-tiers: [PROD]
     model-hub:
       enabled: true
       uat:
@@ -53,9 +55,35 @@ bredashboard:
         base-urls:
           - https://bfldaasbre-prod.bajajfinserv.in
   bajaj-tester:
-    uat:
-      base-url: https://sauat.bajajfinserv.in/apis
     prod:
       base-url: https://superapp.bajajfinserv.in/apis
+      operation-list-path: operationallist
+      token-path: oauth-token
+      token-ttl-seconds: 600
+      operation-list-ttl-seconds: 86400
+      quote-encrypted-body: true
+      encryption-key:
+      encryption-iv:
+      headers:
+        Authorization:
+        connection-from: Upgrade-ws
+        source:
+        token:
+        additionalinfo5: cbc
+        additionalinfo1:
+        subscriptionid:
+      api-headers:
+        connection-from: rest
+      request-body:
+        channel:
+        appversion:
+        deviceId:
+      token-request-body:
+        grant_type: password
+        deviceId:
+        channelId: 740
+        username:
+        passwordType: password
+        password:
   admin:
     mode: live

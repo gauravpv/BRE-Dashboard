@@ -8,8 +8,9 @@ import com.bredashboard.health.dto.HealthRefreshResponse;
 import com.bredashboard.health.dto.MonitorDetailsResponse;
 import com.bredashboard.health.dto.RegisterMonitorRequest;
 import com.bredashboard.health.exception.MonitorRegistrationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -17,6 +18,8 @@ import java.util.List;
 
 @Service
 public class MonitorRegistrationService {
+
+    private static final Logger log = LoggerFactory.getLogger(MonitorRegistrationService.class);
 
     private final MonitoredHostCatalog catalog;
     private final SystemHealthMonitor healthMonitor;
@@ -33,6 +36,7 @@ public class MonitorRegistrationService {
     }
 
     public MonitorDetailsResponse get(HealthDeploymentTier tier, Long id) {
+        requireConfiguredTier(tier);
         return tier == HealthDeploymentTier.PROD
                 ? MonitorDetailsResponse.fromProd(catalog.findProd(id))
                 : MonitorDetailsResponse.fromUat(catalog.findUat(id));
@@ -40,14 +44,18 @@ public class MonitorRegistrationService {
 
     public List<MonitorDetailsResponse> listAll() {
         List<MonitorDetailsResponse> results = new ArrayList<>();
-        catalog.findAllUat().forEach(host -> results.add(MonitorDetailsResponse.fromUat(host)));
-        catalog.findAllProd().forEach(host -> results.add(MonitorDetailsResponse.fromProd(host)));
+        HealthDeploymentTier tier = healthProperties.getHealth().deploymentTier();
+        if (tier == HealthDeploymentTier.UAT) {
+            catalog.findAllUat().forEach(host -> results.add(MonitorDetailsResponse.fromUat(host)));
+        } else {
+            catalog.findAllProd().forEach(host -> results.add(MonitorDetailsResponse.fromProd(host)));
+        }
         return results;
     }
 
-    @Transactional
     public HealthRefreshResponse register(RegisterMonitorRequest request) {
         HealthDeploymentTier tier = resolveTier(request);
+        requireConfiguredTier(tier);
         ResolvedMonitorFields fields = resolveFields(request, tier);
         ensureUniqueHostPort(tier, fields.host(), fields.port(), null);
 
@@ -73,12 +81,12 @@ public class MonitorRegistrationService {
             ));
         }
 
-        healthMonitor.refresh();
+        refreshSafely();
         return refreshResponse();
     }
 
-    @Transactional
     public HealthRefreshResponse update(HealthDeploymentTier tier, Long id, RegisterMonitorRequest request) {
+        requireConfiguredTier(tier);
         ResolvedMonitorFields fields = resolveFields(request, tier);
         ensureUniqueHostPort(tier, fields.host(), fields.port(), id);
 
@@ -92,14 +100,14 @@ public class MonitorRegistrationService {
             catalog.saveUat(host);
         }
 
-        healthMonitor.refresh();
+        refreshSafely();
         return refreshResponse();
     }
 
-    @Transactional
     public HealthRefreshResponse remove(HealthDeploymentTier tier, Long id) {
+        requireConfiguredTier(tier);
         catalog.delete(tier, id);
-        healthMonitor.refresh();
+        refreshSafely();
         return refreshResponse();
     }
 
@@ -110,7 +118,9 @@ public class MonitorRegistrationService {
         host.setEnvironment(fields.environment());
         host.setRegion(fields.region());
         host.setActuatorPath(fields.actuatorPath());
-        host.setModelHubEnvironmentId(fields.modelHubEnvironmentId());
+        if (fields.modelHubEnvironmentId() != null) {
+            host.setModelHubEnvironmentId(fields.modelHubEnvironmentId());
+        }
     }
 
     private static void applyFieldsProd(MonitoredHostProd host, ResolvedMonitorFields fields) {
@@ -120,7 +130,9 @@ public class MonitorRegistrationService {
         host.setEnvironment(fields.environment());
         host.setRegion(fields.region());
         host.setActuatorPath(fields.actuatorPath());
-        host.setModelHubEnvironmentId(fields.modelHubEnvironmentId());
+        if (fields.modelHubEnvironmentId() != null) {
+            host.setModelHubEnvironmentId(fields.modelHubEnvironmentId());
+        }
     }
 
     private HealthDeploymentTier resolveTier(RegisterMonitorRequest request) {
@@ -131,6 +143,13 @@ public class MonitorRegistrationService {
             return tierFromEnvironment(request.environment());
         }
         throw new MonitorRegistrationException("Environment is required (UAT or Prod)");
+    }
+
+    private void requireConfiguredTier(HealthDeploymentTier tier) {
+        HealthDeploymentTier configured = healthProperties.getHealth().deploymentTier();
+        if (tier != configured) {
+            throw new MonitorRegistrationException("This deployment is configured for " + configured + " only");
+        }
     }
 
     public static HealthDeploymentTier tierFromEnvironment(String environment) {
@@ -162,7 +181,23 @@ public class MonitorRegistrationService {
                 ? request.actuatorPath().trim()
                 : healthProperties.getHealth().getDefaultActuatorPath();
 
-        return new ResolvedMonitorFields(name, host, port, environment, region, actuatorPath, null);
+        return new ResolvedMonitorFields(
+                name,
+                host,
+                port,
+                environment,
+                region,
+                actuatorPath,
+                normalizeOptional(request.modelHubEnvironmentId())
+        );
+    }
+
+    private void refreshSafely() {
+        try {
+            healthMonitor.refresh();
+        } catch (RuntimeException ex) {
+            log.warn("Monitor saved but immediate health refresh failed: {}", ex.getMessage());
+        }
     }
 
     private HealthRefreshResponse refreshResponse() {

@@ -8,6 +8,9 @@ import com.bredashboard.tester.dto.OperationEntryDto;
 import com.bredashboard.tester.dto.OperationListResponseDto;
 import com.bredashboard.tester.exception.BajajTesterException;
 import com.bredashboard.tester.util.AesCbcCrypto;
+import com.bredashboard.tester.util.BajajHttpDebugLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -24,6 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class BajajOperationListService {
+
+    private static final Logger log = LoggerFactory.getLogger(BajajOperationListService.class);
 
     /** Refresh a few minutes before Bajaj rotates hashcode/salt (every 24 hours). */
     private static final long CACHE_SKEW_SECONDS = 900;
@@ -119,15 +124,21 @@ public class BajajOperationListService {
                     .POST(HttpRequest.BodyPublishers.ofString(encryptedBody, StandardCharsets.UTF_8));
 
             for (Map.Entry<String, String> header : config.getHeaders().entrySet()) {
-                if (header.getKey() != null && !header.getKey().isBlank()) {
+                if (header.getKey() != null
+                        && !header.getKey().isBlank()
+                        && !"additionalinfo1".equalsIgnoreCase(header.getKey())) {
                     builder.header(header.getKey(), header.getValue() != null ? header.getValue() : "");
                 }
             }
 
-            HttpResponse<String> response = httpClient.send(
-                    builder.build(),
+                HttpRequest request = builder.build();
+                BajajHttpDebugLogger.logRequest(log, "operation-list", request, requestJson, objectMapper);
+                HttpResponse<String> response = httpClient.send(
+                    request,
                     HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)
             );
+                BajajHttpDebugLogger.logResponse(
+                    log, "operation-list", response.statusCode(), response.headers().map(), response.body(), objectMapper);
 
             if (response.statusCode() < 200 || response.statusCode() >= 300) {
                 throw new BajajTesterException(
@@ -138,14 +149,18 @@ public class BajajOperationListService {
                 );
             }
 
-            return AesCbcCrypto.decryptUtf8(
+                String decrypted = AesCbcCrypto.decryptUtf8(
                     response.body(),
                     config.getEncryptionKey(),
                     config.getEncryptionIv()
             );
+                BajajHttpDebugLogger.logDecryptedBody(log, "operation-list", "decrypted response", decrypted, objectMapper);
+                return decrypted;
         } catch (BajajTesterException ex) {
+            log.warn("Bajaj operation-list call failed: {}", ex.getClass().getSimpleName());
             throw ex;
         } catch (Exception ex) {
+            log.warn("Bajaj operation-list call failed: {}", ex.getClass().getSimpleName());
             throw new BajajTesterException("Failed to fetch operation list", ex);
         }
     }
@@ -159,6 +174,10 @@ public class BajajOperationListService {
             JsonNode root = objectMapper.readTree(plainJson);
             JsonNode operationsNode = root.path("operationList");
             if (!operationsNode.isArray()) {
+                log.warn("Bajaj operation-list response rejected: missing operationList array; rootType={}, "
+                                + "rootFields={}, description={}, statusCode={}",
+                        root.getNodeType(), root.isObject() ? fieldNames(root) : "<not-an-object>",
+                        abbreviate(text(root, "description"), 160), abbreviate(text(root, "statusCode"), 80));
                 throw new BajajTesterException("Operation list response missing operationList array");
             }
 
@@ -172,8 +191,8 @@ public class BajajOperationListService {
                         text(node, "module"),
                         text(node, "apiversion"),
                         config.apiUrl(publicUrl),
-                        text(node, "hashcode"),
-                        text(node, "salt")
+                        text(node, "salt"),
+                        text(node, "hashcode")
                 ));
             }
 
@@ -204,7 +223,16 @@ public class BajajOperationListService {
         return value.asText();
     }
 
+    private static List<String> fieldNames(JsonNode node) {
+        List<String> names = new ArrayList<>();
+        node.fieldNames().forEachRemaining(names::add);
+        return names;
+    }
+
     private static String abbreviate(String value, int max) {
+        if (value == null) {
+            return "<none>";
+        }
         if (value.length() <= max) {
             return value;
         }

@@ -1,7 +1,10 @@
 package com.bredashboard.health.controller;
 
 import com.bredashboard.activity.service.ActivityFeedService;
+import com.bredashboard.auth.domain.AppUser;
 import com.bredashboard.auth.domain.AppTab;
+import com.bredashboard.auth.domain.CurrentUser;
+import com.bredashboard.health.domain.HealthDeploymentTier;
 import com.bredashboard.health.domain.HealthRegionGroup;
 import com.bredashboard.health.domain.SystemHealthView;
 import com.bredashboard.health.service.ActuatorHealthService;
@@ -41,6 +44,12 @@ public class HealthPageController {
         model.addAttribute("systems", systems);
         model.addAttribute("systemGroups", HealthRegionGroup.fromSystems(systems));
         model.addAttribute("summary", healthMonitor.summary());
+        List<HealthDeploymentTier> monitoredTiers = healthMonitor.monitoredTiers();
+        if (monitoredTiers == null || monitoredTiers.isEmpty()) {
+            monitoredTiers = List.of(HealthDeploymentTier.UAT);
+        }
+        model.addAttribute("monitoredTiers", monitoredTiers);
+        model.addAttribute("deploymentTier", monitoredTiers.get(0));
         model.addAttribute("refreshSeconds", healthService.refreshSeconds());
         model.addAttribute("lastRefreshedAt", healthMonitor.getLastRefreshedAt());
         model.addAttribute("modelHubEnabled", healthMonitor.isModelHubEnabled());
@@ -50,7 +59,12 @@ public class HealthPageController {
                 .distinct()
                 .sorted()
                 .toList());
-        model.addAttribute("activities", activityFeedService.recent(ACTIVITY_LIMIT));
+        AppUser user = CurrentUser.userOrNull();
+        boolean administrator = user != null && "ADMIN".equals(user.getRole().getCode());
+        model.addAttribute("isAdministrator", administrator);
+        if (administrator) {
+            model.addAttribute("activities", activityFeedService.recent(ACTIVITY_LIMIT));
+        }
         if ("UP".equalsIgnoreCase(status) || "DOWN".equalsIgnoreCase(status)) {
             model.addAttribute("initialStatusFilter", status.toUpperCase());
         }

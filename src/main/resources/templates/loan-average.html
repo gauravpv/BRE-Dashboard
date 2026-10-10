@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
+<head>
+<th:block th:replace="~{fragments/head :: head(pageTitle='Avg Loan Amount')}"/>
+<link rel="stylesheet" data-bre-page-style th:href="@{/css/transaction-dashboard.css(v='20261006-responsive-layout')}"/>
+<link rel="stylesheet" data-bre-page-style th:href="@{/css/hourly-trend.css(v='20261008-loan-bands')}"/>
+</head>
+<body class="bre-dashboard-app txn-body hourly-body response-time-body channel-body bg-background text-on-background font-body-md">
+<aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
+<th:block th:replace="~{fragments/page-shell :: page-header(title='Avg Loan Amount', searchPlaceholder='', searchId='', showSearch=false, fixed=true, showNotifications=true, showSettings=true, showUser=false)}"/>
+
+<div class="txn-shell hourly-shell" data-live-shell th:fragment="live-shell" th:attr="data-report-url=${reportUrl}">
+    <header class="txn-strip response-time-strip">
+        <div th:if="${dashboard.available()}" class="response-time-totals channel-totals">
+            <div class="txn-strip-hero">
+                <span class="txn-eyebrow">Avg loan amount</span>
+                <strong>₹<span data-rt="loan-overall-average" th:text="${#numbers.formatDecimal(dashboard.overallAverage(), 1, 'COMMA', 0, 'POINT')}">0</span></strong>
+                <div class="txn-strip-hero-foot">
+                    <span th:text="${#temporals.format(dashboard.transactionDate(), 'dd MMM yyyy')}">Today</span>
+                </div>
+            </div>
+            <div class="txn-strip-hero">
+                <span class="txn-eyebrow">Approved transactions</span>
+                <strong data-rt="loan-total-count" th:text="${#numbers.formatInteger(dashboard.totalCount(), 1, 'COMMA')}">0</strong>
+                <div class="txn-strip-hero-foot">
+                    <span>Flipkart + Amazon</span>
+                </div>
+            </div>
+            <div class="txn-strip-hero">
+                <span class="txn-eyebrow">Total loan amount</span>
+                <strong>₹<span data-rt="loan-total-amount" th:text="${#numbers.formatInteger(dashboard.totalAmount(), 1, 'COMMA')}">0</span></strong>
+                <div class="txn-strip-hero-foot">
+                    <span>NET_LOAN_AMOUNT</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div th:unless="${dashboard.available()}" class="txn-alert">
+        <span class="material-symbols-outlined">database_off</span>
+        <div>
+            <strong>Transaction data unavailable</strong>
+            <p th:text="${dashboard.errorMessage()}">Unable to load data.</p>
+        </div>
+    </div>
+
+    <div th:if="${dashboard.available()}" class="txn-area-tables channel-area">
+        <div th:if="${dashboard.totalCount() == 0}" class="txn-panel channel-empty">
+            <span class="material-symbols-outlined">hourglass_empty</span>
+            <p>No approved Flipkart or Amazon transactions recorded today yet.</p>
+        </div>
+
+        <div class="channel-grid">
+            <article th:each="dealer : ${dashboard.dealers()}" class="txn-panel channel-card"
+                     th:classappend="${dealer.count() == 0} ? ' channel-card--idle'">
+                <header class="channel-card-head">
+                    <h2 th:text="${dealer.name()}">Flipkart</h2>
+                    <span class="channel-code" th:text="'#' + ${dealer.code()}">#139908</span>
+                </header>
+
+                <div class="channel-hits">
+                    <span class="txn-eyebrow">Avg loan amount</span>
+                    <strong>₹<span th:attr="data-rt='loan-' + ${dealer.code()} + '-average'"
+                            th:text="${#numbers.formatDecimal(dealer.averageAmount(), 1, 'COMMA', 0, 'POINT')}">0</span></strong>
+                </div>
+
+                <dl class="channel-stats">
+                    <div>
+                        <dt>Approved txns</dt>
+                        <dd th:attr="data-rt='loan-' + ${dealer.code()} + '-count'"
+                            th:text="${#numbers.formatInteger(dealer.count(), 1, 'COMMA')}">0</dd>
+                    </div>
+                    <div>
+                        <dt>Total amount</dt>
+                        <dd>₹<span th:attr="data-rt='loan-' + ${dealer.code()} + '-total'"
+                            th:text="${#numbers.formatInteger(dealer.totalAmount(), 1, 'COMMA')}">0</span></dd>
+                    </div>
+                </dl>
+
+                <dl class="channel-stats">
+                    <div>
+                        <dt>Avg &lt; ₹5K</dt>
+                        <dd>₹<span th:attr="data-rt='loan-' + ${dealer.code()} + '-below-avg'"
+                            th:text="${#numbers.formatDecimal(dealer.below5k().averageAmount(), 1, 'COMMA', 0, 'POINT')}">0</span></dd>
+                        <small class="loan-band-count" th:text="${#numbers.formatInteger(dealer.below5k().count(), 1, 'COMMA')} + ' txns'">0 txns</small>
+                    </div>
+                    <div>
+                        <dt>Avg ≥ ₹5K</dt>
+                        <dd>₹<span th:attr="data-rt='loan-' + ${dealer.code()} + '-above-avg'"
+                            th:text="${#numbers.formatDecimal(dealer.from5k().averageAmount(), 1, 'COMMA', 0, 'POINT')}">0</span></dd>
+                        <small class="loan-band-count" th:text="${#numbers.formatInteger(dealer.from5k().count(), 1, 'COMMA')} + ' txns'">0 txns</small>
+                    </div>
+                </dl>
+
+                <div class="channel-share">
+                    <div class="channel-share-label">
+                        <span>Share of loan amount</span>
+                        <b th:text="|${#numbers.formatDecimal(dealer.sharePercent(), 1, 2)}%|">0.00%</b>
+                    </div>
+                    <div class="channel-share-track">
+                        <span th:attr="data-rt-bar='loan-' + ${dealer.code()}"
+                              th:style="'width: ' + ${dealer.sharePercent()} + '%'"></span>
+                    </div>
+                </div>
+            </article>
+        </div>
+
+        <div class="response-time-actions">
+            <button type="button" class="txn-refresh" data-txn-refresh>
+                <span class="material-symbols-outlined">refresh</span>
+                <span>Refresh</span>
+                <em th:text="'· auto ' + ${refreshSeconds} + 's'">auto</em>
+            </button>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments/page-shell :: page-footer(hint='Average NET_LOAN_AMOUNT of approved e-commerce auth transactions by dealer for today')}"/>
+
+<script th:inline="javascript">
+    window.breDashboardTransactionRefreshSeconds = /*[[${refreshSeconds}]]*/ 60;
+</script>
+<script th:src="@{/js/live-refresh.js(v='20261008-aligned-refresh')}"></script>
+</body>
+</html>

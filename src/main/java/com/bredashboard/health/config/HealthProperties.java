@@ -1,5 +1,6 @@
 package com.bredashboard.health.config;
 
+import com.bredashboard.health.domain.HealthDeploymentTier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.StringUtils;
 
@@ -32,10 +33,26 @@ public class HealthProperties {
         private int connectTimeoutMs = 3000;
         private int readTimeoutMs = 5000;
         private String defaultActuatorPath = "/actuator";
+        private List<HealthDeploymentTier> monitoredTiers = List.of(HealthDeploymentTier.UAT);
         private final ModelHub modelHub = new ModelHub();
 
         public ModelHub getModelHub() {
             return modelHub;
+        }
+
+        public List<HealthDeploymentTier> getMonitoredTiers() {
+            return monitoredTiers;
+        }
+
+        public void setMonitoredTiers(List<HealthDeploymentTier> monitoredTiers) {
+            this.monitoredTiers = monitoredTiers;
+        }
+
+        public HealthDeploymentTier deploymentTier() {
+            if (monitoredTiers == null || monitoredTiers.size() != 1) {
+                throw new IllegalStateException("bredashboard.health.monitored-tiers must contain exactly one tier");
+            }
+            return monitoredTiers.get(0);
         }
 
         public int getRefreshSeconds() {

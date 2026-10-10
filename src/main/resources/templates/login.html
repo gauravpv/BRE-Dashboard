@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" class="light h-full bg-background text-on-surface" lang="en">
 <head>
-<th:block th:replace="~{fragments/head :: head-light(pageTitle='Login')}"/>
+<th:block th:replace="~{fragments/head :: head(pageTitle='Login')}"/>
 <style>
     .material-symbols-outlined {
         font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
@@ -9,33 +9,176 @@
         vertical-align: middle;
     }
     .login-canvas {
+        position: relative;
         background-color: #f6faff;
         background-image:
-            radial-gradient(circle at 1px 1px, rgba(187, 198, 226, 0.3) 1px, transparent 0),
-            radial-gradient(circle at center, rgba(246, 250, 255, 0.8) 0%, #f6faff 100%),
-            linear-gradient(to bottom, #e6eff8 0%, #f6faff 100%);
-        background-size: 24px 24px, 100% 100%, 100% 100%;
+            radial-gradient(circle at 1px 1px, rgba(111, 137, 177, 0.2) 1px, transparent 0),
+            linear-gradient(135deg, rgba(0, 89, 187, 0.035) 0 25%, transparent 25% 75%, rgba(0, 89, 187, 0.025) 75% 100%),
+            linear-gradient(to bottom, #edf5fd 0%, #f8fbff 48%, #f3f8fd 100%);
+        background-size: 24px 24px, 320px 320px, 100% 100%;
         background-attachment: fixed;
+    }
+    .login-header {
+        position: relative;
+        box-shadow: 0 1px 0 rgba(118, 183, 255, 0.25), 0 5px 18px rgba(5, 17, 37, 0.12);
+    }
+    .login-header [data-stitch-theme-toggle] { color: #f4f7fb; }
+    .login-header::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -1px;
+        height: 2px;
+        background: linear-gradient(90deg, #0070ea 0 18%, rgba(118, 183, 255, 0.35) 18% 42%, transparent 42%);
+    }
+    .login-brand-icon {
+        width: 2rem;
+        height: 2rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(173, 199, 255, 0.38);
+        border-radius: 0.375rem;
+        background: rgba(173, 199, 255, 0.08);
+    }
+    .login-main {
+        position: relative;
+        isolation: isolate;
+    }
+    .login-main::before,
+    .login-main::after {
+        content: '';
+        position: absolute;
+        z-index: -1;
+        width: 9rem;
+        height: 9rem;
+        pointer-events: none;
+        opacity: 0.55;
+    }
+    .login-main::before {
+        top: 12%;
+        left: 8%;
+        border-top: 1px solid rgba(0, 89, 187, 0.25);
+        border-left: 1px solid rgba(0, 89, 187, 0.25);
+        box-shadow: inset 12px 12px 0 -11px rgba(0, 112, 234, 0.45);
+    }
+    .login-main::after {
+        right: 8%;
+        bottom: 14%;
+        border-right: 1px solid rgba(0, 89, 187, 0.22);
+        border-bottom: 1px solid rgba(0, 89, 187, 0.22);
+        box-shadow: inset -12px -12px 0 -11px rgba(0, 112, 234, 0.4);
+    }
+    .login-card {
+        position: relative;
+        overflow: hidden;
+        border-color: rgba(135, 153, 180, 0.35);
+        box-shadow: 0 18px 55px rgba(5, 17, 37, 0.1), 0 2px 8px rgba(5, 17, 37, 0.05);
+        animation: login-card-in 0.45s cubic-bezier(0.2, 0.75, 0.25, 1) both;
+    }
+    html.dark .login-canvas {
+        background-color: var(--bre-shell);
+        background-image:
+            radial-gradient(circle at 1px 1px, rgba(173, 199, 255, 0.12) 1px, transparent 0),
+            linear-gradient(135deg, rgba(118, 183, 255, 0.035) 0 25%, transparent 25% 75%, rgba(118, 183, 255, 0.025) 75% 100%),
+            linear-gradient(to bottom, #0d192a 0%, #0b1220 52%, #101a29 100%);
+    }
+    html.dark .login-card {
+        border-color: var(--bre-border);
+        box-shadow: 0 18px 55px rgba(0, 0, 0, 0.32), 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+    .login-card::before {
+        content: '';
+        position: absolute;
+        inset: 0 0 auto;
+        height: 3px;
+        background: linear-gradient(90deg, #0059bb 0 44%, #76b7ff 44% 72%, #d7e8fb 72%);
+    }
+    .login-card::after {
+        content: '';
+        position: absolute;
+        top: 1.1rem;
+        right: 1.1rem;
+        width: 1.1rem;
+        height: 1.1rem;
+        border-top: 1px solid rgba(0, 89, 187, 0.3);
+        border-right: 1px solid rgba(0, 89, 187, 0.3);
+    }
+    .login-logo-frame {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 10.5rem;
+        min-height: 4.75rem;
+        padding: 0.65rem 1rem;
+        border: 1px solid rgba(0, 89, 187, 0.12);
+        border-radius: 0.5rem;
+        background: #fff;
+        box-shadow: 0 4px 14px rgba(5, 17, 37, 0.05);
+    }
+    .login-auth-link {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 6px 16px rgba(5, 17, 37, 0.14);
+    }
+    .login-auth-link::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 2px;
+        background: #0070ea;
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.2s ease;
+    }
+    .login-auth-link:hover::after,
+    .login-auth-link:focus-visible::after {
+        transform: scaleX(1);
+    }
+    .login-footer {
+        box-shadow: 0 -1px 0 rgba(135, 153, 180, 0.12);
+    }
+    @keyframes login-card-in {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @media (max-width: 640px) {
+        .login-main::before,
+        .login-main::after { display: none; }
+        .login-card { border-radius: 0.625rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .login-card { animation: none; }
     }
 </style>
 </head>
 <body class="h-full flex flex-col login-canvas bre-dashboard-app font-body-md">
-<header class="bg-primary text-on-primary docked full-width top-0 border-b border-outline-variant/20 flex justify-between items-center w-full px-gutter h-16 z-50 shrink-0">
+<header class="login-header bg-primary text-on-primary docked full-width top-0 border-b border-outline-variant/20 flex justify-between items-center w-full px-gutter h-16 z-50 shrink-0">
     <div class="flex items-center gap-unit-sm">
-        <span class="material-symbols-outlined text-secondary-fixed">shield_lock</span>
+        <span class="login-brand-icon material-symbols-outlined text-secondary-fixed">shield_lock</span>
         <span class="text-title-lg font-title-lg font-bold text-on-primary">BRE Dashboard</span>
     </div>
-    <div class="flex items-center gap-unit-md">
-        <span class="text-label-md font-label-md text-on-primary-container">v4.2.0-stable</span>
-    </div>
+    <th:block th:replace="~{fragments/stitch-theme :: theme-toggle}"/>
 </header>
 
-<main class="flex-grow flex items-center justify-center px-4 py-12 pb-28">
-    <div class="w-full max-w-[440px] bg-surface-container-lowest border border-outline-variant/30 rounded-lg p-unit-xl shadow-sm">
+<main class="login-main flex-grow flex items-center justify-center px-4 py-12 pb-28">
+    <div class="login-card w-full max-w-[440px] bg-surface-container-lowest border border-outline-variant/30 rounded-lg p-unit-xl">
         <div class="mb-unit-xl text-center">
-            <h1 class="text-headline-md font-headline-md text-on-surface mb-unit-xs">Sign in to BRE Dashboard</h1>
+            <div class="flex justify-center mb-unit-lg">
+                <div class="login-logo-frame">
+                    <img th:src="@{/images/Bajaj_Finance_Logo_2025.svg-removebg-preview.png}"
+                         src="/images/Bajaj_Finance_Logo_2025.svg-removebg-preview.png"
+                         alt="Bajaj Finance Logo"
+                         class="h-14 w-auto object-contain max-w-[260px]"/>
+                </div>
+            </div>
+            <h1 class="text-headline-md font-headline-md text-on-surface mb-unit-xs">BRE Dashboard</h1>
             <p class="text-body-md font-body-md text-on-surface-variant"
-               th:text="${azureMode} ? 'Use your organization Microsoft account' : 'Enter your credentials to access the infrastructure dashboard'">
+               th:text="${azureMode} ? 'Use your organization Microsoft account' : 'Enter your credentials to access the dashboard'">
                 Enter your credentials
             </p>
         </div>
@@ -101,16 +244,15 @@
                 <span class="absolute bg-surface-container-lowest px-4 text-label-sm font-label-sm text-outline uppercase tracking-wider">Or continue with</span>
             </div>
             <a th:href="@{/oauth2/authorization/azure}"
-               class="w-full py-3 bg-[#2F2F2F] hover:bg-[#1a1a1a] text-white rounded-lg font-title-md flex items-center justify-center gap-3 transition-all active:scale-95">
+                    class="login-auth-link w-full py-3 bg-[#2F2F2F] hover:bg-[#1a1a1a] text-white rounded-lg font-title-md flex items-center justify-center gap-3 transition-all active:scale-95">
                 <svg class="w-5 h-5 shrink-0" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
                     <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
                     <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
                     <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
                 </svg>
-                Sign in with Microsoft
+                Sign in with BFL ADID
             </a>
-            <p class="text-body-sm text-on-surface-variant text-center">New users are provisioned automatically on first sign-in.</p>
         </div>
 
         <div th:if="${devMode and !microsoftLogin}" class="mt-unit-xl">
@@ -133,27 +275,14 @@
                 Set AZURE_CLIENT_ID, AZURE_TENANT_ID, and AZURE_CLIENT_SECRET to enable Microsoft sign-in.
             </p>
         </div>
-
-        <div th:if="${azureMode}" class="mt-unit-xl">
-            <div class="relative flex items-center justify-center mb-unit-lg">
-                <div class="w-full border-t border-outline-variant/30"></div>
-                <span class="absolute bg-surface-container-lowest px-4 text-label-sm font-label-sm text-outline uppercase tracking-wider">Enterprise SSO</span>
-            </div>
-            <p class="text-body-sm text-on-surface-variant text-center">Local password sign-in is disabled when Azure AD mode is active.</p>
-        </div>
     </div>
 </main>
 
-<footer class="bg-surface-container-lowest text-on-surface-variant fixed bottom-0 w-full border-t border-outline-variant/30 flex flex-col md:flex-row justify-between items-center px-gutter py-unit-md z-50">
+<footer class="login-footer bg-surface-container-lowest text-on-surface-variant fixed bottom-0 w-full border-t border-outline-variant/30 flex flex-col md:flex-row justify-between items-center px-gutter py-unit-md z-50">
     <div class="flex items-center gap-unit-sm mb-2 md:mb-0">
-        <span class="text-label-md font-label-md font-semibold text-primary">BRE Dashboard Infrastructure</span>
+        <span class="text-label-md font-label-md font-semibold text-primary">BRE Dashboard</span>
         <span class="text-label-sm font-label-sm opacity-50">|</span>
-        <span class="text-label-sm font-label-sm text-on-surface-variant">© 2024 BRE Dashboard Infrastructure. Internal Use Only.</span>
-    </div>
-    <div class="flex gap-unit-lg">
-        <span class="text-label-sm font-label-sm text-on-surface-variant opacity-70">Security Policy</span>
-        <span class="text-label-sm font-label-sm text-on-surface-variant opacity-70">System Status</span>
-        <span class="text-label-sm font-label-sm text-on-surface-variant opacity-70">Help Desk</span>
+        <span class="text-label-sm font-label-sm text-on-surface-variant">© 2026 BRE Dashboard</span>
     </div>
 </footer>
 

@@ -12,11 +12,12 @@
         }
     })();
 </script>
-<link rel="stylesheet" th:href="@{/css/bre-dashboard.css}"/>
+<link rel="stylesheet" th:href="@{/css/bre-dashboard.css(v='20261006-responsive-layout')}"/>
 <script defer th:src="@{/js/bre-dashboard-csrf.js}"></script>
 <script defer th:src="@{/js/stitch-theme.js}"></script>
 <script defer th:src="@{/js/bre-dashboard-sidebar.js}"></script>
 <script defer th:src="@{/js/bre-dashboard-header.js}"></script>
+<script defer th:src="@{/js/bre-soft-navigation.js(v='20261007-nav-cache')}"></script>
 </th:block>
 <th:block th:fragment="theme-head-light">
 <script>
@@ -25,7 +26,7 @@
         document.documentElement.classList.add('light');
     })();
 </script>
-<link rel="stylesheet" th:href="@{/css/bre-dashboard.css}"/>
+<link rel="stylesheet" th:href="@{/css/bre-dashboard.css(v='20261006-responsive-layout')}"/>
 </th:block>
 </head>
 <body>

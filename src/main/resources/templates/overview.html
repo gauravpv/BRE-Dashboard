@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="light" lang="en">
+<head>
+<th:block th:replace="~{fragments/head :: head(pageTitle='Live Overview')}"/>
+<link rel="stylesheet" data-bre-page-style th:href="@{/css/transaction-dashboard.css(v='20261006-responsive-layout')}"/>
+<link rel="stylesheet" data-bre-page-style th:href="@{/css/hourly-trend.css(v='20261008-loan-bands')}"/>
+<link rel="stylesheet" data-bre-page-style th:href="@{/css/overview.css(v='20261008-kpi-alignment')}"/>
+</head>
+<body class="bre-dashboard-app txn-body hourly-body channel-body ovw-body bg-background text-on-background font-body-md">
+<aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
+<th:block th:replace="~{fragments/page-shell :: page-header(title='Live Overview', searchPlaceholder='', searchId='', showSearch=false, fixed=true, showNotifications=true, showSettings=true, showUser=false)}"/>
+
+<div class="txn-shell ovw-shell" data-live-shell th:fragment="live-shell" th:attr="data-report-url=${reportUrl}"
+     th:with="auth=${dashboard.auth()}, otp=${dashboard.autoOtp()}, elig=${dashboard.ecomEligibility()}, loan=${dashboard.loan()}">
+
+    <!-- Today at a glance -->
+    <header class="ovw-kpis">
+        <article class="txn-panel ovw-kpi ovw-kpi--elig">
+            <div class="ovw-kpi-head">
+                <span class="material-symbols-outlined">fact_check</span>
+                <span class="txn-eyebrow">E-com eligibility</span>
+            </div>
+            <th:block th:if="${elig.available()}">
+                <div class="ovw-kpi-value ovw-kpi-value--aligned">
+                    <strong data-rt="ovw-kpi-elig-hits" th:text="${#numbers.formatInteger(elig.total().hits(), 1, 'COMMA')}">0</strong>
+                    <span class="ovw-kpi-approved">Approved <b th:text="${#numbers.formatInteger(elig.total().approved(), 1, 'COMMA')}">0</b> (<b th:text="|${#numbers.formatDecimal(elig.total().approvalRate(), 1, 2)}%|">0.00%</b>)</span>
+                </div>
+                <div class="ovw-kpi-split">
+                    <span th:each="market : ${elig.marketplaces()}" class="ovw-mkt"
+                          th:classappend="${market.code() == '139908'} ? ' ovw-mkt--fk' : ' ovw-mkt--az'">
+                        <th:block th:text="${market.name()}">Flipkart</th:block>
+                        <b th:text="|${#numbers.formatDecimal(market.approvalRate(), 1, 2)}%|">0.00%</b>
+                    </span>
+                </div>
+            </th:block>
+            <span th:unless="${elig.available()}" class="ovw-kpi-na">Unavailable</span>
+        </article>
+
+        <article class="txn-panel ovw-kpi ovw-kpi--otp">
+            <div class="ovw-kpi-head">
+                <span class="material-symbols-outlined">sms</span>
+                <span class="txn-eyebrow">Auto OTP hits</span>
+            </div>
+            <th:block th:if="${otp.available()}">
+                <div class="ovw-kpi-value ovw-kpi-value--aligned">
+                    <strong data-rt="ovw-kpi-otp-hits" th:text="${#numbers.formatInteger(otp.total().hits(), 1, 'COMMA')}">0</strong>
+                    <span class="ovw-kpi-approved">Approved <b th:text="${#numbers.formatInteger(otp.total().approved(), 1, 'COMMA')}">0</b> (<b th:text="|${#numbers.formatDecimal(otp.total().approvalRate(), 1, 2)}%|">0.00%</b>)</span>
+                </div>
+                <div class="ovw-kpi-split">
+                    <span th:each="market : ${otp.marketplaces()}" class="ovw-mkt"
+                          th:classappend="${market.code() == '139908'} ? ' ovw-mkt--fk' : ' ovw-mkt--az'">
+                        <th:block th:text="${market.name()}">Flipkart</th:block>
+                        <b th:text="|${#numbers.formatDecimal(market.approvalRate(), 1, 2)}%|">0.00%</b>
+                    </span>
+                </div>
+            </th:block>
+            <span th:unless="${otp.available()}" class="ovw-kpi-na">Unavailable</span>
+        </article>
+
+        <article class="txn-panel ovw-kpi ovw-kpi--auth" th:with="m=${auth.totalMetrics()}">
+            <div class="ovw-kpi-head">
+                <span class="material-symbols-outlined">verified_user</span>
+                <span class="txn-eyebrow">Auth hits</span>
+            </div>
+            <th:block th:if="${auth.available()}">
+                <div class="ovw-kpi-value ovw-kpi-value--aligned">
+                    <strong data-rt="ovw-kpi-auth-hits" th:text="${#numbers.formatInteger(m.totalHits(), 1, 'COMMA')}">0</strong>
+                    <span class="ovw-kpi-approved">Approved <b th:text="${#numbers.formatInteger(m.ecomApproved(), 1, 'COMMA')}">0</b> (<b th:text="|${#numbers.formatDecimal(m.approvalRate(), 1, 2)}%|">0.00%</b>)</span>
+                </div>
+                <div class="ovw-kpi-split">
+                    <span class="ovw-mkt ovw-mkt--fk">Flipkart <b th:text="|${#numbers.formatDecimal(m.flipkartApprovalRate(), 1, 2)}%|">0.00%</b></span>
+                    <span class="ovw-mkt ovw-mkt--az">Amazon <b th:text="|${#numbers.formatDecimal(m.amazonApprovalRate(), 1, 2)}%|">0.00%</b></span>
+                </div>
+            </th:block>
+            <span th:unless="${auth.available()}" class="ovw-kpi-na">Unavailable</span>
+        </article>
+
+        <article class="txn-panel ovw-kpi ovw-kpi--loan">
+            <div class="ovw-kpi-head">
+                <span class="material-symbols-outlined">currency_rupee</span>
+                <span class="txn-eyebrow">Total loan amount</span>
+            </div>
+            <th:block th:if="${loan.available()}">
+                <div class="ovw-kpi-value">
+                    <strong>₹<span data-rt="ovw-kpi-loan-total" th:text="${#numbers.formatInteger(loan.totalAmount(), 1, 'COMMA')}">0</span></strong>
+                </div>
+                <span class="ovw-kpi-sub">
+                    <b th:text="${#numbers.formatInteger(loan.totalCount(), 1, 'COMMA')}">0</b> approved txns</span>
+                <div class="ovw-kpi-split">
+                    <span th:each="dealer : ${loan.dealers()}" class="ovw-mkt"
+                          th:classappend="${dealer.code() == '139908'} ? ' ovw-mkt--fk' : ' ovw-mkt--az'">
+                        <th:block th:text="${dealer.name()}">Flipkart</th:block>
+                        <b th:text="|₹${#numbers.formatInteger(dealer.totalAmount(), 1, 'COMMA')}|">₹0</b>
+                    </span>
+                </div>
+            </th:block>
+            <span th:unless="${loan.available()}" class="ovw-kpi-na">Unavailable</span>
+        </article>
+    </header>
+
+    <!-- Minute-wise streams -->
+    <div class="ovw-grid">
+        <section th:replace="~{overview :: otp-panel(view=${elig}, key='elig', title='ECOM Eligibility', subtitle='', emptyText='No e-com eligibility hits in the last 10 minutes.')}"></section>
+        <section th:replace="~{overview :: otp-panel(view=${otp}, key='otp', title='AUTOTP', subtitle='', emptyText='No Auto OTP hits in the last 10 minutes.')}"></section>
+
+        <section class="txn-panel ovw-panel">
+            <header class="txn-panel-header ovw-panel-head">
+                <div>
+                    <h2>AUTH</h2>
+                </div>
+                <span class="ovw-tag">Last 10 min</span>
+            </header>
+            <div th:unless="${auth.available()}" class="ovw-unavailable">
+                <span class="material-symbols-outlined">database_off</span>
+                <p th:text="${auth.errorMessage()}">Unable to load data.</p>
+            </div>
+            <div th:if="${auth.available()}" class="ovw-table-scroll">
+            <table class="txn-table txn-table--grid ovw-table"
+                   th:with="m=${auth.totalMetrics()}">
+                <thead><tr>
+                    <th>Minute</th><th>Hits</th><th>E-com %</th><th>Flipkart</th><th>Amazon</th>
+                </tr></thead>
+                <tbody>
+                <tr th:each="point : ${auth.minuteRows()}" th:with="k='ovw-auth-' + ${point.label()}">
+                    <td class="txn-cell-key" th:text="${point.label()}">00:00</td>
+                      <td th:attr="data-rt=${k} + '-hits'" th:text="${point.totalHits() == 0 ? '-' : #numbers.formatInteger(point.totalHits(), 1, 'COMMA')}">-</td>
+                    <td><span class="txn-rate-pill" th:classappend="${point.ecomHits() > 0 and point.approvalRate() < 85} ? ' txn-rate-pill--warn'"
+                            th:text="${point.ecomHits() == 0 ? '-' : #numbers.formatDecimal(point.approvalRate(), 1, 2) + '%'}">-</span></td>
+                    <td><div class="ovw-split-cell">
+                        <span th:attr="data-rt=${k} + '-fk'" th:text="${point.flipkartHits() == 0 ? '-' : #numbers.formatInteger(point.flipkartHits(), 1, 'COMMA')}">-</span>
+                        <span class="txn-rate-pill" th:classappend="${point.flipkartHits() > 0 and point.flipkartApprovalRate() < 85} ? ' txn-rate-pill--warn'"
+                            th:text="${point.flipkartHits() == 0 ? '-' : #numbers.formatDecimal(point.flipkartApprovalRate(), 1, 2) + '%'}">-</span>
+                    </div></td>
+                    <td><div class="ovw-split-cell">
+                        <span th:attr="data-rt=${k} + '-az'" th:text="${point.amazonHits() == 0 ? '-' : #numbers.formatInteger(point.amazonHits(), 1, 'COMMA')}">-</span>
+                        <span class="txn-rate-pill" th:classappend="${point.amazonHits() > 0 and point.amazonApprovalRate() < 85} ? ' txn-rate-pill--warn'"
+                            th:text="${point.amazonHits() == 0 ? '-' : #numbers.formatDecimal(point.amazonApprovalRate(), 1, 2) + '%'}">-</span>
+                    </div></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(auth.minuteRows())}">
+                    <td colspan="5" class="txn-empty">No auth hits in the last 10 minutes.</td>
+                </tr>
+                </tbody>
+                <tfoot><tr>
+                    <td class="txn-cell-key">Today</td>
+                    <td data-rt="ovw-auth-day-hits" th:text="${#numbers.formatInteger(m.totalHits(), 1, 'COMMA')}">0</td>
+                    <td><span class="txn-rate-pill" th:classappend="${m.ecomHits() > 0 and m.approvalRate() < 85} ? ' txn-rate-pill--warn'"
+                              th:text="|${#numbers.formatDecimal(m.approvalRate(), 1, 2)}%|">0.00%</span></td>
+                    <td><div class="ovw-split-cell">
+                        <span data-rt="ovw-auth-day-fk" th:text="${#numbers.formatInteger(m.flipkartHits(), 1, 'COMMA')}">0</span>
+                        <span class="txn-rate-pill" th:classappend="${m.flipkartHits() > 0 and m.flipkartApprovalRate() < 85} ? ' txn-rate-pill--warn'"
+                              th:text="|${#numbers.formatDecimal(m.flipkartApprovalRate(), 1, 2)}%|">0.00%</span>
+                    </div></td>
+                    <td><div class="ovw-split-cell">
+                        <span data-rt="ovw-auth-day-az" th:text="${#numbers.formatInteger(m.amazonHits(), 1, 'COMMA')}">0</span>
+                        <span class="txn-rate-pill" th:classappend="${m.amazonHits() > 0 and m.amazonApprovalRate() < 85} ? ' txn-rate-pill--warn'"
+                              th:text="|${#numbers.formatDecimal(m.amazonApprovalRate(), 1, 2)}%|">0.00%</span>
+                    </div></td>
+                </tr></tfoot>
+            </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Average loan amount: full breakdown -->
+    <section class="txn-panel ovw-panel ovw-loan">
+        <header class="txn-panel-header ovw-panel-head">
+            <div>
+                <h2>AVERAGE LOAN AMOUNT</h2>
+                <p>Approved e-commerce auth transactions · NET_LOAN_AMOUNT</p>
+            </div>
+            <span class="ovw-tag" th:text="${#temporals.format(loan.transactionDate(), 'dd MMM yyyy')}">Today</span>
+        </header>
+        <div th:unless="${loan.available()}" class="ovw-unavailable">
+            <span class="material-symbols-outlined">database_off</span>
+            <p th:text="${loan.errorMessage()}">Unable to load data.</p>
+        </div>
+        <div th:if="${loan.available()}" class="ovw-table-scroll">
+            <table class="txn-table txn-table--grid ovw-table ovw-loan-table">
+                <thead>
+                <tr>
+                    <th rowspan="2">Marketplace</th>
+                    <th rowspan="2">Approved txns</th>
+                    <th rowspan="2">Total amount</th>
+                    <th rowspan="2">Average ticket size</th>
+                    <th colspan="2" class="ovw-th-group">Below ₹5K</th>
+                    <th colspan="2" class="ovw-th-group">₹5K and above</th>
+                </tr>
+                <tr>
+                    <th>Txns</th><th>Avg</th><th>Txns</th><th>Avg</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="dealer : ${loan.dealers()}" th:with="k='ovw-loan-' + ${dealer.code()}">
+                    <td class="txn-cell-key">
+                        <span class="ovw-dot" th:classappend="${dealer.code() == '139908'} ? ' ovw-dot--fk' : ' ovw-dot--az'"></span>
+                        <th:block th:text="${dealer.name()}">Flipkart</th:block>
+                    </td>
+                    <td th:attr="data-rt=${k} + '-count'" th:text="${#numbers.formatInteger(dealer.count(), 1, 'COMMA')}">0</td>
+                    <td>₹<span th:attr="data-rt=${k} + '-total'" th:text="${#numbers.formatInteger(dealer.totalAmount(), 1, 'COMMA')}">0</span></td>
+                    <td class="ovw-strong">₹<span th:attr="data-rt=${k} + '-avg'" th:text="${#numbers.formatDecimal(dealer.averageAmount(), 1, 'COMMA', 0, 'POINT')}">0</span></td>
+                    <td th:text="${#numbers.formatInteger(dealer.below5k().count(), 1, 'COMMA')}">0</td>
+                    <td th:text="|₹${#numbers.formatDecimal(dealer.below5k().averageAmount(), 1, 'COMMA', 0, 'POINT')}|">₹0</td>
+                    <td th:text="${#numbers.formatInteger(dealer.from5k().count(), 1, 'COMMA')}">0</td>
+                    <td th:text="|₹${#numbers.formatDecimal(dealer.from5k().averageAmount(), 1, 'COMMA', 0, 'POINT')}|">₹0</td>
+                </tr>
+                <tr th:if="${loan.totalCount() == 0}">
+                    <td colspan="8" class="txn-empty">No approved Flipkart or Amazon transactions recorded today yet.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <div class="response-time-actions ovw-actions">
+        <button type="button" class="txn-refresh" data-txn-refresh>
+            <span class="material-symbols-outlined">refresh</span>
+            <span>Refresh</span>
+            <em th:text="'· auto ' + ${refreshSeconds} + 's'">auto</em>
+        </button>
+    </div>
+</div>
+
+<!--/* Shared panel for OTP-table streams (AUTOTP and ECOMELGB). */-->
+<th:block th:remove="all">
+<section th:fragment="otp-panel(view, key, title, subtitle, emptyText)" class="txn-panel ovw-panel">
+    <header class="txn-panel-header ovw-panel-head">
+        <div>
+            <h2 th:text="${title}">Auto OTP</h2>
+            <p th:if="${!#strings.isEmpty(subtitle)}" th:text="${subtitle}">AUTOTP</p>
+        </div>
+        <span class="ovw-tag">Last 10 min</span>
+    </header>
+    <div th:unless="${view.available()}" class="ovw-unavailable">
+        <span class="material-symbols-outlined">database_off</span>
+        <p th:text="${view.errorMessage()}">Unable to load data.</p>
+    </div>
+    <div th:if="${view.available()}" class="ovw-table-scroll">
+    <table class="txn-table txn-table--grid ovw-table">
+        <thead><tr>
+            <th>Minute</th><th>Hits</th><th>Approval %</th>
+            <th th:each="market : ${view.marketplaces()}" th:text="${market.name()}">Flipkart</th>
+        </tr></thead>
+        <tbody>
+        <tr th:each="row : ${view.minuteRows()}" th:with="k='ovw-' + ${key} + '-' + ${row.label()}">
+            <td class="txn-cell-key" th:text="${row.label()}">00:00</td>
+            <td th:attr="data-rt=${k} + '-hits'" th:text="${row.total().hits() == 0 ? '-' : #numbers.formatInteger(row.total().hits(), 1, 'COMMA')}">-</td>
+            <td><span class="txn-rate-pill" th:classappend="${row.total().hits() > 0 and row.total().approvalRate() < 85} ? ' txn-rate-pill--warn'"
+                    th:text="${row.total().hits() == 0 ? '-' : #numbers.formatDecimal(row.total().approvalRate(), 1, 2) + '%'}">-</span></td>
+            <td th:each="market : ${row.marketplaces()}"><div class="ovw-split-cell">
+                <span th:attr="data-rt=${k} + '-' + ${market.code()}" th:text="${market.hits() == 0 ? '-' : #numbers.formatInteger(market.hits(), 1, 'COMMA')}">-</span>
+                <span class="txn-rate-pill" th:classappend="${market.hits() > 0 and market.approvalRate() < 85} ? ' txn-rate-pill--warn'"
+                    th:text="${market.hits() == 0 ? '-' : #numbers.formatDecimal(market.approvalRate(), 1, 2) + '%'}">-</span>
+            </div></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(view.minuteRows())}">
+            <td colspan="5" class="txn-empty" th:text="${emptyText}">No hits.</td>
+        </tr>
+        </tbody>
+        <tfoot><tr>
+            <td class="txn-cell-key">Today</td>
+            <td th:attr="data-rt='ovw-' + ${key} + '-day-hits'" th:text="${#numbers.formatInteger(view.total().hits(), 1, 'COMMA')}">0</td>
+            <td><span class="txn-rate-pill" th:classappend="${view.total().hits() > 0 and view.total().approvalRate() < 85} ? ' txn-rate-pill--warn'"
+                      th:text="|${#numbers.formatDecimal(view.total().approvalRate(), 1, 2)}%|">0.00%</span></td>
+            <td th:each="market : ${view.marketplaces()}"><div class="ovw-split-cell">
+                <span th:attr="data-rt='ovw-' + ${key} + '-day-' + ${market.code()}" th:text="${#numbers.formatInteger(market.hits(), 1, 'COMMA')}">0</span>
+                <span class="txn-rate-pill" th:classappend="${market.hits() > 0 and market.approvalRate() < 85} ? ' txn-rate-pill--warn'"
+                      th:text="|${#numbers.formatDecimal(market.approvalRate(), 1, 2)}%|">0.00%</span>
+            </div></td>
+        </tr></tfoot>
+    </table>
+    </div>
+</section>
+</th:block>
+
+<th:block th:replace="~{fragments/page-shell :: page-footer(hint='Live Overview: auth, Auto OTP and e-com eligibility minute-wise for the last 10 minutes with today totals, plus average loan amount')}"/>
+
+<script th:inline="javascript">
+    window.breDashboardTransactionRefreshSeconds = /*[[${refreshSeconds}]]*/ 60;
+</script>
+<script th:src="@{/js/live-refresh.js(v='20261008-aligned-refresh')}"></script>
+</body>
+</html>
